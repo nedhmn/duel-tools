@@ -13,7 +13,7 @@
 - [x] `Makefile` - dev, check commands
 
 ### Phase 2: Database + Shared Packages
-- [ ] `packages/db/` - SQLAlchemy models (Batch, Job, Replay, Player, ReplayPlayer)
+- [x] `packages/db/` - SQLAlchemy models (Batch, Job, Replay, Player, ReplayPlayer)
 - [ ] `packages/parser/` - Replay JSON parsing logic
 - [ ] `packages/scraper/` - DuelingBook scraping with anticaptcha
 
