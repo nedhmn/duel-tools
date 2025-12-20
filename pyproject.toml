@@ -9,6 +9,7 @@ dependencies = [
     "db",
     "logger",
     "parser",
+    "scraper",
 ]
 
 [tool.uv.workspace]
@@ -17,6 +18,7 @@ members = [
     "packages/db",
     "packages/logger",
     "packages/parser",
+    "packages/scraper",
 ]
 
 [tool.uv.sources]
@@ -24,6 +26,7 @@ backend = { workspace = true }
 db = { workspace = true }
 logger = { workspace = true }
 parser = { workspace = true }
+scraper = { workspace = true }
 
 [tool.uv]
 cache-dir = ".cache"
