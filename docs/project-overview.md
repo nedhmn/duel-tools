@@ -45,9 +45,10 @@ duel-tools/
 │       ├── backend/
 │       └── frontend/
 ├── packages/
+│   ├── db/
+│   ├── logger/
 │   ├── parser/
-│   ├── scraper/
-│   └── db/
+│   └── scraper/
 └── docs/
 ```
 

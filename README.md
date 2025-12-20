@@ -9,9 +9,10 @@ A Python monorepo with web apps for analyzing Yu-Gi-Oh DuelingBook replays.
 
 ## Packages
 
-- **parser** - Replay JSON parsing logic
-- **scraper** - DuelingBook scraping logic
-- **db** - Database models and connection
+- **db** - SQLAlchemy models and async session
+- **logger** - Shared structlog configuration
+- **parser** - Replay JSON parsing with Pydantic models
+- **scraper** - DuelingBook scraping (planned)
 
 ## Tech Stack
 
