@@ -6,6 +6,7 @@ class CardInfo(BaseModel):
 
     card_id: int
     card_name: str
+    card_amount: int
 
 
 class PlayerCards(BaseModel):

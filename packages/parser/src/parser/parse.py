@@ -197,7 +197,11 @@ def _build_player_cards(
     ]
 
     cards = [
-        CardInfo(card_id=row["card_id"], card_name=row["card_name"])
+        CardInfo(
+            card_id=row["card_id"],
+            card_name=row["card_name"],
+            card_amount=row["card_amount"],
+        )
         for _, row in player_cards.iterrows()
     ]
 
