@@ -17,6 +17,8 @@ def solve(url: str, api_key: str, site_key: str) -> str:
                 "type": "ReCaptchaV3TaskProxyLess",
                 "websiteURL": url,
                 "websiteKey": site_key,
+                "pageAction": "submit",
+                "isSession": True,
             }
         )
     except Exception as exc:

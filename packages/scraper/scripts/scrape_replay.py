@@ -5,7 +5,7 @@ import sys
 
 from logger import setup_logging
 from scraper import CaptchaError, ScraperError, extract_replay_id, scrape_replay
-from scraper.solvers import anticaptcha
+from scraper.solvers import anticaptcha, capsolver
 
 
 def get_solver():
@@ -13,9 +13,11 @@ def get_solver():
 
     if solver_name == "anticaptcha":
         return anticaptcha.solve
+    if solver_name == "capsolver":
+        return capsolver.solve
 
     print(f"Error: Unknown solver '{solver_name}'", file=sys.stderr)
-    print("Available solvers: anticaptcha", file=sys.stderr)
+    print("Available solvers: anticaptcha, capsolver", file=sys.stderr)
     sys.exit(1)
 
 
@@ -27,7 +29,9 @@ def main() -> None:
         )
         print()
         print("Environment variables:")
-        print("  CAPTCHA_SOLVER - Solver to use: anticaptcha (default)")
+        print(
+            "  CAPTCHA_SOLVER - Solver to use: anticaptcha, capsolver (default: anticaptcha)"
+        )
         print("  CAPTCHA_API_KEY - API key for the captcha solver (required)")
         print("  SITE_KEY - DuelingBook reCAPTCHA site key (required)")
         print("  LOG_LEVEL - Logging level (default: INFO)")
