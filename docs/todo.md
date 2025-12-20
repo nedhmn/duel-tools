@@ -27,6 +27,25 @@
   - [x] Derived fields: card_count, match_result
   - [x] CLI script: `scripts/parse_replay.py`
 - [ ] `packages/scraper/` - DuelingBook scraping with anticaptcha
+  - Reference: `github.com/nedhmn/replay-scraper-api` → `app/api/replays/scrape/services.py`
+  - Dependencies: `httpx`, `anticaptchaofficial`
+  - **Design decisions:**
+    - Functional (not class) - scraper is stateless
+    - Sync (not async) - Celery doesn't handle async well natively
+    - Config via params - `scrape_replay(url, replay_id, api_key, site_key)` for testability
+    - Raises exceptions - retry logic handled by Celery worker, not here
+  - **Files to create:**
+    - `src/scraper/client.py` - main scraping functions
+    - `src/scraper/exceptions.py` - CaptchaError, ScraperError
+    - `src/scraper/__init__.py` - exports
+  - **Functions:**
+    - `solve_recaptcha_v3(url, api_key, site_key) -> str` - solve via AntiCaptcha
+    - `scrape_replay(url, replay_id, api_key, site_key) -> dict` - POST to DuelingBook API
+    - `extract_replay_id(url) -> str` - parse replay ID from URL
+  - **Exceptions:**
+    - `CaptchaError` - captcha solving failed (retryable)
+    - `ScraperError` - DuelingBook API error (retryable)
+  - Returns raw JSON dict (parsing via packages/parser)
 
 ### Phase 3: Scrape Routes
 - [ ] `POST /scrape` - Submit URLs, create batch + jobs, queue Celery tasks
