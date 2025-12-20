@@ -1,15 +1,7 @@
 [project]
-name = "duel-tools"
+name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
-
-[tool.uv.workspace]
-members = [
-    "apps/duel-prep/backend",
-]
-
-[tool.uv]
-cache-dir = ".cache"
