@@ -64,10 +64,16 @@ replays
 ├── created_at
 └── updated_at
 
+players
+├── id (UUID PK)
+├── username
+├── created_at
+└── updated_at
+
 replay_players
 ├── id (UUID PK)
 ├── replay_id (FK → replays.id)
-├── username
+├── player_id (FK → players.id)
 ├── created_at
 └── updated_at
 ```
@@ -75,7 +81,8 @@ replay_players
 ### Design Decisions
 
 - **Raw JSON only**: Scraping is expensive, parsing is cheap. Store raw scraped data, parse on-the-fly when displaying.
-- **replay_players junction table**: Enables player lookup mode. A player can be in either position, so we extract both usernames to this table.
+- **players table**: Stores unique players. API uses player IDs (not usernames) in URLs since usernames can have complex UTF-8 characters.
+- **replay_players junction table**: Enables player lookup mode. A player can be in either position, so we extract both player IDs to this table.
 - **Shared database**: Both apps use the same PostgreSQL instance.
 
 ## Shared Packages
