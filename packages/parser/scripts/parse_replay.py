@@ -16,7 +16,7 @@ def main() -> None:
         print(f"Error: File not found: {replay_path}")
         sys.exit(1)
 
-    with open(replay_path) as f:
+    with open(replay_path, encoding="utf-8") as f:
         raw_json = json.load(f)
 
     result = parse_replay(raw_json)

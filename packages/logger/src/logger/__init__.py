@@ -1,3 +1,3 @@
-from logger.config import get_logger, setup_logging
+from logger.config import LogLevel, get_logger, setup_logging
 
-__all__ = ["get_logger", "setup_logging"]
+__all__ = ["LogLevel", "get_logger", "setup_logging"]

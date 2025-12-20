@@ -1,8 +1,11 @@
 import logging
+from typing import Literal
 
 import structlog
 
-LOG_LEVELS: dict[str, int] = {
+LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+LOG_LEVELS: dict[LogLevel, int] = {
     "DEBUG": logging.DEBUG,
     "INFO": logging.INFO,
     "WARNING": logging.WARNING,
@@ -11,7 +14,7 @@ LOG_LEVELS: dict[str, int] = {
 }
 
 
-def setup_logging(log_level: str = "INFO") -> None:
+def setup_logging(log_level: LogLevel = "INFO") -> None:
     structlog.configure(
         processors=[
             structlog.contextvars.merge_contextvars,
