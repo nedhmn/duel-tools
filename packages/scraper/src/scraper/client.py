@@ -1,13 +1,15 @@
+from collections.abc import Callable
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 import httpx
-from anticaptchaofficial.recaptchav3proxyless import recaptchaV3Proxyless  # type: ignore
 
 from logger import get_logger
 from scraper.exceptions import CaptchaError, ScraperError
 
 logger = get_logger(__name__)
+
+Solver = Callable[[str, str, str], str]  # (url, api_key, site_key) -> token
 
 
 def extract_replay_id(url: str) -> int:
@@ -48,39 +50,20 @@ def extract_replay_id(url: str) -> int:
     return replay_id
 
 
-def solve_recaptcha_v3(url: str, api_key: str, site_key: str) -> str:
-    logger.info("captcha_solving_started", url=url)
-
-    solver = recaptchaV3Proxyless()
-    solver.set_verbose(0)
-    solver.set_key(api_key)
-    solver.set_website_url(url)
-    solver.set_website_key(site_key)
-    solver.set_min_score(0.9)
-
-    g_response: str = solver.solve_and_return_solution()
-
-    if g_response == "0":
-        logger.error("captcha_failed", url=url, error_code=solver.error_code)
-        raise CaptchaError(f"Captcha solving failed: {solver.error_code}")
-
-    logger.info("captcha_solved", url=url)
-    return g_response
-
-
 def scrape_replay(
     url: str,
     replay_id: int,
     api_key: str,
     site_key: str,
+    solver: Solver,
     timeout: float = 30.0,
 ) -> dict[str, Any]:
     logger.info("scrape_started", url=url, replay_id=replay_id)
 
-    g_response = solve_recaptcha_v3(url, api_key, site_key)
+    token = solver(url, api_key, site_key)
 
     data_url = f"https://www.duelingbook.com/view-replay?id={replay_id}"
-    form_data = {"token": g_response, "recaptcha_version": 3, "master": False}
+    form_data = {"token": token, "recaptcha_version": 3, "master": False}
 
     logger.debug("posting_to_duelingbook", data_url=data_url, replay_id=replay_id)
 
