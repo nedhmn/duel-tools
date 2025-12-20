@@ -7,7 +7,7 @@ members = [
     "backend",
     "db",
     "duel-tools",
-    "logging",
+    "logger",
     "parser",
 ]
 
@@ -271,7 +271,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "backend" },
     { name = "db" },
-    { name = "logging" },
+    { name = "logger" },
     { name = "parser" },
 ]
 
@@ -279,7 +279,7 @@ dependencies = [
 requires-dist = [
     { name = "backend", editable = "apps/duel-prep/backend" },
     { name = "db", editable = "packages/db" },
-    { name = "logging", editable = "packages/logging" },
+    { name = "logger", editable = "packages/logger" },
     { name = "parser", editable = "packages/parser" },
 ]
 
@@ -556,9 +556,9 @@ redis = [
 ]
 
 [[package]]
-name = "logging"
+name = "logger"
 version = "0.1.0"
-source = { editable = "packages/logging" }
+source = { editable = "packages/logger" }
 dependencies = [
     { name = "structlog" },
 ]
@@ -755,7 +755,7 @@ name = "parser"
 version = "0.1.0"
 source = { editable = "packages/parser" }
 dependencies = [
-    { name = "logging" },
+    { name = "logger" },
     { name = "pandas" },
     { name = "pydantic" },
 ]
@@ -768,7 +768,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "logging", editable = "packages/logging" },
+    { name = "logger", editable = "packages/logger" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pydantic", specifier = ">=2.12.5" },
 ]

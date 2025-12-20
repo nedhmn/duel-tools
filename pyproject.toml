@@ -7,7 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "backend",
     "db",
-    "logging",
+    "logger",
     "parser",
 ]
 
@@ -15,14 +15,14 @@ dependencies = [
 members = [
     "apps/duel-prep/backend",
     "packages/db",
+    "packages/logger",
     "packages/parser",
-    "packages/logging",
 ]
 
 [tool.uv.sources]
 backend = { workspace = true }
 db = { workspace = true }
-logging = { workspace = true }
+logger = { workspace = true }
 parser = { workspace = true }
 
 [tool.uv]
