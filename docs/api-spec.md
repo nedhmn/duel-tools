@@ -65,21 +65,31 @@ GET /replays/{replay_id}
 Response:
 ```json
 {
-  "id": "uuid",
-  "url": "https://www.duelingbook.com/replay?id=...",
-  "player1": { "id": "uuid", "username": "..." },
-  "player2": { "id": "uuid", "username": "..." },
+  "replay_id": 123456,
+  "date": "2017-11-18 23:37:23",
+  "format": "au",
+  "player1": "username1",
+  "player2": "username2",
+  "match_result": "1-2",
   "games": [
     {
       "game_number": 1,
-      "went_first": "username",
-      "winner": "username",
-      "player1_cards": [
-        { "card_id": "123", "card_name": "...", "count": 2 }
-      ],
-      "player2_cards": [
-        { "card_id": "456", "card_name": "...", "count": 1 }
-      ]
+      "went_first": "username1",
+      "winner": "username2",
+      "player1_cards": {
+        "username": "username1",
+        "card_count": 8,
+        "cards": [
+          { "card_id": 123, "card_name": "Card Name", "card_amount": 2 }
+        ]
+      },
+      "player2_cards": {
+        "username": "username2",
+        "card_count": 12,
+        "cards": [
+          { "card_id": 456, "card_name": "Card Name", "card_amount": 1 }
+        ]
+      }
     }
   ]
 }
@@ -141,22 +151,6 @@ Request:
 }
 ```
 
-Response: Same structure as `GET /replays/{replay_id}` games array.
-
-```json
-{
-  "player1": "username",
-  "player2": "username",
-  "games": [
-    {
-      "game_number": 1,
-      "went_first": "username",
-      "winner": "username",
-      "player1_cards": [...],
-      "player2_cards": [...]
-    }
-  ]
-}
-```
+Response: Same structure as `GET /replays/{replay_id}`.
 
 Note: Stateless - does not save to database.

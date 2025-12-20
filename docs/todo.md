@@ -5,7 +5,7 @@
 ### Phase 1: Backend Setup (duel-prep) ✅
 - [x] Core infrastructure (`app/core/`)
   - [x] `config.py` - pydantic-settings (DATABASE_URL, REDIS_URL, ANTICAPTCHA_API_KEY, etc.)
-  - [x] `logging.py` - structlog setup
+  - [x] `logging.py` - refactored to use shared `packages/logger`
 - [x] API scaffold (`app/api/`)
   - [x] `main.py` - public_router
   - [x] `health/routes.py` - GET /health
@@ -14,17 +14,38 @@
 
 ### Phase 2: Database + Shared Packages
 - [x] `packages/db/` - SQLAlchemy models (Batch, Job, Replay, Player, ReplayPlayer)
-- [ ] `packages/parser/` - Replay JSON parsing logic
-  - Adapt from `github.com/nedhmn/gfwl-data` → `gfwldata/transformers/replay_parser.py`
-  - Keep pandas for aggregations (groupby, cumsum, cummax) - don't rewrite in pure Python
-  - Drop ML deck prediction (no joblib/sklearn) - just pandas + pydantic
-  - Add card_id extraction: build name→id lookup from `cards` arrays in plays, needed for images (`https://images.duelingbook.com/low-res/{card_id}.jpg`)
-  - Output Pydantic models (not DataFrame): players, games[], cards with card_id + card_name + count
-  - Example input: `docs/replay-json-example.json`
-  - Game boundaries: "Chose to go first" in public_log
-  - Winner: "Admitted defeat" or "Lost Duel" in public_log = loser
-  - Card extraction: regex `"([^"]*)"` from logs, track drew vs returned to deck
+- [x] `packages/logger/` - Shared structlog configuration
+- [x] `packages/parser/` - Replay JSON parsing logic
+  - [x] Adapted from `github.com/nedhmn/gfwl-data` → `gfwldata/transformers/replay_parser.py`
+  - [x] Pandas for aggregations (groupby, cumsum, cummax)
+  - [x] No ML deck prediction - just pandas + pydantic
+  - [x] Card ID extraction: name→id lookup from `cards` arrays in plays
+  - [x] Pydantic models: ParsedReplay, Game, PlayerCards, CardInfo
+  - [x] Game boundaries via "Chose to go first" cumsum
+  - [x] Winner detection via "Admitted defeat" / "Lost Duel"
+  - [x] Card extraction via regex, deck change tracking
+  - [x] Derived fields: card_count, match_result
+  - [x] CLI script: `scripts/parse_replay.py`
 - [ ] `packages/scraper/` - DuelingBook scraping with anticaptcha
+  - Reference: `github.com/nedhmn/replay-scraper-api` → `app/api/replays/scrape/services.py`
+  - Dependencies: `httpx`, `anticaptchaofficial`
+  - **Design decisions:**
+    - Functional (not class) - scraper is stateless
+    - Sync (not async) - Celery doesn't handle async well natively
+    - Config via params - `scrape_replay(url, replay_id, api_key, site_key)` for testability
+    - Raises exceptions - retry logic handled by Celery worker, not here
+  - **Files to create:**
+    - `src/scraper/client.py` - main scraping functions
+    - `src/scraper/exceptions.py` - CaptchaError, ScraperError
+    - `src/scraper/__init__.py` - exports
+  - **Functions:**
+    - `solve_recaptcha_v3(url, api_key, site_key) -> str` - solve via AntiCaptcha
+    - `scrape_replay(url, replay_id, api_key, site_key) -> dict` - POST to DuelingBook API
+    - `extract_replay_id(url) -> str` - parse replay ID from URL
+  - **Exceptions:**
+    - `CaptchaError` - captcha solving failed (retryable)
+    - `ScraperError` - DuelingBook API error (retryable)
+  - Returns raw JSON dict (parsing via packages/parser)
 
 ### Phase 3: Scrape Routes
 - [ ] `POST /scrape` - Submit URLs, create batch + jobs, queue Celery tasks

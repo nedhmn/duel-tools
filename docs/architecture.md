@@ -121,14 +121,16 @@ replay_players
 
 ```
 packages/
+├── db/
+├── logger/
 ├── parser/
-├── scraper/
-└── db/
+└── scraper/
 ```
 
-- **parser** - Replay JSON parsing logic
-- **scraper** - DuelingBook scraping logic
-- **db** - Database models and connection
+- **db** - SQLAlchemy models (Batch, Job, Replay, Player, ReplayPlayer) and async session factory
+- **logger** - Shared structlog configuration (`setup_logging`, `get_logger`)
+- **parser** - Replay JSON parsing with Pydantic models (ParsedReplay, Game, PlayerCards, CardInfo)
+- **scraper** - DuelingBook scraping logic (planned)
 
 ## External Dependencies
 
