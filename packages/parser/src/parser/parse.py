@@ -39,6 +39,10 @@ def parse_replay(raw_json: dict[str, Any]) -> ParsedReplay:
             )
         )
 
+    player1_wins = sum(1 for game in games if game.winner == player1)
+    player2_wins = sum(1 for game in games if game.winner == player2)
+    match_result = f"{player1_wins}-{player2_wins}"
+
     logger.info("replay_parsed", replay_id=raw_json["id"], game_count=len(games))
 
     return ParsedReplay(
@@ -47,6 +51,7 @@ def parse_replay(raw_json: dict[str, Any]) -> ParsedReplay:
         format=raw_json["format"],
         player1=player1,
         player2=player2,
+        match_result=match_result,
         games=games,
     )
 
@@ -205,4 +210,6 @@ def _build_player_cards(
         for _, row in player_cards.iterrows()
     ]
 
-    return PlayerCards(username=username, cards=cards)
+    card_count = sum(card.card_amount for card in cards)
+
+    return PlayerCards(username=username, card_count=card_count, cards=cards)

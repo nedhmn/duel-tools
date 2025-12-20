@@ -13,6 +13,7 @@ class PlayerCards(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     username: str
+    card_count: int
     cards: list[CardInfo]
 
 
@@ -34,4 +35,5 @@ class ParsedReplay(BaseModel):
     format: str
     player1: str
     player2: str
+    match_result: str
     games: list[Game]
