@@ -4,12 +4,20 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "backend",
+    "db",
+]
 
 [tool.uv.workspace]
 members = [
     "apps/duel-prep/backend",
+    "packages/db",
 ]
+
+[tool.uv.sources]
+backend = { workspace = true }
+db = { workspace = true }
 
 [tool.uv]
 cache-dir = ".cache"
