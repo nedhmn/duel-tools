@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "anticaptchaofficial>=1.0.69",
+    "capsolver>=1.0.7",
     "httpx>=0.28.1",
     "logger",
 ]

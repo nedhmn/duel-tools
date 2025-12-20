@@ -151,6 +151,18 @@ wheels = [
 ]
 
 [[package]]
+name = "capsolver"
+version = "1.0.7"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/af/aa/9c2452c1d696ed72a9eea62920d0d4fcdadde1b30b57d23faa422bd1cd54/capsolver-1.0.7.tar.gz", hash = "sha256:e3ec645c8752becb2c861d357bbc0cc23c5716bd9073e1b9b1cc5ecc5ba1d21f", size = 8255, upload-time = "2023-07-20T09:28:28.153Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/a6/7bdcf5194d90d267943c9f5c985f384a6a19dadc0cfc460b46f39929e154/capsolver-1.0.7-py3-none-any.whl", hash = "sha256:c0497cc55398741a00c84c34bbad5698a7e76b73787b568622a6ec4d319c5773", size = 9385, upload-time = "2023-07-20T09:28:26.389Z" },
+]
+
+[[package]]
 name = "celery"
 version = "5.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1178,6 +1190,7 @@ version = "0.1.0"
 source = { editable = "packages/scraper" }
 dependencies = [
     { name = "anticaptchaofficial" },
+    { name = "capsolver" },
     { name = "httpx" },
     { name = "logger" },
 ]
@@ -1191,6 +1204,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anticaptchaofficial", specifier = ">=1.0.69" },
+    { name = "capsolver", specifier = ">=1.0.7" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "logger", editable = "packages/logger" },
 ]

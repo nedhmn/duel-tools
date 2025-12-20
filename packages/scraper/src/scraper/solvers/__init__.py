@@ -1,3 +1,3 @@
-from scraper.solvers import anticaptcha
+from scraper.solvers import anticaptcha, capsolver
 
-__all__ = ["anticaptcha"]
+__all__ = ["anticaptcha", "capsolver"]
