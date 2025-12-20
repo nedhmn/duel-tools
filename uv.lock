@@ -559,6 +559,9 @@ redis = [
 name = "logging"
 version = "0.1.0"
 source = { editable = "packages/logging" }
+dependencies = [
+    { name = "structlog" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -567,6 +570,7 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "structlog", specifier = ">=25.5.0" }]
 
 [package.metadata.requires-dev]
 dev = [
