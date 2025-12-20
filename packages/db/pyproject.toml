@@ -17,3 +17,9 @@ dev = [
 
 [tool.uv]
 cache-dir = ".cache"
+
+[tool.ty.environment]
+python-version = "3.13"
+
+[tool.ty.src]
+include = ["src/db"]
