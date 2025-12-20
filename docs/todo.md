@@ -2,15 +2,15 @@
 
 ## Current Phase
 
-### Phase 1: Backend Setup (duel-prep)
-- [ ] Core infrastructure (`app/core/`)
-  - [ ] `config.py` - pydantic-settings (DATABASE_URL, REDIS_URL, ANTICAPTCHA_API_KEY, etc.)
-  - [ ] `logging.py` - structlog setup
-- [ ] API scaffold (`app/api/`)
-  - [ ] `main.py` - public_router
-  - [ ] `health/routes.py` - GET /health
-- [ ] `app/main.py` - FastAPI app with CORS, logging middleware
-- [ ] `Makefile` - dev, check commands
+### Phase 1: Backend Setup (duel-prep) ✅
+- [x] Core infrastructure (`app/core/`)
+  - [x] `config.py` - pydantic-settings (DATABASE_URL, REDIS_URL, ANTICAPTCHA_API_KEY, etc.)
+  - [x] `logging.py` - structlog setup
+- [x] API scaffold (`app/api/`)
+  - [x] `main.py` - public_router
+  - [x] `health/routes.py` - GET /health
+- [x] `app/main.py` - FastAPI app with CORS, logging middleware
+- [x] `Makefile` - dev, check commands
 
 ### Phase 2: Database + Shared Packages
 - [ ] `packages/db/` - SQLAlchemy models (Batch, Job, Replay, Player, ReplayPlayer)
