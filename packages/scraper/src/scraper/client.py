@@ -6,10 +6,12 @@ import httpx
 
 from logger import get_logger
 from scraper.exceptions import CaptchaError, ScraperError
+from scraper.solvers import anticaptcha
 
 logger = get_logger(__name__)
 
 Solver = Callable[[str, str, str], str]  # (url, api_key, site_key) -> token
+DEFAULT_SOLVER: Solver = anticaptcha.solve
 
 
 def extract_replay_id(url: str) -> int:
@@ -55,7 +57,7 @@ def scrape_replay(
     replay_id: int,
     api_key: str,
     site_key: str,
-    solver: Solver,
+    solver: Solver = DEFAULT_SOLVER,
     timeout: float = 30.0,
 ) -> dict[str, Any]:
     logger.info("scrape_started", url=url, replay_id=replay_id)
