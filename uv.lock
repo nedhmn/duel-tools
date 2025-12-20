@@ -1100,6 +1100,20 @@ name = "scraper"
 version = "0.1.0"
 source = { editable = "packages/scraper" }
 
+[package.dev-dependencies]
+dev = [
+    { name = "ruff" },
+    { name = "ty" },
+]
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "ruff", specifier = ">=0.14.10" },
+    { name = "ty", specifier = ">=0.0.4" },
+]
+
 [[package]]
 name = "sentry-sdk"
 version = "2.48.0"
