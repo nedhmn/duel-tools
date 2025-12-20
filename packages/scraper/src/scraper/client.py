@@ -98,5 +98,14 @@ def scrape_replay(
         logger.error("scrape_request_error", replay_id=replay_id, error=str(exc))
         raise ScraperError(f"Request failed: {exc}") from exc
 
+    # Check for error response from DuelingBook
+    if data.get("action") == "Error":
+        message = data.get("message", "Unknown error")
+        if message == "Invalid Token":
+            logger.error("captcha_token_rejected", replay_id=replay_id)
+            raise CaptchaError(f"DuelingBook rejected captcha token: {message}")
+        logger.error("duelingbook_error", replay_id=replay_id, message=message)
+        raise ScraperError(f"DuelingBook error: {message}")
+
     logger.info("scrape_completed", replay_id=replay_id)
     return data
