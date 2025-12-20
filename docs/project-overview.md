@@ -25,7 +25,7 @@ Simpler tool for viewing replay data from raw JSON.
 
 | Component | Technology                          |
 | --------- | ----------------------------------- |
-| Language  | Python 3.12+                        |
+| Language  | Python 3.13+                        |
 | Monorepo  | uv workspaces                       |
 | Backend   | FastAPI                             |
 | Frontend  | React + Vite + Tailwind + shadcn/ui |

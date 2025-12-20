@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Python 3.12+
+- Python 3.13+
 - Node.js 20+
 - Docker (for local PostgreSQL + Redis)
 - uv (Python package manager)
