@@ -89,9 +89,14 @@ replay_players
 
 ```
 packages/
-└── parser/     # Shared replay parsing logic
-                # Used by both duel-prep and replay-viewer
+├── parser/
+├── scraper/
+└── db/
 ```
+
+- **parser** - Replay JSON parsing logic
+- **scraper** - DuelingBook scraping logic
+- **db** - Database models and connection
 
 ## External Dependencies
 

@@ -38,10 +38,16 @@ Simpler tool for viewing replay data from raw JSON.
 ```
 duel-tools/
 ├── apps/
-│   ├── duel-prep/          # URL scraping app
-│   └── replay-viewer/      # JSON upload app
+│   ├── duel-prep/
+│   │   ├── backend/
+│   │   └── frontend/
+│   └── replay-viewer/
+│       ├── backend/
+│       └── frontend/
 ├── packages/
-│   └── parser/             # Shared replay parsing
+│   ├── parser/
+│   ├── scraper/
+│   └── db/
 └── docs/
 ```
 
