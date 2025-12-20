@@ -15,3 +15,12 @@ dev = [
     "ruff>=0.14.10",
     "ty>=0.0.4",
 ]
+
+[tool.uv.sources]
+logger = { workspace = true }
+
+[tool.ty.environment]
+python-version = "3.13"
+
+[tool.ty.src]
+include = ["src/parser"]
