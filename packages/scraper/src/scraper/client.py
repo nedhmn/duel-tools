@@ -1,18 +1,63 @@
-from collections.abc import Callable
+import json
+from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
+import capsolver  # type: ignore
 import httpx
 
 from logger import get_logger
 from scraper.exceptions import CaptchaError, ScraperError
-from scraper.solvers import anticaptcha
 
 logger = get_logger(__name__)
 
-SolverResult = dict[str, Any]  # {"token": str, "user_agent": str | None}
-Solver = Callable[[str, str, str], SolverResult]  # (url, api_key, site_key) -> result
-DEFAULT_SOLVER: Solver = anticaptcha.solve
+_TASK_CONFIG_PATH = Path(__file__).parent / "capsolver_task.json"
+
+
+def _load_task_config() -> dict[str, Any]:
+    with open(_TASK_CONFIG_PATH) as f:
+        return json.load(f)
+
+
+def _solve_captcha(url: str, api_key: str, site_key: str) -> dict[str, Any]:
+    logger.info("captcha_solving_started", url=url)
+
+    capsolver.api_key = api_key
+
+    task = _load_task_config()
+    task["websiteURL"] = url
+    task["websiteKey"] = site_key
+
+    try:
+        solution = capsolver.solve(task)
+    except Exception as exc:
+        logger.error("captcha_failed", url=url, error=str(exc))
+        raise CaptchaError(f"Capsolver failed: {exc}") from exc
+
+    token = solution.get("gRecaptchaResponse")
+    if not token:
+        logger.error("captcha_no_token", url=url, solution=solution)
+        raise CaptchaError("Capsolver returned no token")
+
+    cookies = {}
+    if solution.get("recaptcha-ca-t"):
+        cookies["recaptcha-ca-t"] = solution["recaptcha-ca-t"]
+    if solution.get("recaptcha-ca-e"):
+        cookies["recaptcha-ca-e"] = solution["recaptcha-ca-e"]
+
+    logger.info(
+        "captcha_solved",
+        url=url,
+        user_agent=solution.get("userAgent"),
+        sec_ch_ua=solution.get("secChUa"),
+        has_cookies=bool(cookies),
+    )
+    return {
+        "token": token,
+        "user_agent": solution.get("userAgent"),
+        "sec_ch_ua": solution.get("secChUa"),
+        "cookies": cookies or None,
+    }
 
 
 def extract_replay_id(url: str) -> int:
@@ -39,7 +84,6 @@ def extract_replay_id(url: str) -> int:
 
     id_value = query_params["id"][0]
 
-    # Handle user-prefixed format: "21733-2178594" -> "2178594"
     if "-" in id_value:
         id_value = id_value.split("-")[-1]
 
@@ -58,23 +102,27 @@ def scrape_replay(
     replay_id: int,
     api_key: str,
     site_key: str,
-    solver: Solver = DEFAULT_SOLVER,
     timeout: float = 30.0,
 ) -> dict[str, Any]:
     logger.info("scrape_started", url=url, replay_id=replay_id)
 
-    result = solver(url, api_key, site_key)
+    result = _solve_captcha(url, api_key, site_key)
     token = result["token"]
     user_agent = result.get("user_agent")
+    sec_ch_ua = result.get("sec_ch_ua")
     cookies = result.get("cookies")
 
     data_url = f"https://www.duelingbook.com/view-replay?id={replay_id}"
-    form_data = {"token": token, "recaptcha_version": 3, "master": False}
+    form_data = {"token": token, "recaptcha_version": 1, "master": False}
 
     headers = {}
     if user_agent:
         headers["User-Agent"] = user_agent
-        logger.debug("using_solver_user_agent", user_agent=user_agent)
+    if sec_ch_ua:
+        headers["Sec-Ch-Ua"] = sec_ch_ua
+
+    if headers:
+        logger.debug("using_solver_headers", user_agent=user_agent, sec_ch_ua=sec_ch_ua)
 
     logger.debug(
         "posting_to_duelingbook",
@@ -97,7 +145,6 @@ def scrape_replay(
         logger.error("scrape_request_error", replay_id=replay_id, error=str(exc))
         raise ScraperError(f"Request failed: {exc}") from exc
 
-    # Check for error response from DuelingBook
     if data.get("action") == "Error":
         message = data.get("message", "Unknown error")
         if message == "Invalid Token":
