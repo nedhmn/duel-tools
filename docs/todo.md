@@ -77,11 +77,11 @@
 - [x] Delete boilerplate: `integrations/`, `Header.tsx`, `demo/`, `logo.svg`, `reportWebVitals.ts`
 - [x] Install shadcn components + Zustand
 
-### Phase 5b: Core Infrastructure
-- [ ] API client + types (`features/api/client.ts`, `features/api/types.ts`)
-- [ ] Theme toggle with Zustand + localStorage (`features/theme/`)
-- [ ] Root layout with Sidebar + SidebarInset (`features/layout/`, `routes/__root.tsx`)
-- [ ] Index redirect to `/scrape`
+### Phase 5b: Core Infrastructure ✅
+- [x] API types (`features/api/types.ts`) + fetch util (`lib/fetch.ts`)
+- [x] Theme toggle with Zustand + localStorage (`features/theme/`)
+- [x] Root layout with Sidebar + SidebarInset (`features/layout/`, `routes/__root.tsx`)
+- [x] Index redirect to `/scrape`
 
 ### Phase 5c: Scrape + Batch Features
 - [ ] Scrape page (`/scrape`): textarea + "Extract URLs" button + removable badges
