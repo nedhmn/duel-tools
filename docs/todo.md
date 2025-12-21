@@ -83,21 +83,44 @@
 - [x] Root layout with Sidebar + SidebarInset (`features/layout/`, `routes/__root.tsx`)
 - [x] Index redirect to `/scrape`
 
-### Phase 5c: Scrape + Batch Features ✅
-- [x] Scrape page (`/scrape`): command palette style URL extractor (auto-extract on paste, popover dropdown)
-- [x] Batch page (`/scrape/$batch-id`): polling (2s), progress display, inline replay viewer when complete
+### Phase 5c: Batch Features ✅
+- [x] Routes renamed from `/scrape` to `/batch`
+- [x] Batch page (`/batch/$batch-id`): polling (2s), progress display, inline replay viewer when complete
 - [x] Replay navigation: prev/next within batch
+- [x] Batch header shows batch ID (will show name when backend supports it)
 
 ### Phase 5d: Replay Feature ✅
-- [x] Replay view component (`features/replay/`): games as rows, card grids side-by-side, total row (capped at 3)
-- [x] Card images: `https://images.duelingbook.com/low-res/{card_id}.jpg`
+- [x] Replay view component (`features/replay/`): games as rows, card grids side-by-side, total cards section
+- [x] Card images: `https://images.duelingbook.com/low-res/{card_id}.jpg` (8 columns, 3px gap)
+- [x] Game rows with subtle borders, player sections with muted backgrounds
+- [x] Replay metadata: player names, result, DuelingBook URL with external link
 - [x] ~~Single replay page~~ - Not needed; replays always viewed in context (batch or player)
 
-### Phase 5e: Player Feature + Polish
-- [ ] Player search in sidebar (cmdk Command in Popover)
+### Phase 5e: Sidebar + UX ✅
+- [x] Sidebar header: "Duel Prep" clickable link to /batch
+- [x] "New Batch" button (outline variant) opens ScrapeSheet
+- [x] ScrapeSheet: batch name input (required) + URL paste/extract
+- [x] Batch search: cmdk CommandDialog (⌘K), dummy data for now
+- [x] Recent batches list: name, count, clickable links
+- [x] Collapsed sidebar: icon-only support
+- [x] App metadata: title "Duel Prep", description for SEO
+- [x] Loading states (Skeleton)
+
+### Phase 5f: Player Feature
 - [ ] Player page (`/players/$playerId`): replay list, prev/next navigation through player's replays
-- [x] Loading states (Skeleton) - done in batch page
+- [ ] Player search in sidebar (separate from batch search, or combined?)
+
+### Phase 5g: Backend Integration
+- [ ] `GET /batches` - List recent batches (name, date, replay count)
+- [ ] `POST /scrape` - Accept `name` field for batch
+- [ ] `GET /scrape/{batch_id}` - Return batch name in response
+- [ ] Wire up batch search to real API
+- [ ] Wire up recent batches sidebar to real API
+
+### Phase 5h: Polish
 - [ ] Error handling (Toast, Alert for failed jobs)
+- [ ] More replay metadata (format, played_at date, etc.)
+- [ ] Responsive card grid columns (fewer on mobile)
 
 **Stack:** Vite + React 19 + TypeScript, TanStack Router/Query, Zustand, Tailwind v4, shadcn/ui, Ultracite (Biome)
 
@@ -105,28 +128,55 @@
 ```
 routes/
 ├── __root.tsx              # Sidebar + SidebarInset layout
-├── index.tsx               # Redirect to /scrape
-├── scrape/
-│   ├── index.tsx           # URL extractor (command palette style)
+├── index.tsx               # Redirect to /batch
+├── batch/
+│   ├── index.tsx           # Empty state, prompts to create batch
 │   └── $batch-id.tsx       # Batch polling + inline replay viewer
 └── players/
     └── $player-id.tsx      # Player's replays with prev/next navigation
 ```
 
-**Replay View Mockup:**
+**Sidebar Structure:**
 ```
-┌─────────────────────────────────────────────────────────┐
-│  Match: Player1 vs Player2    Result: 2-1               │
-│  ◀ Prev  [Replay 1 of 3]  Next ▶   (if in batch)        │
-├─────────────────────────────────────────────────────────┤
-│  Game 1 - Winner: Player1 | Went First: Player2         │
-│  [Player1 Cards Grid]    [Player2 Cards Grid]           │
-├─────────────────────────────────────────────────────────┤
-│  Game 2 - ...                                           │
-├─────────────────────────────────────────────────────────┤
-│  TOTAL CARDS SEEN (max 3 per card)                      │
-│  [Player1 Total Grid]    [Player2 Total Grid]           │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────┐
+│ Duel Prep         [□]   │  ← clickable home link + collapse toggle
+├─────────────────────────┤
+│ [+ New Batch]           │  ← outline button, opens sheet
+├─────────────────────────┤
+│ [🔍 Search...    ⌘K]    │  ← opens CommandDialog
+├─────────────────────────┤
+│ Recent Batches          │
+│ ├── Tournament Finals 3 │  ← clickable, shows count
+│ ├── Practice Session  5 │
+│ └── Ladder Games      2 │
+└─────────────────────────┘
+```
+
+**Replay View Structure:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Player1 vs Player2                        ◀ [1 of 3] ▶      │
+│ Result: 2-0 · https://duelingbook.com/replay?id=123 ↗       │
+├─────────────────────────────────────────────────────────────┤
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ Game 1  Winner: Player1 | First: Player2                │ │
+│ │ ┌─────────────────────┐ ┌─────────────────────┐         │ │
+│ │ │ Player1 (38)        │ │ Player2 (40)        │         │ │
+│ │ │ [card grid 8 cols]  │ │ [card grid 8 cols]  │         │ │
+│ │ └─────────────────────┘ └─────────────────────┘         │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ Game 2  ...                                             │ │
+│ └─────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ Total Cards Seen                                        │ │
+│ │ ┌─────────────────────┐ ┌─────────────────────┐         │ │
+│ │ │ Player1             │ │ Player2             │         │ │
+│ │ │ [card grid]         │ │ [card grid]         │         │ │
+│ │ └─────────────────────┘ └─────────────────────┘         │ │
+│ └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Phase 6: replay-viewer App
