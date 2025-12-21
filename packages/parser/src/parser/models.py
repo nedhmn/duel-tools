@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -31,7 +33,7 @@ class ParsedReplay(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     replay_id: int
-    date: str
+    played_at: datetime
     format: str
     player1: str
     player2: str
