@@ -5,11 +5,13 @@ from sqlalchemy import select
 from db.models import Job, JobStatus, Replay
 from db.session import create_sync_session_factory
 from logger import get_logger
+from parser import parse_replay
 from scraper import extract_replay_id, scrape_replay
 from scraper.exceptions import CaptchaError, ScraperError
 
 from app.core.config import settings
 from app.worker.celery_app import celery_app
+from app.worker.services import ensure_replay_parsed, extract_players
 
 logger = get_logger(__name__)
 
@@ -51,6 +53,13 @@ def scrape_replay_task(self, job_id_str: str, url: str) -> None:
                     replay_id=str(existing_replay.id),
                     duelingbook_id=duelingbook_id,
                 )
+
+                if ensure_replay_parsed(session, existing_replay):
+                    logger.info(
+                        "players_extracted_from_cache",
+                        replay_id=str(existing_replay.id),
+                    )
+
                 job.replay_id = existing_replay.id
                 job.status = JobStatus.COMPLETED
                 session.commit()
@@ -68,13 +77,19 @@ def scrape_replay_task(self, job_id_str: str, url: str) -> None:
                 timeout=30.0,
             )
 
+            parsed = parse_replay(raw_json)
+
             replay = Replay(
                 duelingbook_id=duelingbook_id,
                 url=url,
                 raw_json=raw_json,
+                match_result=parsed.match_result,
+                played_at=parsed.played_at,
             )
             session.add(replay)
             session.flush()
+
+            extract_players(session, replay, parsed.player1, parsed.player2)
 
             job.replay_id = replay.id
             job.status = JobStatus.COMPLETED

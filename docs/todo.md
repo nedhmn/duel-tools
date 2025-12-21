@@ -12,7 +12,7 @@
 - [x] `app/main.py` - FastAPI app with CORS, logging middleware
 - [x] `Makefile` - dev, check commands
 
-### Phase 2: Database + Shared Packages
+### Phase 2: Database + Shared Packages ✅
 - [x] `packages/db/` - SQLAlchemy models (Batch, Job, Replay, Player, ReplayPlayer)
 - [x] `packages/logger/` - Shared structlog configuration
 - [x] `packages/parser/` - Replay JSON parsing logic
@@ -46,37 +46,119 @@
 - [x] `scripts/init_db.py` - Database table creation script
 - [x] `Makefile` - Added `worker`, `init-db` commands
 
-### Phase 4: Replay + Player Routes
-- [ ] Extract players during scrape (in worker task)
-  - After saving replay, extract player1/player2 usernames from raw_json
-  - Upsert to `players` table (get_or_create by username)
-  - Create `replay_players` junction records
-- [ ] `app/api/replays/` - Replay endpoints
-  - [ ] `models.py` - Response models (use ParsedReplay from parser package)
-  - [ ] `routes.py` - `GET /replays/{duelingbook_id}`
-    - Lookup replay by `duelingbook_id` (not UUID)
-    - Parse raw_json using `parser.parse_replay()`
-    - Return full ParsedReplay structure
-- [ ] `app/api/players/` - Player endpoints
-  - [ ] `models.py` - PlayerResponse, PlayerListResponse, ReplayMetadata
-  - [ ] `routes.py`:
-    - `GET /players` - Return all players `[{id, username}]` (no pagination, <1000 expected)
-    - `GET /players/{player_id}` - Return player + replay metadata list
-      - ReplayMetadata: `{id, duelingbook_id, url, opponent, date, match_result}`
-      - Frontend fetches full replay via `GET /replays/{duelingbook_id}`
+### Phase 4: Replay + Player Routes ✅
+- [x] `packages/parser/` - Refactored `date` → `played_at` as datetime
+- [x] `packages/db/` - Added `match_result`, `played_at` columns to Replay model
+- [x] `packages/db/` - Added indexes on `jobs.batch_id`, `replay_players.replay_id`, `replay_players.player_id`
+- [x] Extract players during scrape (in worker task)
+  - [x] `app/worker/services.py` - `get_or_create_player()`, `extract_players()`, `ensure_replay_parsed()`
+  - [x] `app/worker/tasks.py` - Parse replay, store `match_result`/`played_at`, create player records
+  - [x] Cache hit path backfills player records for legacy replays
+- [x] `app/api/replays/` - Replay endpoints
+  - [x] `models.py` - Re-exports ParsedReplay from parser package
+  - [x] `routes.py` - `GET /replays/{duelingbook_id}`
+- [x] `app/api/players/` - Player endpoints
+  - [x] `models.py` - PlayerResponse, PlayerListResponse, ReplayMetadata, PlayerDetailResponse
+  - [x] `routes.py` - `GET /players`, `GET /players/{player_id}`
+- [x] `app/api/main.py` - Registered replays and players routers
 
 **Design decisions:**
 - Player extraction happens during scrape (parsing is cheap, keeps data consistent)
+- `match_result` and `played_at` stored in DB during worker task (no repeated parsing)
 - Replay endpoint uses `duelingbook_id` in URL (user-friendly, matches DuelingBook URLs)
 - Player list returns all (client-side dropdown filter, <1000 players expected)
 - Player detail returns lightweight metadata, not full parsed replays (avoids heavy responses)
 
 ### Phase 5: Frontend (duel-prep)
-- [ ] Vite + React + TypeScript scaffold
-- [ ] Tailwind + shadcn/ui
-- [ ] URL input form
-- [ ] Batch status polling UI
-- [ ] Replay display with card images
+
+**Stack:**
+- Vite + React + TypeScript
+- TanStack Router (file-based routing)
+- TanStack Query (server state, polling)
+- Zustand (client state)
+- Tailwind + shadcn/ui
+- React Hook Form + Zod (form validation)
+- System preference + toggle for dark/light mode
+
+**Route Structure:**
+```
+routes/
+├── __root.tsx              # Sidebar layout + main content
+├── index.tsx               # Redirect to /scrape
+├── scrape/
+│   ├── index.tsx           # URL submission form
+│   └── $batchId.tsx        # Batch polling + results (shareable)
+├── players/
+│   └── $playerId.tsx       # Player's replays (shareable)
+└── replays/
+    └── $duelingbookId.tsx  # Single replay detail (shareable)
+```
+
+**Sidebar:**
+- Mode navigation links (Scrape, future modes...)
+- Player search using shadcn Command (cmdk) in popover
+- Selecting player navigates to `/players/$playerId`
+
+**Scrape Page (`/scrape`):**
+- Fixed-height textarea (scrollable) for pasting text
+- "Extract URLs" button - parses duelingbook.com/replay URLs via regex
+- Original text stays in textarea after parsing
+- Extracted URLs shown as removable badges below
+- Submit button sends badge list to `POST /scrape`
+- After submit, navigates to `/scrape/$batchId`
+
+**Batch Page (`/scrape/$batchId`):**
+- Poll `GET /scrape/{batch_id}` with TanStack Query refetchInterval
+- Show job progress (pending/processing/completed/failed per job)
+- When complete, display replays one at a time
+- Replay navigation: prev/next buttons or selector to switch between replays
+- Shareable URL: `/scrape/abc-123`
+
+**Replay View (used in batch page and `/replays/$duelingbookId`):**
+```
+┌─────────────────────────────────────────────────────────┐
+│  Match: Player1 vs Player2    Result: 2-1               │
+│  ◀ Prev  [Replay 1 of 3]  Next ▶   (if multiple)        │
+├─────────────────────────────────────────────────────────┤
+│  Game 1 - Winner: Player1 | Went First: Player2         │
+│  ┌──────────────────┐    ┌──────────────────┐           │
+│  │ Player1 Cards    │    │ Player2 Cards    │           │
+│  │ [img][img][img]  │    │ [img][img][img]  │           │
+│  └──────────────────┘    └──────────────────┘           │
+├─────────────────────────────────────────────────────────┤
+│  Game 2 - ...                                           │
+├─────────────────────────────────────────────────────────┤
+│  TOTAL CARDS SEEN                                       │
+│  ┌──────────────────┐    ┌──────────────────┐           │
+│  │ Player1 Total    │    │ Player2 Total    │           │
+│  │ (capped at 3)    │    │ (capped at 3)    │           │
+│  └──────────────────┘    └──────────────────┘           │
+└─────────────────────────────────────────────────────────┘
+```
+- Card images from: `https://images.duelingbook.com/low-res/{card_id}.jpg`
+- Games shown as rows, player cards in grids side-by-side
+- Total row at bottom: aggregated cards across all games, max 3 per card
+
+**Player Page (`/players/$playerId`):**
+- Fetch `GET /players/{player_id}` for replay metadata
+- Display list of replays with opponent, date, match_result
+- Click replay to navigate to `/replays/$duelingbookId`
+
+**Error/Loading States:**
+- Skeleton loaders (shadcn)
+- Toast notifications for errors
+- Error alerts for failed jobs
+
+**Tasks:**
+- [ ] Scaffold: Vite + React + TS + TanStack Router + TanStack Query + Zustand
+- [ ] Install/configure: Tailwind, shadcn/ui, dark mode toggle
+- [ ] Root layout with sidebar (mode nav, player search command)
+- [ ] Scrape page: smart URL input with extract + badges
+- [ ] Batch page: polling, progress, replay navigation
+- [ ] Replay view component: games as rows, card grids, total row
+- [ ] Player page: replay list, navigation to replay detail
+- [ ] Single replay page (`/replays/$duelingbookId`)
+- [ ] Loading/error states throughout
 
 ### Phase 6: replay-viewer App
 - [ ] Backend: `POST /parse` endpoint
