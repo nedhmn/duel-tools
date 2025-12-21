@@ -70,11 +70,95 @@
 - Player detail returns lightweight metadata, not full parsed replays (avoids heavy responses)
 
 ### Phase 5: Frontend (duel-prep)
-- [ ] Vite + React + TypeScript scaffold
-- [ ] Tailwind + shadcn/ui
-- [ ] URL input form
-- [ ] Batch status polling UI
-- [ ] Replay display with card images
+
+**Stack:**
+- Vite + React + TypeScript
+- TanStack Router (file-based routing)
+- TanStack Query (server state, polling)
+- Zustand (client state)
+- Tailwind + shadcn/ui
+- React Hook Form + Zod (form validation)
+- System preference + toggle for dark/light mode
+
+**Route Structure:**
+```
+routes/
+├── __root.tsx              # Sidebar layout + main content
+├── index.tsx               # Redirect to /scrape
+├── scrape/
+│   ├── index.tsx           # URL submission form
+│   └── $batchId.tsx        # Batch polling + results (shareable)
+├── players/
+│   └── $playerId.tsx       # Player's replays (shareable)
+└── replays/
+    └── $duelingbookId.tsx  # Single replay detail (shareable)
+```
+
+**Sidebar:**
+- Mode navigation links (Scrape, future modes...)
+- Player search using shadcn Command (cmdk) in popover
+- Selecting player navigates to `/players/$playerId`
+
+**Scrape Page (`/scrape`):**
+- Fixed-height textarea (scrollable) for pasting text
+- "Extract URLs" button - parses duelingbook.com/replay URLs via regex
+- Original text stays in textarea after parsing
+- Extracted URLs shown as removable badges below
+- Submit button sends badge list to `POST /scrape`
+- After submit, navigates to `/scrape/$batchId`
+
+**Batch Page (`/scrape/$batchId`):**
+- Poll `GET /scrape/{batch_id}` with TanStack Query refetchInterval
+- Show job progress (pending/processing/completed/failed per job)
+- When complete, display replays one at a time
+- Replay navigation: prev/next buttons or selector to switch between replays
+- Shareable URL: `/scrape/abc-123`
+
+**Replay View (used in batch page and `/replays/$duelingbookId`):**
+```
+┌─────────────────────────────────────────────────────────┐
+│  Match: Player1 vs Player2    Result: 2-1               │
+│  ◀ Prev  [Replay 1 of 3]  Next ▶   (if multiple)        │
+├─────────────────────────────────────────────────────────┤
+│  Game 1 - Winner: Player1 | Went First: Player2         │
+│  ┌──────────────────┐    ┌──────────────────┐           │
+│  │ Player1 Cards    │    │ Player2 Cards    │           │
+│  │ [img][img][img]  │    │ [img][img][img]  │           │
+│  └──────────────────┘    └──────────────────┘           │
+├─────────────────────────────────────────────────────────┤
+│  Game 2 - ...                                           │
+├─────────────────────────────────────────────────────────┤
+│  TOTAL CARDS SEEN                                       │
+│  ┌──────────────────┐    ┌──────────────────┐           │
+│  │ Player1 Total    │    │ Player2 Total    │           │
+│  │ (capped at 3)    │    │ (capped at 3)    │           │
+│  └──────────────────┘    └──────────────────┘           │
+└─────────────────────────────────────────────────────────┘
+```
+- Card images from: `https://images.duelingbook.com/low-res/{card_id}.jpg`
+- Games shown as rows, player cards in grids side-by-side
+- Total row at bottom: aggregated cards across all games, max 3 per card
+
+**Player Page (`/players/$playerId`):**
+- Fetch `GET /players/{player_id}` for replay metadata
+- Display list of replays with opponent, date, match_result
+- Click replay to navigate to `/replays/$duelingbookId`
+
+**Error/Loading States:**
+- Skeleton loaders (shadcn)
+- Toast notifications for errors
+- Error alerts for failed jobs
+
+**Tasks:**
+- [ ] Scaffold: Vite + React + TS + TanStack Router + TanStack Query + Zustand
+- [ ] Install/configure: Tailwind, shadcn/ui, dark mode toggle
+- [ ] Root layout with sidebar (mode nav, player search command)
+- [ ] Scrape page: smart URL input with extract + badges
+- [ ] Batch page: polling, progress, replay navigation
+- [ ] Replay view component: games as rows, card grids, total row
+- [ ] Player page: replay list, navigation to replay detail
+- [ ] Single replay page (`/replays/$duelingbookId`)
+- [ ] Loading/error states throughout
 
 ### Phase 6: replay-viewer App
 - [ ] Backend: `POST /parse` endpoint
