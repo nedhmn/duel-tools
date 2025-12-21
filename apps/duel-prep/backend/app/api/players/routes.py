@@ -13,7 +13,7 @@ from app.api.players.models import (
     PlayerResponse,
     ReplayMetadata,
 )
-from db.models import Player, ReplayPlayer
+from db.models import Player, Replay, ReplayPlayer
 
 logger = get_logger(__name__)
 
@@ -53,7 +53,11 @@ async def get_player(
     result = await db.execute(
         select(ReplayPlayer)
         .where(ReplayPlayer.player_id == player_id)
-        .options(selectinload(ReplayPlayer.replay))
+        .options(
+            selectinload(ReplayPlayer.replay)
+            .selectinload(Replay.replay_players)
+            .selectinload(ReplayPlayer.player)
+        )
     )
     replay_players = list(result.scalars().all())
 
@@ -64,13 +68,10 @@ async def get_player(
         if not replay.played_at or not replay.match_result:
             continue
 
-        opponent_result = await db.execute(
-            select(ReplayPlayer)
-            .where(ReplayPlayer.replay_id == replay.id)
-            .where(ReplayPlayer.player_id != player_id)
-            .options(selectinload(ReplayPlayer.player))
+        opponent_rp = next(
+            (p for p in replay.replay_players if p.player_id != player_id),
+            None,
         )
-        opponent_rp = opponent_result.scalar_one_or_none()
         opponent = opponent_rp.player.username if opponent_rp else "Unknown"
 
         replays.append(

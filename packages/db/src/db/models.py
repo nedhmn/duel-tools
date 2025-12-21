@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -74,6 +74,9 @@ class Player(Base):
 
 class ReplayPlayer(Base):
     __tablename__ = "replay_players"
+    __table_args__ = (
+        UniqueConstraint("replay_id", "player_id", name="uq_replay_player"),
+    )
 
     replay_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("replays.id"), index=True

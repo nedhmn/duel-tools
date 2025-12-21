@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import pandas as pd
@@ -44,7 +44,9 @@ def parse_replay(raw_json: dict[str, Any]) -> ParsedReplay:
     player2_wins = sum(1 for game in games if game.winner == player2)
     match_result = f"{player1_wins}-{player2_wins}"
 
-    played_at = datetime.strptime(raw_json["date"], "%Y-%m-%d %H:%M:%S")
+    played_at = datetime.strptime(raw_json["date"], "%Y-%m-%d %H:%M:%S").replace(
+        tzinfo=timezone.utc
+    )
 
     logger.info("replay_parsed", replay_id=raw_json["id"], game_count=len(games))
 
