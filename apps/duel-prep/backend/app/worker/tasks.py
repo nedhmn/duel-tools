@@ -88,12 +88,6 @@ def scrape_replay_task(self, job_id_str: str, url: str) -> None:
             )
 
         except (CaptchaError, ScraperError) as e:
-            logger.warning(
-                "scrape_retry",
-                job_id=str(job_id),
-                error=str(e),
-                retry_count=self.request.retries,
-            )
             session.rollback()
 
             if self.request.retries >= 3:
@@ -103,7 +97,14 @@ def scrape_replay_task(self, job_id_str: str, url: str) -> None:
                     job.error = str(e)
                     session.commit()
                 logger.error("scrape_failed_final", job_id=str(job_id), error=str(e))
+                return
 
+            logger.warning(
+                "scrape_retry",
+                job_id=str(job_id),
+                error=str(e),
+                retry_count=self.request.retries,
+            )
             raise
 
         except Exception as e:
