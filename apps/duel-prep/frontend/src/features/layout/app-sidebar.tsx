@@ -13,7 +13,6 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { BatchSearch } from "@/features/batch/batch-search";
 import { ScrapeSheet } from "@/features/scrape/scrape-sheet";
 
 const dummyBatches = [
@@ -50,9 +49,6 @@ export const AppSidebar = () => {
               </span>
             </Button>
           </ScrapeSheet>
-        </div>
-        <div className="px-3 py-2 group-data-[collapsible=icon]:hidden">
-          <BatchSearch />
         </div>
         <SidebarGroup>
           <SidebarGroupLabel>Recent Batches</SidebarGroupLabel>

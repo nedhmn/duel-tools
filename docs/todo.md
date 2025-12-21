@@ -106,59 +106,53 @@
 - [x] App metadata: title "Duel Prep", description for SEO
 - [x] Loading states (Skeleton)
 
-### Phase 5f: Global Search + Player Feature
+### Phase 5f: Global Search + Player Feature ✅
 
-**Bug Fix: URL Parsing**
-- [ ] Fix `ScrapeSheet` regex to capture full ID: `id=(\d+(?:-\d+)?)`
-  - Current: `/replay\?id=(\d+)/` captures `123123` from `id=123123-345345`
-  - Fixed: `/replay\?id=(\d+(?:-\d+)?)/` captures `123123-345345`
-- [ ] Display shows full ID, backend extracts correct replay ID
+**Bug Fix: URL Parsing** ✅
+- [x] Fix `ScrapeSheet` regex to capture full ID: `id=(\d+(?:-\d+)?)`
+- [x] Fixed textarea overflow in ScrapeSheet (fixed height with scroll)
 
-**Header Refactor (breadcrumbs)**
-- [ ] Install shadcn breadcrumb: `pnpm dlx shadcn@latest add breadcrumb`
-- [ ] Refactor `SiteHeader` to use breadcrumbs instead of plain title
-  - Batch page: `Batch / Tournament Finals`
-  - Player page: `Player / PlayerName`
-  - "Batch" and "Player" link to `/batch` and `/players` respectively
-- [ ] Props: `breadcrumbs: { label: string, href?: string }[]`
+**Header Refactor (breadcrumbs)** ✅
+- [x] Install shadcn breadcrumb
+- [x] Refactor `SiteHeader` to use breadcrumbs instead of plain title
+- [x] Props: `breadcrumbs: { label: string, href?: string }[]`
+- [x] Updated batch routes with proper breadcrumb navigation
 
-**Global Search (header)**
-- [ ] Create `features/search/global-search.tsx` - unified search component
-  - Trigger button in header (top right, before theme toggle)
-  - Opens CommandDialog with ⌘K
-  - Two groups: "Batches" and "Players"
-  - Shows batch name + replay count, player username + game count
-  - Navigates to `/batch/$batch-id` or `/players/$player-id`
-- [ ] Add GlobalSearch to `SiteHeader` (right side, before theme toggle)
-- [ ] Remove `BatchSearch` from sidebar (just show recent batches list)
-- [ ] Wire to API: fetches `/batches` + `/players`, filters client-side
+**Global Search (header)** ✅
+- [x] Create `features/search/global-search.tsx` - unified search component
+  - Trigger button in header with ⌘K shortcut
+  - Two groups: "Batches" and "Players" (dummy data for now)
+- [x] Add GlobalSearch to `SiteHeader` (right side, before theme toggle)
+- [x] Remove `BatchSearch` from sidebar (kept recent batches list)
+- [ ] Wire to API: fetches `/batches` + `/players` (pending backend)
 
-**Players Index (`/players`)**
-- [ ] Create route `routes/players/index.tsx`
-- [ ] Empty state: "Use search to find a player" (or similar)
+**Players Index (`/players`)** ✅
+- [x] Create route `routes/players/index.tsx`
+- [x] Empty state with ⌘K hint to search
 
-**Player Page (`/players/$player-id`)**
-- [ ] Create route `routes/players/$player-id.tsx`
-- [ ] Header: player username + total games count
-- [ ] Replay list with metadata:
-  - Opponent name (clickable → their player page)
-  - Match result (e.g., "2-1", "0-2")
-  - Date played (`played_at` formatted)
-  - Format badge (e.g., "TCG", "OCG")
-- [ ] Inline replay viewer with prev/next navigation (same pattern as batch page)
-- [ ] Create `features/players/api.ts` with `usePlayerDetail(playerId)` query
+**Player Page (`/players/$player-id`)** ✅
+- [x] Create route `routes/players/$player-id.tsx`
+- [x] Header: player username + total games count
+- [x] Inline replay viewer with prev/next navigation
+- [x] Create `features/players/api.ts` with `usePlayerDetail(playerId)` (dummy data)
+- [ ] Replay list with metadata (pending backend for real data)
 
-**Shareable Replay URLs (query param)**
-- [ ] Batch page: `/batch/$batch-id?replay=789456` (duelingbook_id)
-- [ ] Player page: `/players/$player-id?replay=789456`
-- [ ] Derive `currentIndex` from URL search param instead of `useState`
-- [ ] On load: find replay by duelingbook_id, set as current
-- [ ] On prev/next: update URL search param (replace, not push)
-- [ ] Add `validateSearch` to routes for type-safe search params
+**Shareable Replay URLs (query param)** ✅
+- [x] Batch page: `/batch/$batch-id?replay=duelingbook_id`
+- [x] Player page: `/players/$player-id?replay=duelingbook_id`
+- [x] Derive `currentIndex` from URL search param instead of `useState`
+- [x] On prev/next: update URL search param (replace, not push)
+- [x] Add `validateSearch` to routes (plain function, not zodValidator due to zod 4.x incompatibility)
 
-**Player Navigation**
-- [ ] Make player names in `ReplayView` clickable → `/players/$player-id`
-- [ ] Use player ID from API (need to add player IDs to replay response)
+**Player Navigation** ✅
+- [x] Make player names in `ReplayView` clickable via `playerLinks` prop
+- [x] Created `PlayerName` helper component with Link support
+- [ ] Wire player IDs from API (pending backend update)
+
+**Notes:**
+- Removed `@tanstack/zod-adapter` usage due to zod 4.x incompatibility (expects 3.x)
+- Using plain `validateSearch` functions instead
+- Added `stripQuotes` helper to handle potential quoted duelingbook_id values from API
 
 ### Phase 5g: Backend Integration
 
