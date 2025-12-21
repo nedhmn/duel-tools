@@ -21,6 +21,12 @@ clean:
 dev:
 	uv run fastapi dev app/main.py --port 8000
 
+worker:
+	uv run celery -A app.worker.celery_app worker --loglevel=info
+
+init-db:
+	uv run python scripts/init_db.py
+
 help:
 	@echo "Available commands:"
 	@echo "  lint         : Run code linter"
@@ -29,3 +35,5 @@ help:
 	@echo "  check        : Run linting, formatting, and type checking"
 	@echo "  clean        : Remove Python cache files and build artifacts"
 	@echo "  dev          : Run server in development mode"
+	@echo "  worker       : Run Celery worker"
+	@echo "  init-db      : Create database tables"
