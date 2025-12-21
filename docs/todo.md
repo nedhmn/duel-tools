@@ -12,7 +12,7 @@
 - [x] `app/main.py` - FastAPI app with CORS, logging middleware
 - [x] `Makefile` - dev, check commands
 
-### Phase 2: Database + Shared Packages
+### Phase 2: Database + Shared Packages ✅
 - [x] `packages/db/` - SQLAlchemy models (Batch, Job, Replay, Player, ReplayPlayer)
 - [x] `packages/logger/` - Shared structlog configuration
 - [x] `packages/parser/` - Replay JSON parsing logic
@@ -46,27 +46,25 @@
 - [x] `scripts/init_db.py` - Database table creation script
 - [x] `Makefile` - Added `worker`, `init-db` commands
 
-### Phase 4: Replay + Player Routes
-- [ ] Extract players during scrape (in worker task)
-  - After saving replay, extract player1/player2 usernames from raw_json
-  - Upsert to `players` table (get_or_create by username)
-  - Create `replay_players` junction records
-- [ ] `app/api/replays/` - Replay endpoints
-  - [ ] `models.py` - Response models (use ParsedReplay from parser package)
-  - [ ] `routes.py` - `GET /replays/{duelingbook_id}`
-    - Lookup replay by `duelingbook_id` (not UUID)
-    - Parse raw_json using `parser.parse_replay()`
-    - Return full ParsedReplay structure
-- [ ] `app/api/players/` - Player endpoints
-  - [ ] `models.py` - PlayerResponse, PlayerListResponse, ReplayMetadata
-  - [ ] `routes.py`:
-    - `GET /players` - Return all players `[{id, username}]` (no pagination, <1000 expected)
-    - `GET /players/{player_id}` - Return player + replay metadata list
-      - ReplayMetadata: `{id, duelingbook_id, url, opponent, date, match_result}`
-      - Frontend fetches full replay via `GET /replays/{duelingbook_id}`
+### Phase 4: Replay + Player Routes ✅
+- [x] `packages/parser/` - Refactored `date` → `played_at` as datetime
+- [x] `packages/db/` - Added `match_result`, `played_at` columns to Replay model
+- [x] `packages/db/` - Added indexes on `jobs.batch_id`, `replay_players.replay_id`, `replay_players.player_id`
+- [x] Extract players during scrape (in worker task)
+  - [x] `app/worker/services.py` - `get_or_create_player()`, `extract_players()`, `ensure_replay_parsed()`
+  - [x] `app/worker/tasks.py` - Parse replay, store `match_result`/`played_at`, create player records
+  - [x] Cache hit path backfills player records for legacy replays
+- [x] `app/api/replays/` - Replay endpoints
+  - [x] `models.py` - Re-exports ParsedReplay from parser package
+  - [x] `routes.py` - `GET /replays/{duelingbook_id}`
+- [x] `app/api/players/` - Player endpoints
+  - [x] `models.py` - PlayerResponse, PlayerListResponse, ReplayMetadata, PlayerDetailResponse
+  - [x] `routes.py` - `GET /players`, `GET /players/{player_id}`
+- [x] `app/api/main.py` - Registered replays and players routers
 
 **Design decisions:**
 - Player extraction happens during scrape (parsing is cheap, keeps data consistent)
+- `match_result` and `played_at` stored in DB during worker task (no repeated parsing)
 - Replay endpoint uses `duelingbook_id` in URL (user-friendly, matches DuelingBook URLs)
 - Player list returns all (client-side dropdown filter, <1000 players expected)
 - Player detail returns lightweight metadata, not full parsed replays (avoids heavy responses)
