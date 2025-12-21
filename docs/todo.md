@@ -32,13 +32,41 @@
   - [x] `src/scraper/capsolver_task.json` - reCAPTCHA v2 task config (anchor/reload from CapSolver support)
   - [x] CLI script: `scripts/scrape_replay.py`
 
-### Phase 3: Scrape Routes
-- [ ] `POST /scrape` - Submit URLs, create batch + jobs, queue Celery tasks
-- [ ] `GET /scrape/{batch_id}` - Poll batch status
+### Phase 3: Scrape Routes + Celery Worker
+- [ ] Update `app/core/config.py` - rename `ANTICAPTCHA_API_KEY` → `CAPSOLVER_API_KEY`
+- [ ] `app/api/scrape/models.py` - Pydantic request/response models
+  - `ScrapeRequest`: urls (list[str], max 50, dedupe)
+  - `ScrapeResponse`: batch_id, jobs[]
+  - `BatchStatusResponse`: batch_id, status (computed), jobs[]
+  - `JobResponse`: job_id, url, status, replay_id?, error?
+- [ ] `app/api/scrape/routes.py` - Scrape endpoints
+  - `POST /scrape`:
+    - Validate URLs (max 50, dedupe silently, extract duelingbook_id)
+    - Create Batch + Jobs (status=pending) in DB
+    - Queue Celery task per job
+    - Return batch_id + jobs
+  - `GET /scrape/{batch_id}`:
+    - Fetch batch + jobs
+    - Compute batch status from jobs (all completed? any pending/processing?)
+    - Return batch with jobs
+- [ ] `app/api/deps.py` - `get_db` async session dependency (AsyncSession + yield)
+- [ ] `app/worker/celery_app.py` - Celery config (Redis broker from settings.REDIS_URL)
+- [ ] `app/worker/tasks.py` - `scrape_replay_task`
+  - `@task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 3})`
+  - Use **sync** SQLAlchemy session (Celery runs sync, not async)
+  - Update job status → processing
+  - Check cache: if `replays.duelingbook_id` exists, link + complete (short-circuit)
+  - Call `scraper.scrape_replay()` (sync, blocking)
+  - Save to `replays` table, link job, mark completed
+  - On final failure: mark job as failed with error message
 
-### Phase 4: Celery Worker
-- [ ] `app/worker/celery_app.py` - Celery config
-- [ ] `app/worker/tasks.py` - scrape_replay task with retry logic
+**Design decisions:**
+- API routes use AsyncSession, worker uses sync Session (different contexts)
+- Cache check at worker (idempotent consumer pattern)
+- Batch status computed on-the-fly (no status column in batches table)
+- 3 retries, no backoff via `autoretry_for` (simpler than manual retry)
+- Dedupe URLs silently within batch
+- Use `Field(max_length=50)` for URL list validation
 
 ### Phase 5: Replay + Player Routes
 - [ ] `GET /replays/{replay_id}` - Parse raw JSON, return structured response
