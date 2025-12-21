@@ -106,34 +106,134 @@
 - [x] App metadata: title "Duel Prep", description for SEO
 - [x] Loading states (Skeleton)
 
-### Phase 5f: Player Feature
-- [ ] Player page (`/players/$playerId`): replay list, prev/next navigation through player's replays
-- [ ] Player search in sidebar (separate from batch search, or combined?)
+### Phase 5f: Global Search + Player Feature
+
+**Bug Fix: URL Parsing**
+- [ ] Fix `ScrapeSheet` regex to capture full ID: `id=(\d+(?:-\d+)?)`
+  - Current: `/replay\?id=(\d+)/` captures `123123` from `id=123123-345345`
+  - Fixed: `/replay\?id=(\d+(?:-\d+)?)/` captures `123123-345345`
+- [ ] Display shows full ID, backend extracts correct replay ID
+
+**Header Refactor (breadcrumbs)**
+- [ ] Install shadcn breadcrumb: `pnpm dlx shadcn@latest add breadcrumb`
+- [ ] Refactor `SiteHeader` to use breadcrumbs instead of plain title
+  - Batch page: `Batch / Tournament Finals`
+  - Player page: `Player / PlayerName`
+  - "Batch" and "Player" link to `/batch` and `/players` respectively
+- [ ] Props: `breadcrumbs: { label: string, href?: string }[]`
+
+**Global Search (header)**
+- [ ] Create `features/search/global-search.tsx` - unified search component
+  - Trigger button in header (top right, before theme toggle)
+  - Opens CommandDialog with ⌘K
+  - Two groups: "Batches" and "Players"
+  - Shows batch name + replay count, player username + game count
+  - Navigates to `/batch/$batch-id` or `/players/$player-id`
+- [ ] Add GlobalSearch to `SiteHeader` (right side, before theme toggle)
+- [ ] Remove `BatchSearch` from sidebar (just show recent batches list)
+- [ ] Wire to API: fetches `/batches` + `/players`, filters client-side
+
+**Players Index (`/players`)**
+- [ ] Create route `routes/players/index.tsx`
+- [ ] Empty state: "Use search to find a player" (or similar)
+
+**Player Page (`/players/$player-id`)**
+- [ ] Create route `routes/players/$player-id.tsx`
+- [ ] Header: player username + total games count
+- [ ] Replay list with metadata:
+  - Opponent name (clickable → their player page)
+  - Match result (e.g., "2-1", "0-2")
+  - Date played (`played_at` formatted)
+  - Format badge (e.g., "TCG", "OCG")
+- [ ] Inline replay viewer with prev/next navigation (same pattern as batch page)
+- [ ] Create `features/players/api.ts` with `usePlayerDetail(playerId)` query
+
+**Shareable Replay URLs (query param)**
+- [ ] Batch page: `/batch/$batch-id?replay=789456` (duelingbook_id)
+- [ ] Player page: `/players/$player-id?replay=789456`
+- [ ] Derive `currentIndex` from URL search param instead of `useState`
+- [ ] On load: find replay by duelingbook_id, set as current
+- [ ] On prev/next: update URL search param (replace, not push)
+- [ ] Add `validateSearch` to routes for type-safe search params
+
+**Player Navigation**
+- [ ] Make player names in `ReplayView` clickable → `/players/$player-id`
+- [ ] Use player ID from API (need to add player IDs to replay response)
 
 ### Phase 5g: Backend Integration
-- [ ] `GET /batches` - List recent batches (name, date, replay count)
-- [ ] `POST /scrape` - Accept `name` field for batch
-- [ ] `GET /scrape/{batch_id}` - Return batch name in response
-- [ ] Wire up batch search to real API
-- [ ] Wire up recent batches sidebar to real API
+
+**Parser Update**
+- [ ] Update `packages/parser/` to extract `card_type` from raw JSON
+  - Add `card_type: str` to `CardInfo` model (e.g., "monster", "spell", "trap")
+  - Extract from `cards` array in replay data
+- [ ] Update frontend `CardInfo` type to include `card_type`
+- [ ] Update `CardGrid` to sort by: card_type (monster → spell → trap) then alphabetical
+
+**New Endpoints**
+- [ ] `GET /batches` - List recent batches
+  - Response: `{ batches: [{ id, name, created_at, replay_count }] }`
+  - Ordered by `created_at` desc, limit 50
+- [ ] Update `GET /players` - Add `replay_count` to each player for global search
+- [ ] Update `POST /scrape` - Accept `name` field
+  - Request: `{ urls: [...], name: "Tournament Finals" }`
+  - Store in `batches.name` column (add migration)
+- [ ] Update `GET /scrape/{batch_id}` - Return batch name
+  - Add `name` field to `BatchStatusResponse`
+- [ ] Update `GET /replays/{duelingbook_id}` - Include player IDs
+  - Add `player1_id`, `player2_id` to response for navigation
+
+**Database Changes**
+- [ ] Add `name` column to `batches` table (nullable, varchar)
+- [ ] Migration script or ALTER TABLE
+
+**Frontend Wiring**
+- [ ] Update `ScrapeSheet` to send `name` field
+- [ ] Update `BatchStatusResponse` type to include `name`
+- [ ] Sidebar recent batches → `useBatches()` query
+- [ ] Global search → `useBatches()` + `usePlayers()` queries
+- [ ] Batch page header → show batch name instead of truncated ID
 
 ### Phase 5h: Polish
-- [ ] Error handling (Toast, Alert for failed jobs)
-- [ ] More replay metadata (format, played_at date, etc.)
-- [ ] Responsive card grid columns (fewer on mobile)
+
+**Error Handling**
+- [ ] Toast notification for failed scrape jobs (via Sonner)
+- [ ] Auto-skip failed jobs in replay navigation
+- [ ] Show "X of Y succeeded" summary when batch has failures
+
+**Responsive Design**
+- [ ] Card grid: 8 cols desktop → 6 cols tablet → 4 cols mobile
+- [ ] Test sidebar collapse on mobile
+
+**UX Improvements**
+- [ ] Loading skeleton for player page
+- [ ] Empty state for player with no replays
+- [ ] Keyboard navigation hints in global search
+- [ ] Batch progress during polling
+  - Install shadcn Progress: `pnpm dlx shadcn@latest add progress`
+  - Show "3 of 5 completed" text + Progress bar
+  - Replace current "Processing..." text
 
 **Stack:** Vite + React 19 + TypeScript, TanStack Router/Query, Zustand, Tailwind v4, shadcn/ui, Ultracite (Biome)
 
 **Route Structure:**
 ```
 routes/
-├── __root.tsx              # Sidebar + SidebarInset layout
+├── __root.tsx              # Sidebar + SidebarInset layout, GlobalSearch in header
 ├── index.tsx               # Redirect to /batch
 ├── batch/
 │   ├── index.tsx           # Empty state, prompts to create batch
 │   └── $batch-id.tsx       # Batch polling + inline replay viewer
 └── players/
-    └── $player-id.tsx      # Player's replays with prev/next navigation
+    ├── index.tsx           # Empty state: "Use search to find a player"
+    └── $player-id.tsx      # Player profile + replay list with inline viewer
+```
+
+**Header Structure:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Batch / Tournament Finals     [🔍 Search...  ⌘K] [◐]       │
+│ ↑ breadcrumbs                 ↑ GlobalSearch     ↑ ThemeToggle
+└─────────────────────────────────────────────────────────────┘
 ```
 
 **Sidebar Structure:**
@@ -143,10 +243,8 @@ routes/
 ├─────────────────────────┤
 │ [+ New Batch]           │  ← outline button, opens sheet
 ├─────────────────────────┤
-│ [🔍 Search...    ⌘K]    │  ← opens CommandDialog
-├─────────────────────────┤
 │ Recent Batches          │
-│ ├── Tournament Finals 3 │  ← clickable, shows count
+│ ├── Tournament Finals 3 │  ← clickable, shows count (from API)
 │ ├── Practice Session  5 │
 │ └── Ladder Games      2 │
 └─────────────────────────┘
@@ -156,6 +254,7 @@ routes/
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ Player1 vs Player2                        ◀ [1 of 3] ▶      │
+│ ↑ clickable (→ /players/$id)                                │
 │ Result: 2-0 · https://duelingbook.com/replay?id=123 ↗       │
 ├─────────────────────────────────────────────────────────────┤
 │ ┌─────────────────────────────────────────────────────────┐ │
@@ -178,10 +277,6 @@ routes/
 │ └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
-
-### Phase 6: replay-viewer App
-- [ ] Backend: `POST /parse` endpoint
-- [ ] Frontend: JSON upload + display
 
 ---
 
