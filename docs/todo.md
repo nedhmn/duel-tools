@@ -69,13 +69,13 @@
 - Player list returns all (client-side dropdown filter, <1000 players expected)
 - Player detail returns lightweight metadata, not full parsed replays (avoids heavy responses)
 
-### Phase 5a: Frontend Scaffold Alignment
-- [ ] Simplify `main.tsx` (inline QueryClient, add Toaster, keep unified devtools)
-- [ ] Add Vite proxy: `/api/*` → `http://localhost:8000`
-- [ ] Rename `styles.css` → `index.css`
-- [ ] Create `CLAUDE.md` (multipolicy patterns: kebab-case, arrow functions, feature folders)
-- [ ] Delete boilerplate: `integrations/`, `Header.tsx`, `demo/`, `logo.svg`, `reportWebVitals.ts`
-- [ ] Install shadcn components: sidebar, button, card, textarea, badge, command, popover, skeleton, sonner, alert, scroll-area, separator, tooltip
+### Phase 5a: Frontend Scaffold Alignment ✅
+- [x] Simplify `main.tsx` (inline QueryClient, add Toaster, keep unified devtools)
+- [x] Add Vite proxy: `/api/*` → `http://localhost:8000`
+- [x] Rename `styles.css` → `index.css`
+- [x] Create `CLAUDE.md` (multipolicy patterns: kebab-case, arrow functions, feature folders)
+- [x] Delete boilerplate: `integrations/`, `Header.tsx`, `demo/`, `logo.svg`, `reportWebVitals.ts`
+- [x] Install shadcn components + Zustand
 
 ### Phase 5b: Core Infrastructure
 - [ ] API client + types (`features/api/client.ts`, `features/api/types.ts`)
