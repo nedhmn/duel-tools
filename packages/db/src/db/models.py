@@ -37,7 +37,7 @@ class Job(Base):
     __tablename__ = "jobs"
 
     batch_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("batches.id")
+        UUID(as_uuid=True), ForeignKey("batches.id"), index=True
     )
     url: Mapped[str] = mapped_column(String(512))
     duelingbook_id: Mapped[str] = mapped_column(String(64))
@@ -57,6 +57,8 @@ class Replay(Base):
     duelingbook_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     url: Mapped[str] = mapped_column(String(512))
     raw_json: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    match_result: Mapped[str | None] = mapped_column(String(16))
+    played_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     jobs: Mapped[list["Job"]] = relationship(back_populates="replay")
     replay_players: Mapped[list["ReplayPlayer"]] = relationship(back_populates="replay")
@@ -74,10 +76,10 @@ class ReplayPlayer(Base):
     __tablename__ = "replay_players"
 
     replay_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("replays.id")
+        UUID(as_uuid=True), ForeignKey("replays.id"), index=True
     )
     player_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("players.id")
+        UUID(as_uuid=True), ForeignKey("players.id"), index=True
     )
 
     replay: Mapped["Replay"] = relationship(back_populates="replay_players")
