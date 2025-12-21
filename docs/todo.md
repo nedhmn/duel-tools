@@ -47,9 +47,29 @@
 - [x] `Makefile` - Added `worker`, `init-db` commands
 
 ### Phase 4: Replay + Player Routes
-- [ ] `GET /replays/{replay_id}` - Parse raw JSON, return structured response
-- [ ] `GET /players` - List all players
-- [ ] `GET /players/{player_id}` - Get player with their replays
+- [ ] Extract players during scrape (in worker task)
+  - After saving replay, extract player1/player2 usernames from raw_json
+  - Upsert to `players` table (get_or_create by username)
+  - Create `replay_players` junction records
+- [ ] `app/api/replays/` - Replay endpoints
+  - [ ] `models.py` - Response models (use ParsedReplay from parser package)
+  - [ ] `routes.py` - `GET /replays/{duelingbook_id}`
+    - Lookup replay by `duelingbook_id` (not UUID)
+    - Parse raw_json using `parser.parse_replay()`
+    - Return full ParsedReplay structure
+- [ ] `app/api/players/` - Player endpoints
+  - [ ] `models.py` - PlayerResponse, PlayerListResponse, ReplayMetadata
+  - [ ] `routes.py`:
+    - `GET /players` - Return all players `[{id, username}]` (no pagination, <1000 expected)
+    - `GET /players/{player_id}` - Return player + replay metadata list
+      - ReplayMetadata: `{id, duelingbook_id, url, opponent, date, match_result}`
+      - Frontend fetches full replay via `GET /replays/{duelingbook_id}`
+
+**Design decisions:**
+- Player extraction happens during scrape (parsing is cheap, keeps data consistent)
+- Replay endpoint uses `duelingbook_id` in URL (user-friendly, matches DuelingBook URLs)
+- Player list returns all (client-side dropdown filter, <1000 players expected)
+- Player detail returns lightweight metadata, not full parsed replays (avoids heavy responses)
 
 ### Phase 5: Frontend (duel-prep)
 - [ ] Vite + React + TypeScript scaffold
