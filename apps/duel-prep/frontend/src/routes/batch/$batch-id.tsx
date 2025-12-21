@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { JobResponse } from "@/features/api/types";
 import { useBatchStatus } from "@/features/batch/api";
-import { BatchProgress } from "@/features/batch/batch-progress";
 import { SiteHeader } from "@/features/layout/site-header";
 import { useReplay } from "@/features/replay/api";
 import { ReplayView } from "@/features/replay/replay-view";
@@ -88,26 +87,26 @@ const BatchPage = () => {
   const isComplete = batch.status === "completed" || batch.status === "failed";
   const showReplayViewer = isComplete && completedJobs.length > 0;
 
+  const batchTitle = `Batch: ${batchId.slice(0, 8)}...`;
+
   return (
     <>
-      <SiteHeader title="Batch" />
-      <main className="flex-1 space-y-6 overflow-y-auto p-6">
-        <BatchProgress jobs={batch.jobs} status={batch.status} />
-
+      <SiteHeader title={batchTitle} />
+      <main className="flex-1 overflow-y-auto p-6">
         {showReplayViewer ? (
-          <div className="pt-4">
-            <ReplayViewer
-              completedJobs={completedJobs}
-              currentIndex={currentIndex}
-              setCurrentIndex={setCurrentIndex}
-            />
-          </div>
-        ) : null}
+          <ReplayViewer
+            completedJobs={completedJobs}
+            currentIndex={currentIndex}
+            setCurrentIndex={setCurrentIndex}
+          />
+        ) : (
+          <p className="text-muted-foreground">Processing...</p>
+        )}
       </main>
     </>
   );
 };
 
-export const Route = createFileRoute("/scrape/$batch-id")({
+export const Route = createFileRoute("/batch/$batch-id")({
   component: BatchPage,
 });

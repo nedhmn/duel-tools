@@ -10,53 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ScrapeIndexRouteImport } from './routes/scrape/index'
-import { Route as ScrapeBatchIdRouteImport } from './routes/scrape/$batch-id'
+import { Route as BatchIndexRouteImport } from './routes/batch/index'
+import { Route as BatchBatchIdRouteImport } from './routes/batch/$batch-id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ScrapeIndexRoute = ScrapeIndexRouteImport.update({
-  id: '/scrape/',
-  path: '/scrape/',
+const BatchIndexRoute = BatchIndexRouteImport.update({
+  id: '/batch/',
+  path: '/batch/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ScrapeBatchIdRoute = ScrapeBatchIdRouteImport.update({
-  id: '/scrape/$batch-id',
-  path: '/scrape/$batch-id',
+const BatchBatchIdRoute = BatchBatchIdRouteImport.update({
+  id: '/batch/$batch-id',
+  path: '/batch/$batch-id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/scrape/$batch-id': typeof ScrapeBatchIdRoute
-  '/scrape': typeof ScrapeIndexRoute
+  '/batch/$batch-id': typeof BatchBatchIdRoute
+  '/batch': typeof BatchIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/scrape/$batch-id': typeof ScrapeBatchIdRoute
-  '/scrape': typeof ScrapeIndexRoute
+  '/batch/$batch-id': typeof BatchBatchIdRoute
+  '/batch': typeof BatchIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/scrape/$batch-id': typeof ScrapeBatchIdRoute
-  '/scrape/': typeof ScrapeIndexRoute
+  '/batch/$batch-id': typeof BatchBatchIdRoute
+  '/batch/': typeof BatchIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/scrape/$batch-id' | '/scrape'
+  fullPaths: '/' | '/batch/$batch-id' | '/batch'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/scrape/$batch-id' | '/scrape'
-  id: '__root__' | '/' | '/scrape/$batch-id' | '/scrape/'
+  to: '/' | '/batch/$batch-id' | '/batch'
+  id: '__root__' | '/' | '/batch/$batch-id' | '/batch/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ScrapeBatchIdRoute: typeof ScrapeBatchIdRoute
-  ScrapeIndexRoute: typeof ScrapeIndexRoute
+  BatchBatchIdRoute: typeof BatchBatchIdRoute
+  BatchIndexRoute: typeof BatchIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,18 +68,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/scrape/': {
-      id: '/scrape/'
-      path: '/scrape'
-      fullPath: '/scrape'
-      preLoaderRoute: typeof ScrapeIndexRouteImport
+    '/batch/': {
+      id: '/batch/'
+      path: '/batch'
+      fullPath: '/batch'
+      preLoaderRoute: typeof BatchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/scrape/$batch-id': {
-      id: '/scrape/$batch-id'
-      path: '/scrape/$batch-id'
-      fullPath: '/scrape/$batch-id'
-      preLoaderRoute: typeof ScrapeBatchIdRouteImport
+    '/batch/$batch-id': {
+      id: '/batch/$batch-id'
+      path: '/batch/$batch-id'
+      fullPath: '/batch/$batch-id'
+      preLoaderRoute: typeof BatchBatchIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -87,8 +87,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ScrapeBatchIdRoute: ScrapeBatchIdRoute,
-  ScrapeIndexRoute: ScrapeIndexRoute,
+  BatchBatchIdRoute: BatchBatchIdRoute,
+  BatchIndexRoute: BatchIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
