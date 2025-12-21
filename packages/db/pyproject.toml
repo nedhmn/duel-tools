@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "asyncpg>=0.31.0",
+    "psycopg2-binary>=2.9.11",
     "sqlalchemy[asyncio]>=2.0.45",
 ]
 

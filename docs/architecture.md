@@ -135,4 +135,4 @@ packages/
 ## External Dependencies
 
 - **DuelingBook API**: Source of replay data (requires captcha solving)
-- **AntiCaptcha**: Service to solve DuelingBook's reCAPTCHA
+- **CapSolver**: Service to solve DuelingBook's reCAPTCHA v2

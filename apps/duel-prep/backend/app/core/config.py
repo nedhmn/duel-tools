@@ -29,7 +29,7 @@ class Settings(BaseSettings):
 
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
 
-    ANTICAPTCHA_API_KEY: str = Field(...)
+    CAPSOLVER_API_KEY: str = Field(...)
     SITE_KEY: str = Field(...)
 
 

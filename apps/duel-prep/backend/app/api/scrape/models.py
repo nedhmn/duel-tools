@@ -1,0 +1,31 @@
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from db.models import JobStatus
+
+
+class ScrapeRequest(BaseModel):
+    urls: list[str] = Field(min_length=1, max_length=50)
+
+
+class JobResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    job_id: UUID
+    url: str
+    duelingbook_id: str
+    status: JobStatus
+    replay_id: UUID | None
+    error: str | None
+
+
+class ScrapeResponse(BaseModel):
+    batch_id: UUID
+    jobs: list[JobResponse]
+
+
+class BatchStatusResponse(BaseModel):
+    batch_id: UUID
+    status: str
+    jobs: list[JobResponse]

@@ -32,27 +32,53 @@
   - [x] `src/scraper/capsolver_task.json` - reCAPTCHA v2 task config (anchor/reload from CapSolver support)
   - [x] CLI script: `scripts/scrape_replay.py`
 
-### Phase 3: Scrape Routes
-- [ ] `POST /scrape` - Submit URLs, create batch + jobs, queue Celery tasks
-- [ ] `GET /scrape/{batch_id}` - Poll batch status
+### Phase 3: Scrape Routes + Celery Worker ✅
+- [x] Update `app/core/config.py` - rename `ANTICAPTCHA_API_KEY` → `CAPSOLVER_API_KEY`
+- [x] `app/api/deps.py` - `get_db` async session dependency (AsyncSession + yield)
+- [x] `app/api/scrape/models.py` - Pydantic request/response models
+- [x] `app/api/scrape/utils.py` - Helper functions (compute_batch_status, job_to_response)
+- [x] `app/api/scrape/routes.py` - Scrape endpoints
+  - `POST /scrape` - Validate, dedupe by duelingbook_id, create batch + jobs, queue tasks
+  - `GET /scrape/{batch_id}` - Fetch batch, compute status from jobs
+- [x] `app/worker/celery_app.py` - Celery config (Redis broker, task autodiscovery)
+- [x] `app/worker/tasks.py` - `scrape_replay_task` with cache check, retry logic
+- [x] `packages/db/` - Added sync session support (`create_sync_session_factory`, `psycopg2-binary`)
+- [x] `scripts/init_db.py` - Database table creation script
+- [x] `Makefile` - Added `worker`, `init-db` commands
 
-### Phase 4: Celery Worker
-- [ ] `app/worker/celery_app.py` - Celery config
-- [ ] `app/worker/tasks.py` - scrape_replay task with retry logic
+### Phase 4: Replay + Player Routes
+- [ ] Extract players during scrape (in worker task)
+  - After saving replay, extract player1/player2 usernames from raw_json
+  - Upsert to `players` table (get_or_create by username)
+  - Create `replay_players` junction records
+- [ ] `app/api/replays/` - Replay endpoints
+  - [ ] `models.py` - Response models (use ParsedReplay from parser package)
+  - [ ] `routes.py` - `GET /replays/{duelingbook_id}`
+    - Lookup replay by `duelingbook_id` (not UUID)
+    - Parse raw_json using `parser.parse_replay()`
+    - Return full ParsedReplay structure
+- [ ] `app/api/players/` - Player endpoints
+  - [ ] `models.py` - PlayerResponse, PlayerListResponse, ReplayMetadata
+  - [ ] `routes.py`:
+    - `GET /players` - Return all players `[{id, username}]` (no pagination, <1000 expected)
+    - `GET /players/{player_id}` - Return player + replay metadata list
+      - ReplayMetadata: `{id, duelingbook_id, url, opponent, date, match_result}`
+      - Frontend fetches full replay via `GET /replays/{duelingbook_id}`
 
-### Phase 5: Replay + Player Routes
-- [ ] `GET /replays/{replay_id}` - Parse raw JSON, return structured response
-- [ ] `GET /players` - List all players
-- [ ] `GET /players/{player_id}` - Get player with their replays
+**Design decisions:**
+- Player extraction happens during scrape (parsing is cheap, keeps data consistent)
+- Replay endpoint uses `duelingbook_id` in URL (user-friendly, matches DuelingBook URLs)
+- Player list returns all (client-side dropdown filter, <1000 players expected)
+- Player detail returns lightweight metadata, not full parsed replays (avoids heavy responses)
 
-### Phase 6: Frontend (duel-prep)
+### Phase 5: Frontend (duel-prep)
 - [ ] Vite + React + TypeScript scaffold
 - [ ] Tailwind + shadcn/ui
 - [ ] URL input form
 - [ ] Batch status polling UI
 - [ ] Replay display with card images
 
-### Phase 7: replay-viewer App
+### Phase 6: replay-viewer App
 - [ ] Backend: `POST /parse` endpoint
 - [ ] Frontend: JSON upload + display
 
