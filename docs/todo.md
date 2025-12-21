@@ -99,7 +99,7 @@
 - [ ] Loading states (Skeleton) throughout
 - [ ] Error handling (Toast, Alert for failed jobs)
 
-**Stack:** Vite + React 19 + TypeScript, TanStack Router/Query, Zustand, Tailwind v4, shadcn/ui, Biome
+**Stack:** Vite + React 19 + TypeScript, TanStack Router/Query, Zustand, Tailwind v4, shadcn/ui, Ultracite (Biome)
 
 **Route Structure:**
 ```
@@ -144,11 +144,13 @@ routes/
 - `docs/architecture.md` - System architecture + DB schema
 - `docs/api-spec.md` - API endpoints
 - `apps/duel-prep/backend/CLAUDE.md` - Backend dev guidelines
+- `apps/duel-prep/frontend/CLAUDE.md` - Frontend dev guidelines
 
 ### External Reference Repos
 - `github.com/nedhmn/replay-scraper-api` - Scraping patterns
 - `github.com/nedhmn/gfwl-data` - Parser logic
 - `github.com/nedhmn/multipolicy/tree/main/apps/local/backend` - FastAPI patterns
+- `github.com/nedhmn/multipolicy/tree/main/apps/local/frontend` - React/TanStack patterns
 
 ---
 
