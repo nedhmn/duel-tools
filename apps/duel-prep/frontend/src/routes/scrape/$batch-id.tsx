@@ -10,6 +10,6 @@ const BatchPage = () => (
   </>
 );
 
-export const Route = createFileRoute("/scrape/$batchId")({
+export const Route = createFileRoute("/scrape/$batch-id")({
   component: BatchPage,
 });
