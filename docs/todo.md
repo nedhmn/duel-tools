@@ -4,7 +4,7 @@
 
 ### Phase 1: Backend Setup (duel-prep) ✅
 - [x] Core infrastructure (`app/core/`)
-  - [x] `config.py` - pydantic-settings (DATABASE_URL, REDIS_URL, ANTICAPTCHA_API_KEY, etc.)
+  - [x] `config.py` - pydantic-settings (DATABASE_URL, REDIS_URL, CAPSOLVER_API_KEY, etc.)
   - [x] `logging.py` - refactored to use shared `packages/logger`
 - [x] API scaffold (`app/api/`)
   - [x] `main.py` - public_router
@@ -26,26 +26,11 @@
   - [x] Card extraction via regex, deck change tracking
   - [x] Derived fields: card_count, match_result
   - [x] CLI script: `scripts/parse_replay.py`
-- [ ] `packages/scraper/` - DuelingBook scraping with anticaptcha
-  - Reference: `github.com/nedhmn/replay-scraper-api` → `app/api/replays/scrape/services.py`
-  - Dependencies: `httpx`, `anticaptchaofficial`
-  - **Design decisions:**
-    - Functional (not class) - scraper is stateless
-    - Sync (not async) - Celery doesn't handle async well natively
-    - Config via params - `scrape_replay(url, replay_id, api_key, site_key)` for testability
-    - Raises exceptions - retry logic handled by Celery worker, not here
-  - **Files to create:**
-    - `src/scraper/client.py` - main scraping functions
-    - `src/scraper/exceptions.py` - CaptchaError, ScraperError
-    - `src/scraper/__init__.py` - exports
-  - **Functions:**
-    - `solve_recaptcha_v3(url, api_key, site_key) -> str` - solve via AntiCaptcha
-    - `scrape_replay(url, replay_id, api_key, site_key) -> dict` - POST to DuelingBook API
-    - `extract_replay_id(url) -> str` - parse replay ID from URL
-  - **Exceptions:**
-    - `CaptchaError` - captcha solving failed (retryable)
-    - `ScraperError` - DuelingBook API error (retryable)
-  - Returns raw JSON dict (parsing via packages/parser)
+- [x] `packages/scraper/` - DuelingBook scraping with CapSolver
+  - [x] `src/scraper/client.py` - `scrape_replay()`, `extract_replay_id()`, captcha solving
+  - [x] `src/scraper/exceptions.py` - CaptchaError, ScraperError
+  - [x] `src/scraper/capsolver_task.json` - reCAPTCHA v2 task config (anchor/reload from CapSolver support)
+  - [x] CLI script: `scripts/scrape_replay.py`
 
 ### Phase 3: Scrape Routes
 - [ ] `POST /scrape` - Submit URLs, create batch + jobs, queue Celery tasks
