@@ -1,3 +1,5 @@
+from typing import Any
+
 import capsolver  # type: ignore
 
 from logger import get_logger
@@ -6,7 +8,7 @@ from scraper.exceptions import CaptchaError
 logger = get_logger(__name__)
 
 
-def solve(url: str, api_key: str, site_key: str) -> str:
+def solve(url: str, api_key: str, site_key: str) -> dict[str, Any]:
     logger.info("captcha_solving_started", solver="capsolver", url=url)
 
     capsolver.api_key = api_key
@@ -30,5 +32,19 @@ def solve(url: str, api_key: str, site_key: str) -> str:
         logger.error("captcha_no_token", solver="capsolver", url=url, solution=solution)
         raise CaptchaError("Capsolver returned no token")
 
-    logger.info("captcha_solved", solver="capsolver", url=url)
-    return token
+    cookies = {}
+    if solution.get("recaptcha-ca-t"):
+        cookies["recaptcha-ca-t"] = solution["recaptcha-ca-t"]
+
+    logger.info(
+        "captcha_solved",
+        solver="capsolver",
+        url=url,
+        user_agent=solution.get("userAgent"),
+        has_cookies=bool(cookies),
+    )
+    return {
+        "token": token,
+        "user_agent": solution.get("userAgent"),
+        "cookies": cookies or None,
+    }

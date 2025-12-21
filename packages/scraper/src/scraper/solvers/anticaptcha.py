@@ -1,3 +1,5 @@
+from typing import Any
+
 from anticaptchaofficial.recaptchav3proxyless import recaptchaV3Proxyless  # type: ignore
 
 from logger import get_logger
@@ -6,7 +8,7 @@ from scraper.exceptions import CaptchaError
 logger = get_logger(__name__)
 
 
-def solve(url: str, api_key: str, site_key: str) -> str:
+def solve(url: str, api_key: str, site_key: str) -> dict[str, Any]:
     logger.info("captcha_solving_started", solver="anticaptcha", url=url)
 
     solver = recaptchaV3Proxyless()
@@ -28,4 +30,8 @@ def solve(url: str, api_key: str, site_key: str) -> str:
         raise CaptchaError(f"Anticaptcha solving failed: {solver.error_code}")
 
     logger.info("captcha_solved", solver="anticaptcha", url=url)
-    return g_response
+    return {
+        "token": g_response,
+        "user_agent": None,
+        "cookies": None,
+    }

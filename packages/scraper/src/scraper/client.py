@@ -10,7 +10,8 @@ from scraper.solvers import anticaptcha
 
 logger = get_logger(__name__)
 
-Solver = Callable[[str, str, str], str]  # (url, api_key, site_key) -> token
+SolverResult = dict[str, Any]  # {"token": str, "user_agent": str | None}
+Solver = Callable[[str, str, str], SolverResult]  # (url, api_key, site_key) -> result
 DEFAULT_SOLVER: Solver = anticaptcha.solve
 
 
@@ -62,15 +63,28 @@ def scrape_replay(
 ) -> dict[str, Any]:
     logger.info("scrape_started", url=url, replay_id=replay_id)
 
-    token = solver(url, api_key, site_key)
+    result = solver(url, api_key, site_key)
+    token = result["token"]
+    user_agent = result.get("user_agent")
+    cookies = result.get("cookies")
 
     data_url = f"https://www.duelingbook.com/view-replay?id={replay_id}"
     form_data = {"token": token, "recaptcha_version": 3, "master": False}
 
-    logger.debug("posting_to_duelingbook", data_url=data_url, replay_id=replay_id)
+    headers = {}
+    if user_agent:
+        headers["User-Agent"] = user_agent
+        logger.debug("using_solver_user_agent", user_agent=user_agent)
+
+    logger.debug(
+        "posting_to_duelingbook",
+        data_url=data_url,
+        replay_id=replay_id,
+        has_cookies=bool(cookies),
+    )
 
     try:
-        with httpx.Client(timeout=timeout) as client:
+        with httpx.Client(timeout=timeout, headers=headers, cookies=cookies) as client:
             response = client.post(url=data_url, data=form_data)
             response.raise_for_status()
             data = response.json()
