@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ScrapeIndexRouteImport } from './routes/scrape/index'
+import { Route as ScrapeBatchIdRouteImport } from './routes/scrape/$batchId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const ScrapeIndexRoute = ScrapeIndexRouteImport.update({
   path: '/scrape/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ScrapeBatchIdRoute = ScrapeBatchIdRouteImport.update({
+  id: '/scrape/$batchId',
+  path: '/scrape/$batchId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/scrape/$batchId': typeof ScrapeBatchIdRoute
   '/scrape': typeof ScrapeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/scrape/$batchId': typeof ScrapeBatchIdRoute
   '/scrape': typeof ScrapeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/scrape/$batchId': typeof ScrapeBatchIdRoute
   '/scrape/': typeof ScrapeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/scrape'
+  fullPaths: '/' | '/scrape/$batchId' | '/scrape'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/scrape'
-  id: '__root__' | '/' | '/scrape/'
+  to: '/' | '/scrape/$batchId' | '/scrape'
+  id: '__root__' | '/' | '/scrape/$batchId' | '/scrape/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ScrapeBatchIdRoute: typeof ScrapeBatchIdRoute
   ScrapeIndexRoute: typeof ScrapeIndexRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScrapeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/scrape/$batchId': {
+      id: '/scrape/$batchId'
+      path: '/scrape/$batchId'
+      fullPath: '/scrape/$batchId'
+      preLoaderRoute: typeof ScrapeBatchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ScrapeBatchIdRoute: ScrapeBatchIdRoute,
   ScrapeIndexRoute: ScrapeIndexRoute,
 }
 export const routeTree = rootRouteImport
