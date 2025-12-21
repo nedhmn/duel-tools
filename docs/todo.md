@@ -83,20 +83,20 @@
 - [x] Root layout with Sidebar + SidebarInset (`features/layout/`, `routes/__root.tsx`)
 - [x] Index redirect to `/scrape`
 
-### Phase 5c: Scrape + Batch Features
-- [ ] Scrape page (`/scrape`): textarea + "Extract URLs" button + removable badges
-- [ ] Batch page (`/scrape/$batchId`): polling (2s), progress display, inline replay viewer when complete
-- [ ] Replay navigation: prev/next within batch
+### Phase 5c: Scrape + Batch Features ✅
+- [x] Scrape page (`/scrape`): command palette style URL extractor (auto-extract on paste, popover dropdown)
+- [x] Batch page (`/scrape/$batch-id`): polling (2s), progress display, inline replay viewer when complete
+- [x] Replay navigation: prev/next within batch
 
-### Phase 5d: Replay Feature
-- [ ] Replay view component (`features/replay/`): games as rows, card grids side-by-side, total row (capped at 3)
-- [ ] Card images: `https://images.duelingbook.com/low-res/{card_id}.jpg`
-- [ ] Single replay page (`/replays/$duelingbookId`)
+### Phase 5d: Replay Feature ✅
+- [x] Replay view component (`features/replay/`): games as rows, card grids side-by-side, total row (capped at 3)
+- [x] Card images: `https://images.duelingbook.com/low-res/{card_id}.jpg`
+- [x] ~~Single replay page~~ - Not needed; replays always viewed in context (batch or player)
 
 ### Phase 5e: Player Feature + Polish
 - [ ] Player search in sidebar (cmdk Command in Popover)
-- [ ] Player page (`/players/$playerId`): replay list with opponent, date, match_result
-- [ ] Loading states (Skeleton) throughout
+- [ ] Player page (`/players/$playerId`): replay list, prev/next navigation through player's replays
+- [x] Loading states (Skeleton) - done in batch page
 - [ ] Error handling (Toast, Alert for failed jobs)
 
 **Stack:** Vite + React 19 + TypeScript, TanStack Router/Query, Zustand, Tailwind v4, shadcn/ui, Ultracite (Biome)
@@ -107,12 +107,10 @@ routes/
 ├── __root.tsx              # Sidebar + SidebarInset layout
 ├── index.tsx               # Redirect to /scrape
 ├── scrape/
-│   ├── index.tsx           # URL submission form
-│   └── $batchId.tsx        # Batch polling + inline replay viewer
-├── players/
-│   └── $playerId.tsx       # Player's replays
-└── replays/
-    └── $duelingbookId.tsx  # Single replay detail
+│   ├── index.tsx           # URL extractor (command palette style)
+│   └── $batch-id.tsx       # Batch polling + inline replay viewer
+└── players/
+    └── $player-id.tsx      # Player's replays with prev/next navigation
 ```
 
 **Replay View Mockup:**
