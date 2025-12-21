@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from logger import get_logger
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -26,14 +26,32 @@ async def list_players(
 ) -> PlayerListResponse:
     logger.info("players_list_requested")
 
-    result = await db.execute(select(Player).order_by(Player.username))
-    players = list(result.scalars().all())
+    stmt = (
+        select(
+            Player.id,
+            Player.username,
+            func.count(ReplayPlayer.id).label("replay_count"),
+        )
+        .outerjoin(ReplayPlayer, Player.id == ReplayPlayer.player_id)
+        .group_by(Player.id)
+        .order_by(Player.username)
+    )
+
+    result = await db.execute(stmt)
+    rows = result.all()
+
+    players = [
+        PlayerResponse(
+            id=row.id,
+            username=row.username,
+            replay_count=row.replay_count or 0,
+        )
+        for row in rows
+    ]
 
     logger.info("players_list_retrieved", count=len(players))
 
-    return PlayerListResponse(
-        players=[PlayerResponse.model_validate(p) for p in players]
-    )
+    return PlayerListResponse(players=players)
 
 
 @router.get("/{player_id}", response_model=PlayerDetailResponse)

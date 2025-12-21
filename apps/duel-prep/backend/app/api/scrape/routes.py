@@ -52,7 +52,7 @@ async def create_scrape_batch(
         unique_count=len(unique_urls),
     )
 
-    batch = Batch()
+    batch = Batch(name=request.name)
     db.add(batch)
     await db.flush()
 
@@ -115,6 +115,7 @@ async def get_batch_status(
 
     return BatchStatusResponse(
         batch_id=batch.id,
+        name=batch.name,
         status=status,
         jobs=[job_to_response(job) for job in jobs],
     )

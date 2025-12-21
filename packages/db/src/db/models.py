@@ -30,6 +30,8 @@ class JobStatus(enum.Enum):
 class Batch(Base):
     __tablename__ = "batches"
 
+    name: Mapped[str] = mapped_column(String(255))
+
     jobs: Mapped[list["Job"]] = relationship(back_populates="batch")
 
 
