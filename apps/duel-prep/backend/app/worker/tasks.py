@@ -6,7 +6,7 @@ from db.models import Job, JobStatus, Replay
 from db.session import create_sync_session_factory
 from logger import get_logger
 from parser import parse_replay
-from scraper import extract_replay_id, scrape_replay
+from scraper import extract_replay_id, scrape_replay, settings as scraper_settings
 from scraper.exceptions import CaptchaError, ScraperError
 
 from app.core.config import settings
@@ -72,9 +72,10 @@ def scrape_replay_task(self, job_id_str: str, url: str) -> None:
             raw_json = scrape_replay(
                 url=url,
                 replay_id=replay_id_int,
-                api_key=settings.CAPSOLVER_API_KEY,
-                site_key=settings.SITE_KEY,
+                api_key=scraper_settings.CAPSOLVER_API_KEY,
+                site_key=scraper_settings.SITE_KEY,
                 timeout=30.0,
+                auth_cookies=scraper_settings.auth_cookies,
             )
 
             parsed = parse_replay(raw_json)

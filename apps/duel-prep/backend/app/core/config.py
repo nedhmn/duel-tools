@@ -29,8 +29,5 @@ class Settings(BaseSettings):
 
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
 
-    CAPSOLVER_API_KEY: str = Field(...)
-    SITE_KEY: str = Field(...)
-
 
 settings = Settings()

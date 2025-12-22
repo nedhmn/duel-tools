@@ -8,6 +8,8 @@ dependencies = [
     "capsolver>=1.0.7",
     "httpx>=0.28.1",
     "logger",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
 ]
 
 [tool.uv.sources]

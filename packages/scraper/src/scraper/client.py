@@ -103,6 +103,7 @@ def scrape_replay(
     api_key: str,
     site_key: str,
     timeout: float = 30.0,
+    auth_cookies: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     logger.info("scrape_started", url=url, replay_id=replay_id)
 
@@ -110,7 +111,13 @@ def scrape_replay(
     token = result["token"]
     user_agent = result.get("user_agent")
     sec_ch_ua = result.get("sec_ch_ua")
-    cookies = result.get("cookies")
+    captcha_cookies = result.get("cookies")
+
+    cookies: dict[str, str] = {}
+    if auth_cookies:
+        cookies.update(auth_cookies)
+    if captcha_cookies:
+        cookies.update(captcha_cookies)
 
     data_url = f"https://www.duelingbook.com/view-replay?id={replay_id}"
     form_data = {"token": token, "recaptcha_version": 1, "master": False}
@@ -132,7 +139,9 @@ def scrape_replay(
     )
 
     try:
-        with httpx.Client(timeout=timeout, headers=headers, cookies=cookies) as client:
+        with httpx.Client(
+            timeout=timeout, headers=headers, cookies=cookies or None
+        ) as client:
             response = client.post(url=data_url, data=form_data)
             response.raise_for_status()
             data = response.json()

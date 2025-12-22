@@ -220,13 +220,10 @@
 - [x] Card count shown next to player names in "Total Cards Seen" section
 - [x] Both player grids in each section sync to same row count
 
-**Remaining Polish**
-- [ ] Toast notification for failed scrape jobs (via Sonner)
-- [ ] Auto-skip failed jobs in replay navigation
-- [ ] Show "X of Y succeeded" summary when batch has failures
-- [ ] Loading skeleton for player page
-- [ ] Empty state for player with no replays
-- [ ] Keyboard navigation hints in global search
+**Remaining Polish** ✅
+- [x] Toast notification for failed scrape jobs (via Sonner)
+- [x] Failed jobs excluded from replay navigation (filtered to completed only)
+- [x] Loading skeleton for player page
 
 **Stack:** Vite + React 19 + TypeScript, TanStack Router/Query, Zustand, Tailwind v4, shadcn/ui, Ultracite (Biome)
 

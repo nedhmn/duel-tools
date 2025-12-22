@@ -1205,6 +1205,8 @@ dependencies = [
     { name = "capsolver" },
     { name = "httpx" },
     { name = "logger" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
 ]
 
 [package.dev-dependencies]
@@ -1218,6 +1220,8 @@ requires-dist = [
     { name = "capsolver", specifier = ">=1.0.7" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "logger", editable = "packages/logger" },
+    { name = "pydantic", specifier = ">=2.12.5" },
+    { name = "pydantic-settings", specifier = ">=2.12.0" },
 ]
 
 [package.metadata.requires-dev]
