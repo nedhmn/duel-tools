@@ -188,25 +188,45 @@
 - [x] Global search → `useBatches()` + `usePlayerList()` queries
 - [x] Added `BatchSummary`, `BatchListResponse` types
 
-### Phase 5h: Polish
+### Phase 5h: Polish ✅
 
-**Error Handling**
+**App Rename** ✅
+- [x] Renamed "Duel Prep" → "Duel Tools" (sidebar, HTML title)
+- [x] Removed theme toggle - default dark mode only
+- [x] Added `class="dark"` to HTML for instant dark mode (no flash)
+
+**DataTable Improvements** ✅
+- [x] Batch index: sortable headers, pagination (default 10), page size selector
+- [x] Players index: sortable headers + "View" action button
+- [x] Column filter buttons in table headers (popover with text input)
+- [x] Added `DataTableColumnFilter` component (`src/components/data-table-column-filter.tsx`)
+
+**Batch Processing UI** ✅
+- [x] Created centered `BatchProcessing` component (replaces progress bar/job list)
+  - Spinner icon, status text ("Processing replays... X of Y"), progress bar with percentage
+- [x] Sidebar shows spinner for processing/pending batches
+- [x] Sidebar refreshes when batch completes (query invalidation)
+
+**Card Grid Styling** ✅
+- [x] Double grid lines with 3px gap between cards
+- [x] Subtle borders: `border-white/[0.06]` on cards, `border-white/[0.04]` on empty slots
+- [x] Hover effects: border brightens on hover
+- [x] No rounded borders on cards
+- [x] Minimum 32 slots with empty bordered placeholders
+- [x] Rows auto-extend: both player grids match max rows in section
+- [x] Removed gray backgrounds from card containers
+
+**Replay View Updates** ✅
+- [x] Card count shown next to player names in "Total Cards Seen" section
+- [x] Both player grids in each section sync to same row count
+
+**Remaining Polish**
 - [ ] Toast notification for failed scrape jobs (via Sonner)
 - [ ] Auto-skip failed jobs in replay navigation
 - [ ] Show "X of Y succeeded" summary when batch has failures
-
-**Responsive Design**
-- [ ] Card grid: 8 cols desktop → 6 cols tablet → 4 cols mobile
-- [ ] Test sidebar collapse on mobile
-
-**UX Improvements**
 - [ ] Loading skeleton for player page
 - [ ] Empty state for player with no replays
 - [ ] Keyboard navigation hints in global search
-- [ ] Batch progress during polling
-  - Install shadcn Progress: `pnpm dlx shadcn@latest add progress`
-  - Show "3 of 5 completed" text + Progress bar
-  - Replace current "Processing..." text
 
 **Stack:** Vite + React 19 + TypeScript, TanStack Router/Query, Zustand, Tailwind v4, shadcn/ui, Ultracite (Biome)
 
@@ -226,21 +246,21 @@ routes/
 **Header Structure:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Batch / Tournament Finals     [🔍 Search...  ⌘K] [◐]       │
-│ ↑ breadcrumbs                 ↑ GlobalSearch     ↑ ThemeToggle
+│ Batch / Tournament Finals           [🔍 Search...  ⌘K]      │
+│ ↑ breadcrumbs                       ↑ GlobalSearch          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 **Sidebar Structure:**
 ```
 ┌─────────────────────────┐
-│ Duel Prep         [□]   │  ← clickable home link + collapse toggle
+│ Duel Tools        [□]   │  ← clickable home link + collapse toggle
 ├─────────────────────────┤
 │ [+ New Batch]           │  ← outline button, opens sheet
 ├─────────────────────────┤
 │ Recent Batches          │
+│ ├── ◐ Processing...   0 │  ← spinner for pending/processing
 │ ├── Tournament Finals 3 │  ← clickable, shows count (from API)
-│ ├── Practice Session  5 │
 │ └── Ladder Games      2 │
 └─────────────────────────┘
 ```
