@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { JobResponse } from "@/features/api/types";
@@ -12,10 +12,12 @@ import { type BatchFilter, ReplayView } from "@/features/replay/replay-view";
 
 type BatchSearch = {
   replay?: string;
+  pov?: string;
 };
 
 const validateSearch = (search: Record<string, unknown>): BatchSearch => ({
   replay: typeof search.replay === "string" ? search.replay : undefined,
+  pov: typeof search.pov === "string" ? search.pov : undefined,
 });
 
 const stripQuotes = (s: string) => s.replace(/^"|"$/g, "");
@@ -24,15 +26,17 @@ type ReplayViewerProps = {
   completedJobs: JobResponse[];
   currentIndex: number;
   onNavigate: (newIndex: number) => void;
+  pov: BatchFilter;
+  onPovChange: (pov: BatchFilter) => void;
 };
 
 const ReplayViewer = ({
   completedJobs,
   currentIndex,
   onNavigate,
+  pov,
+  onPovChange,
 }: ReplayViewerProps) => {
-  const [batchFilter, setBatchFilter] = useState<BatchFilter>("both");
-
   const currentJob = completedJobs[currentIndex];
   const rawId = currentJob?.duelingbook_id ?? "";
   const currentDuelingbookId = stripQuotes(rawId);
@@ -58,11 +62,6 @@ const ReplayViewer = ({
     };
   });
 
-  const handleNavigate = (newIndex: number) => {
-    setBatchFilter("both");
-    onNavigate(newIndex);
-  };
-
   if (isLoading && !replay) {
     return (
       <div className="space-y-4">
@@ -84,19 +83,17 @@ const ReplayViewer = ({
     >
       <ReplayView
         batchFilter={{
-          value: batchFilter,
-          onChange: setBatchFilter,
+          value: pov,
+          onChange: onPovChange,
         }}
         navigation={{
           current: currentIndex,
           total: completedJobs.length,
-          onPrev: () => handleNavigate(Math.max(0, currentIndex - 1)),
+          onPrev: () => onNavigate(Math.max(0, currentIndex - 1)),
           onNext: () =>
-            handleNavigate(
-              Math.min(completedJobs.length - 1, currentIndex + 1)
-            ),
+            onNavigate(Math.min(completedJobs.length - 1, currentIndex + 1)),
           items: navigationItems,
-          onSelect: handleNavigate,
+          onSelect: onNavigate,
         }}
         replay={replay}
       />
@@ -106,7 +103,7 @@ const ReplayViewer = ({
 
 const BatchPage = () => {
   const { "batch-id": batchId } = Route.useParams();
-  const { replay } = Route.useSearch();
+  const { replay, pov } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const hasHandledComplete = useRef(false);
@@ -156,13 +153,25 @@ const BatchPage = () => {
       )
     : 0;
 
+  const currentPov: BatchFilter =
+    pov === "player1" || pov === "player2" ? pov : "both";
+
   const handleNavigate = (newIndex: number) => {
     const rawId = completedJobs[newIndex]?.duelingbook_id;
     const newReplayId = rawId ? stripQuotes(rawId) : undefined;
     navigate({
       to: "/batch/$batch-id",
       params: { "batch-id": batchId },
-      search: { replay: newReplayId },
+      search: { replay: newReplayId, pov: currentPov },
+      replace: true,
+    });
+  };
+
+  const handlePovChange = (newPov: BatchFilter) => {
+    navigate({
+      to: "/batch/$batch-id",
+      params: { "batch-id": batchId },
+      search: { replay, pov: newPov === "both" ? undefined : newPov },
       replace: true,
     });
   };
@@ -224,6 +233,8 @@ const BatchPage = () => {
             completedJobs={completedJobs}
             currentIndex={currentIndex}
             onNavigate={handleNavigate}
+            onPovChange={handlePovChange}
+            pov={currentPov}
           />
         ) : (
           <BatchProcessing jobs={batch.jobs} />
