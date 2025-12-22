@@ -310,17 +310,19 @@ routes/
 ```
 `↓deck` = "Download deck" link (exports .ydk file)
 
-### Phase 6a: Dockerfile + Static Serving
+### Phase 6a: Dockerfile + Static Serving ✅
 
 **Pattern:** Turborepo-style - Dockerfile in app dir, build context at repo root.
 
-- [ ] `apps/duel-prep/backend/Dockerfile` - Create
+- [x] `apps/duel-prep/backend/Dockerfile` - Create
   - Multi-stage: Node frontend build → Python backend with uv
   - Build context is repo root (access to `packages/`)
   - Uses `fastapi run` (modern CLI)
+  - `UV_COMPILE_BYTECODE=1` for faster startup
+  - `--no-install-workspace` for layer caching
   - Railway uses `RAILWAY_DOCKERFILE_PATH` env var to find it
-- [ ] `.dockerignore` - Create (repo root)
-- [ ] `apps/duel-prep/backend/app/main.py` - Modify (add static file serving)
+- [x] `.dockerignore` - Create (repo root)
+- [x] `apps/duel-prep/backend/app/main.py` - Modify (add static file serving)
   - Mount `/assets` directory
   - Catch-all route returns `index.html` for SPA
 
@@ -329,9 +331,9 @@ routes/
 docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
 ```
 
-### Phase 6b: GitHub Actions CI/CD
+### Phase 6b: GitHub Actions CI/CD ✅
 
-- [ ] `.github/workflows/deploy.yml` - Create
+- [x] `.github/workflows/deploy.yml` - Create
   - Trigger: push to main (paths: `apps/duel-prep/**`, `packages/**`) + manual dispatch
   - Job 1: `lint` - Backend (`make check`) + Frontend (`pnpm check`)
   - Job 2: `deploy-api` - Railway CLI deploy to `duel-prep-api` service
