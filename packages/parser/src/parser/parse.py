@@ -42,7 +42,12 @@ def parse_replay(raw_json: dict[str, Any]) -> ParsedReplay:
 
     player1_wins = sum(1 for game in games if game.winner == player1)
     player2_wins = sum(1 for game in games if game.winner == player2)
-    match_result = f"{player1_wins}-{player2_wins}"
+    draws = sum(1 for game in games if game.winner is None)
+    match_result = (
+        f"{player1_wins}-{player2_wins}-{draws}"
+        if draws > 0
+        else f"{player1_wins}-{player2_wins}"
+    )
 
     played_at = datetime.strptime(raw_json["date"], "%Y-%m-%d %H:%M:%S").replace(
         tzinfo=timezone.utc

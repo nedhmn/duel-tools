@@ -202,6 +202,17 @@ const aggregateCards = (
 const getReplayUrl = (replayId: number) =>
   `https://www.duelingbook.com/replay?id=${replayId}`;
 
+const flipMatchResult = (result: string): string => {
+  const parts = result.split("-");
+  if (parts.length === 2) {
+    return `${parts[1]}-${parts[0]}`;
+  }
+  if (parts.length === 3) {
+    return `${parts[1]}-${parts[0]}-${parts[2]}`;
+  }
+  return result;
+};
+
 const countExpandedCards = (cards: CardInfo[], maxPerCard?: number): number =>
   cards.reduce(
     (sum, card) =>
@@ -320,6 +331,30 @@ export const ReplayView = ({
 
   const { showPlayer1, showPlayer2 } = computeShowPlayers();
 
+  const shouldSwapOrder = playerFilter && !focusedIsPlayer1;
+
+  const displayResult = shouldSwapOrder
+    ? flipMatchResult(replay.match_result)
+    : replay.match_result;
+
+  const firstPlayer = shouldSwapOrder ? replay.player2 : replay.player1;
+  const secondPlayer = shouldSwapOrder ? replay.player1 : replay.player2;
+  const firstPlayerId = shouldSwapOrder
+    ? playerLinks?.player2Id
+    : playerLinks?.player1Id;
+  const secondPlayerId = shouldSwapOrder
+    ? playerLinks?.player1Id
+    : playerLinks?.player2Id;
+
+  const firstTotalCards = shouldSwapOrder
+    ? player2TotalCards
+    : player1TotalCards;
+  const secondTotalCards = shouldSwapOrder
+    ? player1TotalCards
+    : player2TotalCards;
+  const showFirst = shouldSwapOrder ? showPlayer2 : showPlayer1;
+  const showSecond = shouldSwapOrder ? showPlayer1 : showPlayer2;
+
   const gridColsClass =
     showPlayer1 && showPlayer2 ? "md:grid-cols-2" : "md:grid-cols-1";
 
@@ -330,15 +365,8 @@ export const ReplayView = ({
       <div className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-semibold text-lg">
-            <PlayerName
-              name={replay.player1}
-              playerId={playerLinks?.player1Id}
-            />{" "}
-            vs{" "}
-            <PlayerName
-              name={replay.player2}
-              playerId={playerLinks?.player2Id}
-            />
+            <PlayerName name={firstPlayer} playerId={firstPlayerId} /> vs{" "}
+            <PlayerName name={secondPlayer} playerId={secondPlayerId} />
           </h2>
           {navigation ? (
             <ReplayNavigation
@@ -352,7 +380,7 @@ export const ReplayView = ({
           ) : null}
         </div>
         <div className="flex items-center gap-4 text-muted-foreground text-sm">
-          <span>Result: {replay.match_result}</span>
+          <span>Result: {displayResult}</span>
           <a
             className="inline-flex items-center gap-1 hover:text-foreground"
             href={replayUrl}
@@ -414,27 +442,27 @@ export const ReplayView = ({
         <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
           {(() => {
             const totalMaxCards = Math.max(
-              countExpandedCards(player1TotalCards, 3),
-              countExpandedCards(player2TotalCards, 3)
+              countExpandedCards(firstTotalCards, 3),
+              countExpandedCards(secondTotalCards, 3)
             );
             return (
               <>
-                {showPlayer1 ? (
+                {showFirst ? (
                   <div>
                     <p className="mb-2 flex items-center gap-3 font-medium text-sm">
                       <span>
                         <PlayerName
-                          name={replay.player1}
-                          playerId={playerLinks?.player1Id}
+                          name={firstPlayer}
+                          playerId={firstPlayerId}
                         />{" "}
-                        ({countExpandedCards(player1TotalCards, 3)})
+                        ({countExpandedCards(firstTotalCards, 3)})
                       </span>
                       <button
                         className="font-normal text-muted-foreground text-xs hover:text-foreground"
                         onClick={() =>
                           downloadYdk(
-                            player1TotalCards,
-                            replay.player1,
+                            firstTotalCards,
+                            firstPlayer,
                             replay.played_at
                           )
                         }
@@ -444,29 +472,29 @@ export const ReplayView = ({
                       </button>
                     </p>
                     <CardGrid
-                      cards={player1TotalCards}
+                      cards={firstTotalCards}
                       columns={cardColumns}
                       maxPerCard={3}
                       minTotalSlots={totalMaxCards}
                     />
                   </div>
                 ) : null}
-                {showPlayer2 ? (
+                {showSecond ? (
                   <div>
                     <p className="mb-2 flex items-center gap-3 font-medium text-sm">
                       <span>
                         <PlayerName
-                          name={replay.player2}
-                          playerId={playerLinks?.player2Id}
+                          name={secondPlayer}
+                          playerId={secondPlayerId}
                         />{" "}
-                        ({countExpandedCards(player2TotalCards, 3)})
+                        ({countExpandedCards(secondTotalCards, 3)})
                       </span>
                       <button
                         className="font-normal text-muted-foreground text-xs hover:text-foreground"
                         onClick={() =>
                           downloadYdk(
-                            player2TotalCards,
-                            replay.player2,
+                            secondTotalCards,
+                            secondPlayer,
                             replay.played_at
                           )
                         }
@@ -476,7 +504,7 @@ export const ReplayView = ({
                       </button>
                     </p>
                     <CardGrid
-                      cards={player2TotalCards}
+                      cards={secondTotalCards}
                       columns={cardColumns}
                       maxPerCard={3}
                       minTotalSlots={totalMaxCards}
@@ -490,9 +518,15 @@ export const ReplayView = ({
       </div>
 
       {replay.games.map((game) => {
+        const firstGameCards = shouldSwapOrder
+          ? game.player2_cards
+          : game.player1_cards;
+        const secondGameCards = shouldSwapOrder
+          ? game.player1_cards
+          : game.player2_cards;
         const gameMaxCards = Math.max(
-          countExpandedCards(game.player1_cards.cards),
-          countExpandedCards(game.player2_cards.cards)
+          countExpandedCards(firstGameCards.cards),
+          countExpandedCards(secondGameCards.cards)
         );
         return (
           <div
@@ -507,22 +541,22 @@ export const ReplayView = ({
               </span>
             </h3>
             <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
-              {showPlayer1 ? (
+              {showFirst ? (
                 <div>
                   <p className="mb-2 flex items-center gap-3 font-medium text-sm">
                     <span>
                       <PlayerName
-                        name={game.player1_cards.username}
-                        playerId={playerLinks?.player1Id}
+                        name={firstGameCards.username}
+                        playerId={firstPlayerId}
                       />{" "}
-                      ({game.player1_cards.card_count})
+                      ({firstGameCards.card_count})
                     </span>
                     <button
                       className="font-normal text-muted-foreground text-xs hover:text-foreground"
                       onClick={() =>
                         downloadYdk(
-                          game.player1_cards.cards,
-                          game.player1_cards.username,
+                          firstGameCards.cards,
+                          firstGameCards.username,
                           replay.played_at
                         )
                       }
@@ -532,28 +566,28 @@ export const ReplayView = ({
                     </button>
                   </p>
                   <CardGrid
-                    cards={game.player1_cards.cards}
+                    cards={firstGameCards.cards}
                     columns={cardColumns}
                     minTotalSlots={gameMaxCards}
                   />
                 </div>
               ) : null}
-              {showPlayer2 ? (
+              {showSecond ? (
                 <div>
                   <p className="mb-2 flex items-center gap-3 font-medium text-sm">
                     <span>
                       <PlayerName
-                        name={game.player2_cards.username}
-                        playerId={playerLinks?.player2Id}
+                        name={secondGameCards.username}
+                        playerId={secondPlayerId}
                       />{" "}
-                      ({game.player2_cards.card_count})
+                      ({secondGameCards.card_count})
                     </span>
                     <button
                       className="font-normal text-muted-foreground text-xs hover:text-foreground"
                       onClick={() =>
                         downloadYdk(
-                          game.player2_cards.cards,
-                          game.player2_cards.username,
+                          secondGameCards.cards,
+                          secondGameCards.username,
                           replay.played_at
                         )
                       }
@@ -563,7 +597,7 @@ export const ReplayView = ({
                     </button>
                   </p>
                   <CardGrid
-                    cards={game.player2_cards.cards}
+                    cards={secondGameCards.cards}
                     columns={cardColumns}
                     minTotalSlots={gameMaxCards}
                   />
