@@ -401,9 +401,12 @@ docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
 ## References
 
 ### Internal Docs
-- `docs/README.md` - Quick links, setup, commands
-- `docs/apps/duel-prep.md` - Architecture, API spec, database schema
-- `docs/services/railway.md` - Railway deployment guide
+- `docs/README.md` - Documentation hub
+- `docs/guides/development.md` - Local setup + commands
+- `docs/guides/deploy.md` - Deployment pre-reqs + CI/CD
+- `docs/services/railway.md` - Railway configuration
+- `docs/apps/duel-prep-backend.md` - Backend API, database, Celery
+- `docs/apps/duel-prep-frontend.md` - Frontend routes, components, UI
 - `apps/duel-prep/backend/CLAUDE.md` - Backend dev guidelines
 - `apps/duel-prep/frontend/CLAUDE.md` - Frontend dev guidelines
 

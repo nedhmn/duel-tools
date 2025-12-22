@@ -2,14 +2,6 @@
 
 Monorepo for Yu-Gi-Oh DuelingBook replay analysis tools.
 
-## Quick Links
-
-| Resource                                     | Description                             |
-| -------------------------------------------- | --------------------------------------- |
-| [apps/duel-prep.md](./apps/duel-prep.md)     | Architecture, API spec, database schema |
-| [services/railway.md](./services/railway.md) | Railway deployment guide                |
-| [todo.md](./todo.md)                         | Development roadmap                     |
-
 ## Tech Stack
 
 | Component | Technology                          |
@@ -38,58 +30,20 @@ duel-tools/
 └── docs/
 ```
 
-## Local Development
+## Guides
 
-### Prerequisites
+| Guide                                             | Description                 |
+| ------------------------------------------------- | --------------------------- |
+| [guides/development.md](./guides/development.md)  | Local setup + commands      |
+| [guides/deploy.md](./guides/deploy.md)            | Deployment pre-reqs + CI/CD |
+| [services/railway.md](./services/railway.md)      | Railway configuration       |
 
-- Python 3.13+
-- Node.js 22+
-- Docker
-- uv
-- pnpm
+## Apps
 
-### Setup
-
-```bash
-# Start PostgreSQL + Redis
-docker compose up -d
-
-# Install Python dependencies
-uv sync
-
-# Install frontend dependencies
-cd apps/duel-prep/frontend && pnpm install
-```
-
-### Run
-
-```bash
-# Backend
-cd apps/duel-prep/backend && make dev
-
-# Frontend
-cd apps/duel-prep/frontend && pnpm dev
-
-# Worker
-cd apps/duel-prep/backend && make worker
-```
-
-### Commands
-
-| Command         | Description                 |
-| --------------- | --------------------------- |
-| `make dev`      | Run FastAPI dev server      |
-| `make worker`   | Run Celery worker           |
-| `make check`    | Run linting + type checking |
-| `make init-db`  | Create database tables      |
-| `make clear-db` | Delete all data from tables |
-| `pnpm dev`      | Run frontend dev server     |
-| `pnpm check`    | Run frontend linting        |
-| `pnpm build`    | Build frontend              |
-
-## Deployment
-
-See [services/railway.md](./services/railway.md) for Railway deployment.
+| App                                                        | Description                     |
+| ---------------------------------------------------------- | ------------------------------- |
+| [apps/duel-prep-backend.md](./apps/duel-prep-backend.md)   | Backend API, database, Celery   |
+| [apps/duel-prep-frontend.md](./apps/duel-prep-frontend.md) | Frontend routes, components, UI |
 
 ## Artifacts
 
@@ -99,9 +53,8 @@ Example files for reference:
 - [artifacts/deck-ydk-example.ydk](./artifacts/deck-ydk-example.ydk) - YDK deck export format
 - [artifacts/init-prompt.md](./artifacts/init-prompt.md) - Initial project prompt
 
-## CLAUDE.md Files
+## Other
 
-App-specific development guidelines:
-
-- [apps/duel-prep/backend/CLAUDE.md](../apps/duel-prep/backend/CLAUDE.md)
-- [apps/duel-prep/frontend/CLAUDE.md](../apps/duel-prep/frontend/CLAUDE.md)
+- [todo.md](./todo.md) - Development roadmap
+- [apps/duel-prep/backend/CLAUDE.md](../apps/duel-prep/backend/CLAUDE.md) - Backend dev guidelines
+- [apps/duel-prep/frontend/CLAUDE.md](../apps/duel-prep/frontend/CLAUDE.md) - Frontend dev guidelines
