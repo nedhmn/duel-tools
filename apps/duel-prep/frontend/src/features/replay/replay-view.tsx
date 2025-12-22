@@ -210,6 +210,72 @@ const countExpandedCards = (cards: CardInfo[], maxPerCard?: number): number =>
     0
   );
 
+const getCardTypeOrder = (cardType: string): number => {
+  const type = cardType.toLowerCase();
+  if (type.includes("monster")) {
+    return 0;
+  }
+  if (type.includes("spell")) {
+    return 1;
+  }
+  if (type.includes("trap")) {
+    return 2;
+  }
+  return 3;
+};
+
+const sortCardsForYdk = (cards: CardInfo[]): CardInfo[] =>
+  [...cards].sort((a, b) => {
+    const typeOrderA = getCardTypeOrder(a.card_type);
+    const typeOrderB = getCardTypeOrder(b.card_type);
+    if (typeOrderA !== typeOrderB) {
+      return typeOrderA - typeOrderB;
+    }
+    return a.card_name.localeCompare(b.card_name);
+  });
+
+const generateYdkContent = (cards: CardInfo[], maxPerCard = 3): string => {
+  const sortedCards = sortCardsForYdk(cards);
+  const lines: string[] = ["#created by duel-prep", "#main"];
+
+  for (const card of sortedCards) {
+    if (!card.serial_number) {
+      continue;
+    }
+    const count = Math.min(card.card_amount, maxPerCard);
+    for (let i = 0; i < count; i++) {
+      lines.push(card.serial_number);
+    }
+  }
+
+  lines.push("#extra", "", "!side", "");
+  return lines.join("\n");
+};
+
+const sanitizeFilename = (name: string): string =>
+  name.replace(/[/\\:*?"<>|]/g, "_");
+
+const downloadYdk = (
+  cards: CardInfo[],
+  playerName: string,
+  playedAt: string
+): void => {
+  const content = generateYdkContent(cards);
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const date = new Date(playedAt).toISOString().split("T")[0];
+  const filename = `${sanitizeFilename(playerName)}_${date}.ydk`;
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 export const ReplayView = ({
   batchFilter,
   navigation,
@@ -410,12 +476,27 @@ export const ReplayView = ({
               <>
                 {showPlayer1 ? (
                   <div>
-                    <p className="mb-2 font-medium text-sm">
-                      <PlayerName
-                        name={replay.player1}
-                        playerId={playerLinks?.player1Id}
-                      />{" "}
-                      ({countExpandedCards(player1TotalCards, 3)})
+                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+                      <span>
+                        <PlayerName
+                          name={replay.player1}
+                          playerId={playerLinks?.player1Id}
+                        />{" "}
+                        ({countExpandedCards(player1TotalCards, 3)})
+                      </span>
+                      <button
+                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
+                        onClick={() =>
+                          downloadYdk(
+                            player1TotalCards,
+                            replay.player1,
+                            replay.played_at
+                          )
+                        }
+                        type="button"
+                      >
+                        Download deck
+                      </button>
                     </p>
                     <CardGrid
                       cards={player1TotalCards}
@@ -427,12 +508,27 @@ export const ReplayView = ({
                 ) : null}
                 {showPlayer2 ? (
                   <div>
-                    <p className="mb-2 font-medium text-sm">
-                      <PlayerName
-                        name={replay.player2}
-                        playerId={playerLinks?.player2Id}
-                      />{" "}
-                      ({countExpandedCards(player2TotalCards, 3)})
+                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+                      <span>
+                        <PlayerName
+                          name={replay.player2}
+                          playerId={playerLinks?.player2Id}
+                        />{" "}
+                        ({countExpandedCards(player2TotalCards, 3)})
+                      </span>
+                      <button
+                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
+                        onClick={() =>
+                          downloadYdk(
+                            player2TotalCards,
+                            replay.player2,
+                            replay.played_at
+                          )
+                        }
+                        type="button"
+                      >
+                        Download deck
+                      </button>
                     </p>
                     <CardGrid
                       cards={player2TotalCards}

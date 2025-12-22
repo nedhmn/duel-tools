@@ -52,6 +52,7 @@ export type CardInfo = {
   card_name: string;
   card_amount: number;
   card_type: string;
+  serial_number: string;
 };
 
 export type PlayerCards = {

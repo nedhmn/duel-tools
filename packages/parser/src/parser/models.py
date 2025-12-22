@@ -10,6 +10,7 @@ class CardInfo(BaseModel):
     card_name: str
     card_amount: int
     card_type: str
+    serial_number: str
 
 
 class PlayerCards(BaseModel):
