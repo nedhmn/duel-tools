@@ -32,6 +32,12 @@ if index_html.exists() and assets_dir.exists():
     @app.get("/{path:path}")
     async def spa_fallback(path: str) -> FileResponse:
         file_path = static_dir / path
-        if file_path.is_file():
-            return FileResponse(file_path)
+        try:
+            resolved = file_path.resolve()
+        except (OSError, ValueError):
+            return FileResponse(index_html)
+        if not resolved.is_relative_to(static_dir.resolve()):
+            return FileResponse(index_html)
+        if resolved.is_file():
+            return FileResponse(resolved)
         return FileResponse(index_html)

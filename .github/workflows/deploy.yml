@@ -37,7 +37,7 @@ jobs:
       - name: Frontend checks
         working-directory: apps/duel-prep/frontend
         run: |
-          pnpm install
+          pnpm install --frozen-lockfile
           pnpm check
 
   deploy-api:
