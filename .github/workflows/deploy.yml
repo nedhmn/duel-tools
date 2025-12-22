@@ -17,6 +17,9 @@ jobs:
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
 
+      - name: Install backend dependencies
+        run: uv sync --frozen
+
       - name: Backend checks
         working-directory: apps/duel-prep/backend
         run: make check
