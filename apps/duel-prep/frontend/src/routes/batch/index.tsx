@@ -169,7 +169,9 @@ const BatchIndexPage = () => {
 
   return (
     <>
-      <SiteHeader breadcrumbs={[{ label: "Batches" }]} />
+      <SiteHeader
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Batches" }]}
+      />
       <main className="flex-1 overflow-y-auto p-6">
         <DataTable columns={columns} data={batches} totalLabel="batch(es)" />
       </main>

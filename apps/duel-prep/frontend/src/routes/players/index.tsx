@@ -90,7 +90,9 @@ const PlayersIndexPage = () => {
 
   return (
     <>
-      <SiteHeader breadcrumbs={[{ label: "Players" }]} />
+      <SiteHeader
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Players" }]}
+      />
       <main className="flex-1 overflow-y-auto p-6">
         <DataTable columns={columns} data={players} totalLabel="player(s)" />
       </main>
