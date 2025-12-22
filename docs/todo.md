@@ -320,11 +320,13 @@ routes/
   - Uses `fastapi run` (modern CLI)
   - `UV_COMPILE_BYTECODE=1` for faster startup
   - `--no-install-workspace` for layer caching
+  - Non-root user (`appuser`) for security
   - Railway uses `RAILWAY_DOCKERFILE_PATH` env var to find it
 - [x] `.dockerignore` - Create (repo root)
 - [x] `apps/duel-prep/backend/app/main.py` - Modify (add static file serving)
   - Mount `/assets` directory
   - Catch-all route returns `index.html` for SPA
+  - Path traversal protection via `resolve()` + `is_relative_to()`
 
 **Test locally:**
 ```bash
@@ -335,27 +337,27 @@ docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
 
 - [x] `.github/workflows/deploy.yml` - Create
   - Trigger: push to main (paths: `apps/duel-prep/**`, `packages/**`) + manual dispatch
-  - Job 1: `lint` - Backend (`make check`) + Frontend (`pnpm check`)
+  - Job 1: `lint` - Backend (`make check`) + Frontend (`pnpm check --frozen-lockfile`)
   - Job 2: `deploy-api` - Railway CLI deploy to `duel-prep-api` service
   - Job 3: `deploy-worker` - Railway CLI deploy to `duel-prep-worker` service
   - Requires: `RAILWAY_TOKEN` secret in GitHub repo
 
-### Phase 6c: Railway Setup (Manual)
+### Phase 6c: Railway Setup ✅
 
-- [ ] Create project: "duel-tools"
-- [ ] Add PostgreSQL plugin → `DATABASE_URL`
-- [ ] Add Redis plugin → `REDIS_URL`
-- [ ] Create service: `duel-prep-api`
+- [x] Create project: "duel-tools"
+- [x] Add PostgreSQL plugin → `DATABASE_URL`
+- [x] Add Redis plugin → `REDIS_URL`
+- [x] Create service: `duel-prep-api`
   - Source: GitHub repo
   - Root Directory: (empty = repo root)
   - Variable: `RAILWAY_DOCKERFILE_PATH=apps/duel-prep/backend/Dockerfile`
   - Link DATABASE_URL, REDIS_URL from plugins
   - Add: CAPSOLVER_API_KEY, SITE_KEY, DB_USERNAME, DB_PASSWORD, DB_ID, DB_REGULAR
-- [ ] Create service: `duel-prep-worker`
+- [x] Create service: `duel-prep-worker`
   - Same config as API
   - Start command override: `celery -A app.worker.celery_app worker --loglevel=info`
-- [ ] Init database (one-time): Railway shell → `python scripts/init_db.py`
-- [ ] Add `RAILWAY_TOKEN` secret to GitHub repo settings
+- [x] Init database (one-time): Railway shell → `python scripts/init_db.py`
+- [x] Add `RAILWAY_TOKEN` secret to GitHub repo settings
 
 **Environment Variables:**
 | Variable          | Source                    |
@@ -369,23 +371,48 @@ docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
 | DB_ID             | Manual (DuelingBook auth) |
 | DB_REGULAR        | Manual (optional)         |
 
+### Phase 6d: Deployment Fixes ✅
+
+**Scraper Package Fix**
+- [x] Added `[build-system]` with hatchling to `packages/scraper/pyproject.toml`
+- [x] Added `artifacts = ["*.json"]` to include `capsolver_task.json` in wheel
+
+**Frontend Polish**
+- [x] Fixed breadcrumbs - "Home" now shows on `/batch` and `/players` pages
+- [x] Removed TanStack boilerplate images from `public/`
+- [x] Updated `manifest.json` with "Duel Tools" name
+
+**Backend Scripts**
+- [x] Added `scripts/clear_db.py` - Delete all data from tables
+- [x] Added `make clear-db` command
+
+---
+
+## Future Work
+
+### Seeder Package (packages/seeder)
+- [ ] S3 Replay Import - Seed DB with replay JSONs from AWS S3
+- [ ] XLSX Parser - Extract replay links from Excel files, dedup, scrape if not in DB
+
+**Note:** Replay/Player tables are independent of Batch/Job. Seeding can insert directly into `replays`, `players`, `replay_players` without creating batches.
+
 ---
 
 ## References
 
 ### Internal Docs
-- `docs/project-overview.md` - Project overview
-- `docs/architecture.md` - System architecture + DB schema
-- `docs/api-spec.md` - API endpoints
+- `docs/README.md` - Quick links, setup, commands
+- `docs/apps/duel-prep.md` - Architecture, API spec, database schema
+- `docs/services/railway.md` - Railway deployment guide
 - `apps/duel-prep/backend/CLAUDE.md` - Backend dev guidelines
 - `apps/duel-prep/frontend/CLAUDE.md` - Frontend dev guidelines
+
+### Artifacts
+- `docs/artifacts/replay-json-example.json` - DuelingBook replay JSON
+- `docs/artifacts/deck-ydk-example.ydk` - YDK deck export format
+- `docs/artifacts/init-prompt.md` - Initial project prompt
 
 ### External Reference Repos
 - `github.com/nedhmn/replay-scraper-api` - Scraping patterns
 - `github.com/nedhmn/gfwl-data` - Parser logic
-- `github.com/nedhmn/multipolicy/tree/main/apps/local/backend` - FastAPI patterns
-- `github.com/nedhmn/multipolicy/tree/main/apps/local/frontend` - React/TanStack patterns
-
----
-
-**Note:** This is a high-level roadmap. Future sessions may break down items into finer phases as needed (e.g., parser and scraper could be separate phases).
+- `github.com/nedhmn/multipolicy` - FastAPI/React patterns
