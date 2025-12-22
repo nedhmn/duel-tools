@@ -409,6 +409,86 @@ export const ReplayView = ({
         ) : null}
       </div>
 
+      <div className="rounded-lg border border-border/50 p-4">
+        <h3 className="mb-3 font-medium">Total Cards Seen</h3>
+        <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
+          {(() => {
+            const totalMaxCards = Math.max(
+              countExpandedCards(player1TotalCards, 3),
+              countExpandedCards(player2TotalCards, 3)
+            );
+            return (
+              <>
+                {showPlayer1 ? (
+                  <div>
+                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+                      <span>
+                        <PlayerName
+                          name={replay.player1}
+                          playerId={playerLinks?.player1Id}
+                        />{" "}
+                        ({countExpandedCards(player1TotalCards, 3)})
+                      </span>
+                      <button
+                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
+                        onClick={() =>
+                          downloadYdk(
+                            player1TotalCards,
+                            replay.player1,
+                            replay.played_at
+                          )
+                        }
+                        type="button"
+                      >
+                        Download deck
+                      </button>
+                    </p>
+                    <CardGrid
+                      cards={player1TotalCards}
+                      columns={cardColumns}
+                      maxPerCard={3}
+                      minTotalSlots={totalMaxCards}
+                    />
+                  </div>
+                ) : null}
+                {showPlayer2 ? (
+                  <div>
+                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+                      <span>
+                        <PlayerName
+                          name={replay.player2}
+                          playerId={playerLinks?.player2Id}
+                        />{" "}
+                        ({countExpandedCards(player2TotalCards, 3)})
+                      </span>
+                      <button
+                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
+                        onClick={() =>
+                          downloadYdk(
+                            player2TotalCards,
+                            replay.player2,
+                            replay.played_at
+                          )
+                        }
+                        type="button"
+                      >
+                        Download deck
+                      </button>
+                    </p>
+                    <CardGrid
+                      cards={player2TotalCards}
+                      columns={cardColumns}
+                      maxPerCard={3}
+                      minTotalSlots={totalMaxCards}
+                    />
+                  </div>
+                ) : null}
+              </>
+            );
+          })()}
+        </div>
+      </div>
+
       {replay.games.map((game) => {
         const gameMaxCards = Math.max(
           countExpandedCards(game.player1_cards.cards),
@@ -493,86 +573,6 @@ export const ReplayView = ({
           </div>
         );
       })}
-
-      <div className="rounded-lg border border-border/50 p-4">
-        <h3 className="mb-3 font-medium">Total Cards Seen</h3>
-        <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
-          {(() => {
-            const totalMaxCards = Math.max(
-              countExpandedCards(player1TotalCards, 3),
-              countExpandedCards(player2TotalCards, 3)
-            );
-            return (
-              <>
-                {showPlayer1 ? (
-                  <div>
-                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
-                      <span>
-                        <PlayerName
-                          name={replay.player1}
-                          playerId={playerLinks?.player1Id}
-                        />{" "}
-                        ({countExpandedCards(player1TotalCards, 3)})
-                      </span>
-                      <button
-                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
-                        onClick={() =>
-                          downloadYdk(
-                            player1TotalCards,
-                            replay.player1,
-                            replay.played_at
-                          )
-                        }
-                        type="button"
-                      >
-                        Download deck
-                      </button>
-                    </p>
-                    <CardGrid
-                      cards={player1TotalCards}
-                      columns={cardColumns}
-                      maxPerCard={3}
-                      minTotalSlots={totalMaxCards}
-                    />
-                  </div>
-                ) : null}
-                {showPlayer2 ? (
-                  <div>
-                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
-                      <span>
-                        <PlayerName
-                          name={replay.player2}
-                          playerId={playerLinks?.player2Id}
-                        />{" "}
-                        ({countExpandedCards(player2TotalCards, 3)})
-                      </span>
-                      <button
-                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
-                        onClick={() =>
-                          downloadYdk(
-                            player2TotalCards,
-                            replay.player2,
-                            replay.played_at
-                          )
-                        }
-                        type="button"
-                      >
-                        Download deck
-                      </button>
-                    </p>
-                    <CardGrid
-                      cards={player2TotalCards}
-                      columns={cardColumns}
-                      maxPerCard={3}
-                      minTotalSlots={totalMaxCards}
-                    />
-                  </div>
-                ) : null}
-              </>
-            );
-          })()}
-        </div>
-      </div>
     </div>
   );
 };
