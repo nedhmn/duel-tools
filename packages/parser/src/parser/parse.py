@@ -18,9 +18,10 @@ def parse_replay(raw_json: dict[str, Any]) -> ParsedReplay:
     player2 = raw_json["player2"]["username"]
 
     card_id_map = _build_card_id_map(plays)
+    card_names = set(card_id_map.keys())
 
     plays_df = _create_plays_df(plays)
-    plays_df = _add_derived_columns(plays_df)
+    plays_df = _add_derived_columns(plays_df, card_names)
 
     cards_df = _create_cards_df(plays_df, card_id_map)
 
@@ -129,15 +130,17 @@ def _create_plays_df(plays: list[dict[str, Any]]) -> pd.DataFrame:
     return df
 
 
-def _add_derived_columns(df: pd.DataFrame) -> pd.DataFrame:
+def _add_derived_columns(
+    df: pd.DataFrame, card_names: set[str]
+) -> pd.DataFrame:
     df = df.copy()
-    df["card_name"] = df.apply(_extract_card_name, axis=1)
+    df["card_name"] = df.apply(lambda row: _extract_card_name(row, card_names), axis=1)
     df["deck_change"] = df.apply(_calculate_deck_change, axis=1)
     df["game_number"] = df["public_log"].str.contains("Chose to go", na=False).cumsum()
     return df
 
 
-def _extract_card_name(row: pd.Series) -> str | None:
+def _extract_card_name(row: pd.Series, card_names: set[str]) -> str | None:
     if row.get("play") == "Duel message":
         return None
 
@@ -148,7 +151,13 @@ def _extract_card_name(row: pd.Series) -> str | None:
     for log in (row.get("private_log"), row.get("public_log")):
         if not log:
             continue
-        matches = CARD_NAME_PATTERN.findall(str(log))
+        log_str = str(log)
+
+        for name in card_names:
+            if f'"{name}"' in log_str:
+                return name
+
+        matches = CARD_NAME_PATTERN.findall(log_str)
         if matches:
             return matches[0]
 

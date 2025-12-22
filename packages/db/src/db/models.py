@@ -61,6 +61,7 @@ class Replay(Base):
     raw_json: Mapped[dict[str, Any]] = mapped_column(JSONB)
     match_result: Mapped[str | None] = mapped_column(String(16))
     played_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    format: Mapped[str] = mapped_column(String(64))
 
     jobs: Mapped[list["Job"]] = relationship(back_populates="replay")
     replay_players: Mapped[list["ReplayPlayer"]] = relationship(back_populates="replay")

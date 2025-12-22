@@ -13,12 +13,16 @@ import { type BatchFilter, ReplayView } from "@/features/replay/replay-view";
 type BatchSearch = {
   replay?: number;
   pov?: string;
+  format?: string;
 };
 
 const validateSearch = (search: Record<string, unknown>): BatchSearch => ({
   replay: typeof search.replay === "number" ? search.replay : undefined,
   pov: typeof search.pov === "string" ? search.pov : undefined,
+  format: typeof search.format === "string" ? search.format : undefined,
 });
+
+type FormatOption = { value: string; count: number };
 
 type ReplayViewerProps = {
   completedJobs: JobResponse[];
@@ -26,6 +30,9 @@ type ReplayViewerProps = {
   onNavigate: (newIndex: number) => void;
   pov: BatchFilter;
   onPovChange: (pov: BatchFilter) => void;
+  formatValue: string | null;
+  formatOptions: FormatOption[];
+  onFormatChange: (format: string | null) => void;
 };
 
 const ReplayViewer = ({
@@ -34,6 +41,9 @@ const ReplayViewer = ({
   onNavigate,
   pov,
   onPovChange,
+  formatValue,
+  formatOptions,
+  onFormatChange,
 }: ReplayViewerProps) => {
   const currentJob = completedJobs[currentIndex];
   const currentDuelingbookId = currentJob?.duelingbook_id ?? "";
@@ -83,6 +93,11 @@ const ReplayViewer = ({
           value: pov,
           onChange: onPovChange,
         }}
+        formatFilter={{
+          value: formatValue,
+          options: formatOptions,
+          onChange: onFormatChange,
+        }}
         navigation={{
           current: currentIndex,
           total: completedJobs.length,
@@ -100,7 +115,7 @@ const ReplayViewer = ({
 
 const BatchPage = () => {
   const { "batch-id": batchId } = Route.useParams();
-  const { replay, pov } = Route.useSearch();
+  const { replay, pov, format } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const hasHandledComplete = useRef(false);
@@ -134,7 +149,7 @@ const BatchPage = () => {
     hasHandledComplete.current = true;
   }, [batch, queryClient]);
 
-  const completedJobs = (
+  const allCompletedJobs = (
     batch?.jobs.filter((j) => j.status === "completed" && j.duelingbook_id) ??
     []
   ).sort((a, b) => {
@@ -143,6 +158,24 @@ const BatchPage = () => {
     }
     return new Date(b.played_at).getTime() - new Date(a.played_at).getTime();
   });
+
+  const formatOptions: FormatOption[] = (() => {
+    const counts = new Map<string, number>();
+    for (const job of allCompletedJobs) {
+      if (job.format) {
+        counts.set(job.format, (counts.get(job.format) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
+  })();
+
+  const currentFormat = format ?? null;
+
+  const completedJobs = currentFormat
+    ? allCompletedJobs.filter((j) => j.format === currentFormat)
+    : allCompletedJobs;
 
   const currentIndex = replay
     ? Math.max(
@@ -160,7 +193,11 @@ const BatchPage = () => {
     navigate({
       to: "/batch/$batch-id",
       params: { "batch-id": batchId },
-      search: { replay: newReplayId, pov: currentPov },
+      search: {
+        replay: newReplayId,
+        pov: currentPov === "both" ? undefined : currentPov,
+        format: currentFormat ?? undefined,
+      },
       replace: true,
     });
   };
@@ -169,7 +206,24 @@ const BatchPage = () => {
     navigate({
       to: "/batch/$batch-id",
       params: { "batch-id": batchId },
-      search: { replay, pov: newPov === "both" ? undefined : newPov },
+      search: {
+        replay,
+        pov: newPov === "both" ? undefined : newPov,
+        format: currentFormat ?? undefined,
+      },
+      replace: true,
+    });
+  };
+
+  const handleFormatChange = (newFormat: string | null) => {
+    navigate({
+      to: "/batch/$batch-id",
+      params: { "batch-id": batchId },
+      search: {
+        replay: undefined,
+        pov: currentPov === "both" ? undefined : currentPov,
+        format: newFormat ?? undefined,
+      },
       replace: true,
     });
   };
@@ -230,6 +284,9 @@ const BatchPage = () => {
           <ReplayViewer
             completedJobs={completedJobs}
             currentIndex={currentIndex}
+            formatOptions={formatOptions}
+            formatValue={currentFormat}
+            onFormatChange={handleFormatChange}
             onNavigate={handleNavigate}
             onPovChange={handlePovChange}
             pov={currentPov}

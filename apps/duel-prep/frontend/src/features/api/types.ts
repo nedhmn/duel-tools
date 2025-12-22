@@ -17,6 +17,7 @@ export type JobResponse = {
   player2: string | null;
   match_result: string | null;
   played_at: string | null;
+  format: string | null;
 };
 
 export type ScrapeResponse = {
@@ -99,6 +100,7 @@ export type ReplayMetadata = {
   opponent: string;
   played_at: string;
   match_result: string;
+  format: string;
 };
 
 export type PlayerDetailResponse = {

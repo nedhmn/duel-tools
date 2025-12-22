@@ -119,6 +119,7 @@ async def get_player(
                 opponent=opponent,
                 played_at=replay.played_at,
                 match_result=match_result,
+                format=replay.format,
             )
         )
 

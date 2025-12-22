@@ -86,6 +86,7 @@ def scrape_replay_task(self, job_id_str: str, url: str) -> None:
                 raw_json=raw_json,
                 match_result=parsed.match_result,
                 played_at=parsed.played_at,
+                format=parsed.format,
             )
             session.add(replay)
             session.flush()

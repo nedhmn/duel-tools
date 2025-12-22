@@ -8,11 +8,13 @@ import { type PlayerFilter, ReplayView } from "@/features/replay/replay-view";
 type PlayerSearch = {
   replay?: number;
   pov?: string;
+  format?: string;
 };
 
 const validateSearch = (search: Record<string, unknown>): PlayerSearch => ({
   replay: typeof search.replay === "number" ? search.replay : undefined,
   pov: typeof search.pov === "string" ? search.pov : undefined,
+  format: typeof search.format === "string" ? search.format : undefined,
 });
 
 const SKELETON_CARD_IDS = [
@@ -31,7 +33,10 @@ type ReplayMetadataItem = {
   opponent: string;
   match_result: string;
   played_at: string;
+  format: string;
 };
+
+type FormatOption = { value: string; count: number };
 
 type ReplayViewerProps = {
   replays: ReplayMetadataItem[];
@@ -40,6 +45,9 @@ type ReplayViewerProps = {
   focusedPlayerName: string;
   pov: PlayerFilter;
   onPovChange: (pov: PlayerFilter) => void;
+  formatValue: string | null;
+  formatOptions: FormatOption[];
+  onFormatChange: (format: string | null) => void;
 };
 
 const ReplayViewer = ({
@@ -49,6 +57,9 @@ const ReplayViewer = ({
   focusedPlayerName,
   pov,
   onPovChange,
+  formatValue,
+  formatOptions,
+  onFormatChange,
 }: ReplayViewerProps) => {
   const currentDuelingbookId = replays[currentIndex]?.duelingbook_id ?? "";
 
@@ -83,6 +94,11 @@ const ReplayViewer = ({
       }
     >
       <ReplayView
+        formatFilter={{
+          value: formatValue,
+          options: formatOptions,
+          onChange: onFormatChange,
+        }}
         navigation={{
           current: currentIndex,
           total: replays.length,
@@ -105,14 +121,32 @@ const ReplayViewer = ({
 
 const PlayerPage = () => {
   const { "player-id": playerId } = Route.useParams();
-  const { replay, pov } = Route.useSearch();
+  const { replay, pov, format } = Route.useSearch();
   const navigate = useNavigate();
 
   const { data: player, isLoading } = usePlayerDetail(playerId);
 
-  const replays = [...(player?.replays ?? [])].sort(
+  const allReplays = [...(player?.replays ?? [])].sort(
     (a, b) => new Date(b.played_at).getTime() - new Date(a.played_at).getTime()
   );
+
+  const formatOptions: FormatOption[] = (() => {
+    const counts = new Map<string, number>();
+    for (const r of allReplays) {
+      if (r.format) {
+        counts.set(r.format, (counts.get(r.format) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
+  })();
+
+  const currentFormat = format ?? null;
+
+  const replays = currentFormat
+    ? allReplays.filter((r) => r.format === currentFormat)
+    : allReplays;
 
   const currentIndex = replay
     ? Math.max(
@@ -130,7 +164,11 @@ const PlayerPage = () => {
     navigate({
       to: "/players/$player-id",
       params: { "player-id": playerId },
-      search: { replay: newReplayId, pov: currentPov },
+      search: {
+        replay: newReplayId,
+        pov: currentPov === "both" ? undefined : currentPov,
+        format: currentFormat ?? undefined,
+      },
       replace: true,
     });
   };
@@ -139,7 +177,24 @@ const PlayerPage = () => {
     navigate({
       to: "/players/$player-id",
       params: { "player-id": playerId },
-      search: { replay, pov: newPov === "both" ? undefined : newPov },
+      search: {
+        replay,
+        pov: newPov === "both" ? undefined : newPov,
+        format: currentFormat ?? undefined,
+      },
+      replace: true,
+    });
+  };
+
+  const handleFormatChange = (newFormat: string | null) => {
+    navigate({
+      to: "/players/$player-id",
+      params: { "player-id": playerId },
+      search: {
+        replay: undefined,
+        pov: currentPov === "both" ? undefined : currentPov,
+        format: newFormat ?? undefined,
+      },
       replace: true,
     });
   };
@@ -227,6 +282,9 @@ const PlayerPage = () => {
           <ReplayViewer
             currentIndex={currentIndex}
             focusedPlayerName={player.username}
+            formatOptions={formatOptions}
+            formatValue={currentFormat}
+            onFormatChange={handleFormatChange}
             onNavigate={handleNavigate}
             onPovChange={handlePovChange}
             pov={currentPov}

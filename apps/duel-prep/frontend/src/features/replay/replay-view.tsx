@@ -21,6 +21,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { CardInfo, ParsedReplay } from "@/features/api/types";
 import { cn } from "@/lib/utils";
@@ -33,6 +40,11 @@ type NavigationItem = {
 
 export type PlayerFilter = "both" | "player" | "opponent";
 export type BatchFilter = "both" | "player1" | "player2";
+
+type FormatFilterOption = {
+  value: string;
+  count: number;
+};
 
 type ReplayViewProps = {
   replay: ParsedReplay;
@@ -56,6 +68,11 @@ type ReplayViewProps = {
   batchFilter?: {
     value: BatchFilter;
     onChange: (value: BatchFilter) => void;
+  };
+  formatFilter?: {
+    value: string | null;
+    options: FormatFilterOption[];
+    onChange: (value: string | null) => void;
   };
 };
 
@@ -289,6 +306,7 @@ const downloadYdk = (
 
 export const ReplayView = ({
   batchFilter,
+  formatFilter,
   navigation,
   playerFilter,
   playerLinks,
@@ -364,9 +382,14 @@ export const ReplayView = ({
     <div className="space-y-4">
       <div className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold text-lg">
-            <PlayerName name={firstPlayer} playerId={firstPlayerId} /> vs{" "}
-            <PlayerName name={secondPlayer} playerId={secondPlayerId} />
+          <h2 className="flex items-baseline gap-2 font-semibold text-lg">
+            <span>
+              <PlayerName name={firstPlayer} playerId={firstPlayerId} /> vs{" "}
+              <PlayerName name={secondPlayer} playerId={secondPlayerId} />
+            </span>
+            <span className="font-normal text-muted-foreground text-xs">
+              {new Date(replay.played_at).toLocaleDateString()}
+            </span>
           </h2>
           {navigation ? (
             <ReplayNavigation
@@ -391,49 +414,73 @@ export const ReplayView = ({
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>
-        {playerFilter ? (
-          <ToggleGroup
-            className="justify-start"
-            onValueChange={(val) => {
-              if (val) {
-                playerFilter.onChange(val as PlayerFilter);
-              }
-            }}
-            type="single"
-            value={playerFilter.value}
-          >
-            <ToggleGroupItem size="sm" value="both">
-              Both
-            </ToggleGroupItem>
-            <ToggleGroupItem size="sm" value="player">
-              {playerFilter.focusedPlayerName}
-            </ToggleGroupItem>
-            <ToggleGroupItem size="sm" value="opponent">
-              Opponent
-            </ToggleGroupItem>
-          </ToggleGroup>
-        ) : null}
-        {batchFilter ? (
-          <ToggleGroup
-            className="justify-start"
-            onValueChange={(val) => {
-              if (val) {
-                batchFilter.onChange(val as BatchFilter);
-              }
-            }}
-            type="single"
-            value={batchFilter.value}
-          >
-            <ToggleGroupItem size="sm" value="both">
-              Both
-            </ToggleGroupItem>
-            <ToggleGroupItem size="sm" value="player1">
-              {replay.player1}
-            </ToggleGroupItem>
-            <ToggleGroupItem size="sm" value="player2">
-              {replay.player2}
-            </ToggleGroupItem>
-          </ToggleGroup>
+        {playerFilter || batchFilter || formatFilter ? (
+          <div className="flex flex-wrap items-center gap-4">
+            {playerFilter ? (
+              <ToggleGroup
+                className="justify-start"
+                onValueChange={(val) => {
+                  if (val) {
+                    playerFilter.onChange(val as PlayerFilter);
+                  }
+                }}
+                type="single"
+                value={playerFilter.value}
+              >
+                <ToggleGroupItem size="sm" value="both">
+                  Both
+                </ToggleGroupItem>
+                <ToggleGroupItem size="sm" value="player">
+                  {playerFilter.focusedPlayerName}
+                </ToggleGroupItem>
+                <ToggleGroupItem size="sm" value="opponent">
+                  Opponent
+                </ToggleGroupItem>
+              </ToggleGroup>
+            ) : null}
+            {batchFilter ? (
+              <ToggleGroup
+                className="justify-start"
+                onValueChange={(val) => {
+                  if (val) {
+                    batchFilter.onChange(val as BatchFilter);
+                  }
+                }}
+                type="single"
+                value={batchFilter.value}
+              >
+                <ToggleGroupItem size="sm" value="both">
+                  Both
+                </ToggleGroupItem>
+                <ToggleGroupItem size="sm" value="player1">
+                  {replay.player1}
+                </ToggleGroupItem>
+                <ToggleGroupItem size="sm" value="player2">
+                  {replay.player2}
+                </ToggleGroupItem>
+              </ToggleGroup>
+            ) : null}
+            {formatFilter ? (
+              <Select
+                onValueChange={(val) =>
+                  formatFilter.onChange(val === "all" ? null : val)
+                }
+                value={formatFilter.value ?? "all"}
+              >
+                <SelectTrigger className="h-8 w-[140px]">
+                  <SelectValue placeholder="All Formats" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Formats</SelectItem>
+                  {formatFilter.options.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.value} ({opt.count})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
+          </div>
         ) : null}
       </div>
 

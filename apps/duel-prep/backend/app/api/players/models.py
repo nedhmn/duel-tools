@@ -21,6 +21,7 @@ class ReplayMetadata(BaseModel):
     opponent: str
     played_at: datetime
     match_result: str
+    format: str
 
 
 class PlayerDetailResponse(BaseModel):
