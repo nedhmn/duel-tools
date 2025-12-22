@@ -61,6 +61,14 @@ const aggregateCards = (
 const getReplayUrl = (replayId: number) =>
   `https://www.duelingbook.com/replay?id=${replayId}`;
 
+const countExpandedCards = (cards: CardInfo[], maxPerCard?: number): number =>
+  cards.reduce(
+    (sum, card) =>
+      sum +
+      (maxPerCard ? Math.min(card.card_amount, maxPerCard) : card.card_amount),
+    0
+  );
+
 export const ReplayView = ({
   navigation,
   playerLinks,
@@ -123,64 +131,94 @@ export const ReplayView = ({
         </div>
       </div>
 
-      {replay.games.map((game) => (
-        <div
-          className="rounded-lg border border-border/50 p-4"
-          key={game.game_number}
-        >
-          <h3 className="mb-3 font-medium">
-            Game {game.game_number}
-            <span className="ml-2 font-normal text-muted-foreground text-sm">
-              {game.winner ? `Winner: ${game.winner}` : "No winner"} | First:{" "}
-              {game.went_first}
-            </span>
-          </h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <p className="mb-2 font-medium text-sm">
-                <PlayerName
-                  name={game.player1_cards.username}
-                  playerId={playerLinks?.player1Id}
-                />{" "}
-                ({game.player1_cards.card_count})
-              </p>
-              <CardGrid cards={game.player1_cards.cards} />
-            </div>
-            <div>
-              <p className="mb-2 font-medium text-sm">
-                <PlayerName
-                  name={game.player2_cards.username}
-                  playerId={playerLinks?.player2Id}
-                />{" "}
-                ({game.player2_cards.card_count})
-              </p>
-              <CardGrid cards={game.player2_cards.cards} />
+      {replay.games.map((game) => {
+        const gameMaxCards = Math.max(
+          countExpandedCards(game.player1_cards.cards),
+          countExpandedCards(game.player2_cards.cards)
+        );
+        return (
+          <div
+            className="rounded-lg border border-border/50 p-4"
+            key={game.game_number}
+          >
+            <h3 className="mb-3 font-medium">
+              Game {game.game_number}
+              <span className="ml-2 font-normal text-muted-foreground text-sm">
+                {game.winner ? `Winner: ${game.winner}` : "No winner"} | First:{" "}
+                {game.went_first}
+              </span>
+            </h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <p className="mb-2 font-medium text-sm">
+                  <PlayerName
+                    name={game.player1_cards.username}
+                    playerId={playerLinks?.player1Id}
+                  />{" "}
+                  ({game.player1_cards.card_count})
+                </p>
+                <CardGrid
+                  cards={game.player1_cards.cards}
+                  minTotalSlots={gameMaxCards}
+                />
+              </div>
+              <div>
+                <p className="mb-2 font-medium text-sm">
+                  <PlayerName
+                    name={game.player2_cards.username}
+                    playerId={playerLinks?.player2Id}
+                  />{" "}
+                  ({game.player2_cards.card_count})
+                </p>
+                <CardGrid
+                  cards={game.player2_cards.cards}
+                  minTotalSlots={gameMaxCards}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       <div className="rounded-lg border border-border/50 p-4">
         <h3 className="mb-3 font-medium">Total Cards Seen</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <p className="mb-2 font-medium text-sm">
-              <PlayerName
-                name={replay.player1}
-                playerId={playerLinks?.player1Id}
-              />
-            </p>
-            <CardGrid cards={player1TotalCards} maxPerCard={3} />
-          </div>
-          <div>
-            <p className="mb-2 font-medium text-sm">
-              <PlayerName
-                name={replay.player2}
-                playerId={playerLinks?.player2Id}
-              />
-            </p>
-            <CardGrid cards={player2TotalCards} maxPerCard={3} />
-          </div>
+          {(() => {
+            const totalMaxCards = Math.max(
+              countExpandedCards(player1TotalCards, 3),
+              countExpandedCards(player2TotalCards, 3)
+            );
+            return (
+              <>
+                <div>
+                  <p className="mb-2 font-medium text-sm">
+                    <PlayerName
+                      name={replay.player1}
+                      playerId={playerLinks?.player1Id}
+                    />
+                  </p>
+                  <CardGrid
+                    cards={player1TotalCards}
+                    maxPerCard={3}
+                    minTotalSlots={totalMaxCards}
+                  />
+                </div>
+                <div>
+                  <p className="mb-2 font-medium text-sm">
+                    <PlayerName
+                      name={replay.player2}
+                      playerId={playerLinks?.player2Id}
+                    />
+                  </p>
+                  <CardGrid
+                    cards={player2TotalCards}
+                    maxPerCard={3}
+                    minTotalSlots={totalMaxCards}
+                  />
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

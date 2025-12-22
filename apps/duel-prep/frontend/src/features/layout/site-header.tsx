@@ -9,7 +9,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { GlobalSearch } from "@/features/search/global-search";
-import { ThemeToggle } from "@/features/theme/theme-toggle";
 
 type BreadcrumbItemData = {
   label: string;
@@ -48,7 +47,6 @@ export const SiteHeader = ({ breadcrumbs = [], children }: SiteHeaderProps) => (
     <div className="flex items-center gap-2">
       <GlobalSearch />
       {children}
-      <ThemeToggle />
     </div>
   </header>
 );

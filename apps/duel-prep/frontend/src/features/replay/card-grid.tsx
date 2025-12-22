@@ -8,6 +8,7 @@ import type { CardInfo } from "@/features/api/types";
 type CardGridProps = {
   cards: CardInfo[];
   maxPerCard?: number;
+  minTotalSlots?: number;
 };
 
 const getCardImageUrl = (cardId: number) =>
@@ -68,10 +69,20 @@ const expandCards = (
 };
 
 const MIN_SLOTS = 32;
+const COLS = 8;
 
-export const CardGrid = ({ cards, maxPerCard }: CardGridProps) => {
+export const CardGrid = ({
+  cards,
+  maxPerCard,
+  minTotalSlots,
+}: CardGridProps) => {
   const expandedCards = expandCards(cards, maxPerCard);
-  const totalSlots = Math.max(MIN_SLOTS, expandedCards.length);
+  const minSlots = Math.max(
+    MIN_SLOTS,
+    minTotalSlots ?? 0,
+    expandedCards.length
+  );
+  const totalSlots = Math.ceil(minSlots / COLS) * COLS;
   const emptySlots = totalSlots - expandedCards.length;
 
   return (
