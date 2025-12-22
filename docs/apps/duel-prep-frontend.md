@@ -83,8 +83,8 @@ src/
 
 **Search Params:**
 
-- `/batch/$batch-id?replay=<duelingbook_id>` - Deep link to replay
-- `/players/$player-id?replay=<duelingbook_id>` - Deep link to replay
+- `/batch/$batch-id?replay=<duelingbook_id>&pov=<player1|player2>&format=<format>` - Deep link to replay with filters
+- `/players/$player-id?replay=<duelingbook_id>&pov=<player|opponent>&format=<format>` - Deep link to replay with filters
 
 ## API Hooks
 
@@ -103,14 +103,17 @@ src/
 
 Main replay display with two modes:
 
-- **BatchFilter**: View replays within a batch context
-- **PlayerFilter**: View replays for a specific player
+- **BatchFilter**: View replays within a batch context (player1/player2/both)
+- **PlayerFilter**: View replays for a specific player (player/opponent/both)
+- **FormatFilter**: Filter replays by game format (TCG, Goat, etc.)
 
 Features:
+- Played date displayed next to player names
+- Format filter dropdown (filters navigation to selected format)
 - Individual game cards with player grids side-by-side
 - Aggregated "Total Cards Seen" section
 - YDK deck file download per player
-- Prev/next navigation within context
+- Prev/next navigation within filtered context
 
 ### CardGrid
 
@@ -162,6 +165,7 @@ type JobResponse = {
   player2?: string;
   match_result?: string;
   played_at?: string;
+  format?: string;
 };
 
 // Batch
@@ -221,6 +225,7 @@ type ReplayMetadata = {
   opponent: string;
   played_at: string;
   match_result: string;
+  format: string;
 };
 type PlayerDetailResponse = {
   id: string;
@@ -273,8 +278,9 @@ Generates YDK deck files from card data:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Player1 vs Player2                        ◀ [1 of 3] ▶      │
+│ Player1 vs Player2  Jan 15, 2024          ◀ [1 of 3] ▶      │
 │ Result: 2-0 · https://duelingbook.com/replay?id=123 ↗       │
+│ [Both] [Player1] [Player2]              [All Formats ▼]     │
 ├─────────────────────────────────────────────────────────────┤
 │ ┌─────────────────────────────────────────────────────────┐ │
 │ │ Game 1  Winner: Player1 | First: Player2                │ │

@@ -110,7 +110,8 @@ Response:
       "player1": "username1",
       "player2": "username2",
       "match_result": "2-0",
-      "played_at": "2024-01-01T12:00:00Z"
+      "played_at": "2024-01-01T12:00:00Z",
+      "format": "TCG"
     }
   ]
 }
@@ -197,7 +198,8 @@ Response:
       "url": "...",
       "opponent": "...",
       "match_result": "2-0",
-      "played_at": "..."
+      "played_at": "...",
+      "format": "TCG"
     }
   ]
 }
@@ -230,6 +232,7 @@ replays
 ├── raw_json (JSONB)
 ├── match_result (VARCHAR 16, nullable)
 ├── played_at (TIMESTAMP, nullable)
+├── format (VARCHAR 64)
 ├── created_at
 └── updated_at
 

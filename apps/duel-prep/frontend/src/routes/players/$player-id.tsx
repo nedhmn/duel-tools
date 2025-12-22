@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SiteHeader } from "@/features/layout/site-header";
 import { usePlayerDetail } from "@/features/players/api";
@@ -7,14 +6,16 @@ import { useReplay } from "@/features/replay/api";
 import { type PlayerFilter, ReplayView } from "@/features/replay/replay-view";
 
 type PlayerSearch = {
-  replay?: string;
+  replay?: number;
+  pov?: string;
+  format?: string;
 };
 
 const validateSearch = (search: Record<string, unknown>): PlayerSearch => ({
-  replay: typeof search.replay === "string" ? search.replay : undefined,
+  replay: typeof search.replay === "number" ? search.replay : undefined,
+  pov: typeof search.pov === "string" ? search.pov : undefined,
+  format: typeof search.format === "string" ? search.format : undefined,
 });
-
-const stripQuotes = (s: string) => s.replace(/^"|"$/g, "");
 
 const SKELETON_CARD_IDS = [
   "skel-1",
@@ -32,13 +33,21 @@ type ReplayMetadataItem = {
   opponent: string;
   match_result: string;
   played_at: string;
+  format: string;
 };
+
+type FormatOption = { value: string; count: number };
 
 type ReplayViewerProps = {
   replays: ReplayMetadataItem[];
   currentIndex: number;
   onNavigate: (newIndex: number) => void;
   focusedPlayerName: string;
+  pov: PlayerFilter;
+  onPovChange: (pov: PlayerFilter) => void;
+  formatValue: string | null;
+  formatOptions: FormatOption[];
+  onFormatChange: (format: string | null) => void;
 };
 
 const ReplayViewer = ({
@@ -46,11 +55,13 @@ const ReplayViewer = ({
   currentIndex,
   onNavigate,
   focusedPlayerName,
+  pov,
+  onPovChange,
+  formatValue,
+  formatOptions,
+  onFormatChange,
 }: ReplayViewerProps) => {
-  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>("both");
-
-  const rawId = replays[currentIndex]?.duelingbook_id ?? "";
-  const currentDuelingbookId = stripQuotes(rawId);
+  const currentDuelingbookId = replays[currentIndex]?.duelingbook_id ?? "";
 
   const {
     data: replay,
@@ -83,6 +94,11 @@ const ReplayViewer = ({
       }
     >
       <ReplayView
+        formatFilter={{
+          value: formatValue,
+          options: formatOptions,
+          onChange: onFormatChange,
+        }}
         navigation={{
           current: currentIndex,
           total: replays.length,
@@ -94,8 +110,8 @@ const ReplayViewer = ({
         }}
         playerFilter={{
           focusedPlayerName,
-          value: playerFilter,
-          onChange: setPlayerFilter,
+          value: pov,
+          onChange: onPovChange,
         }}
         replay={replay}
       />
@@ -105,27 +121,80 @@ const ReplayViewer = ({
 
 const PlayerPage = () => {
   const { "player-id": playerId } = Route.useParams();
-  const { replay } = Route.useSearch();
+  const { replay, pov, format } = Route.useSearch();
   const navigate = useNavigate();
 
   const { data: player, isLoading } = usePlayerDetail(playerId);
 
-  const replays = player?.replays ?? [];
+  const allReplays = [...(player?.replays ?? [])].sort(
+    (a, b) => new Date(b.played_at).getTime() - new Date(a.played_at).getTime()
+  );
+
+  const formatOptions: FormatOption[] = (() => {
+    const counts = new Map<string, number>();
+    for (const r of allReplays) {
+      if (r.format) {
+        counts.set(r.format, (counts.get(r.format) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
+  })();
+
+  const currentFormat = format ?? null;
+
+  const replays = currentFormat
+    ? allReplays.filter((r) => r.format === currentFormat)
+    : allReplays;
 
   const currentIndex = replay
     ? Math.max(
         0,
-        replays.findIndex((r) => stripQuotes(r.duelingbook_id) === replay)
+        replays.findIndex((r) => Number(r.duelingbook_id) === replay)
       )
     : 0;
 
+  const currentPov: PlayerFilter =
+    pov === "player" || pov === "opponent" ? pov : "both";
+
   const handleNavigate = (newIndex: number) => {
     const rawId = replays[newIndex]?.duelingbook_id;
-    const newReplayId = rawId ? stripQuotes(rawId) : undefined;
+    const newReplayId = rawId ? Number(rawId) : undefined;
     navigate({
       to: "/players/$player-id",
       params: { "player-id": playerId },
-      search: { replay: newReplayId },
+      search: {
+        replay: newReplayId,
+        pov: currentPov === "both" ? undefined : currentPov,
+        format: currentFormat ?? undefined,
+      },
+      replace: true,
+    });
+  };
+
+  const handlePovChange = (newPov: PlayerFilter) => {
+    navigate({
+      to: "/players/$player-id",
+      params: { "player-id": playerId },
+      search: {
+        replay,
+        pov: newPov === "both" ? undefined : newPov,
+        format: currentFormat ?? undefined,
+      },
+      replace: true,
+    });
+  };
+
+  const handleFormatChange = (newFormat: string | null) => {
+    navigate({
+      to: "/players/$player-id",
+      params: { "player-id": playerId },
+      search: {
+        replay: undefined,
+        pov: currentPov === "both" ? undefined : currentPov,
+        format: newFormat ?? undefined,
+      },
       replace: true,
     });
   };
@@ -209,12 +278,17 @@ const PlayerPage = () => {
         ]}
       />
       <main className="flex-1 overflow-y-auto p-6">
-        {player.replays.length > 0 ? (
+        {replays.length > 0 ? (
           <ReplayViewer
             currentIndex={currentIndex}
             focusedPlayerName={player.username}
+            formatOptions={formatOptions}
+            formatValue={currentFormat}
+            onFormatChange={handleFormatChange}
             onNavigate={handleNavigate}
-            replays={player.replays}
+            onPovChange={handlePovChange}
+            pov={currentPov}
+            replays={replays}
           />
         ) : (
           <p className="text-muted-foreground">No replays available</p>

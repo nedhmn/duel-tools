@@ -21,6 +21,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { CardInfo, ParsedReplay } from "@/features/api/types";
 import { cn } from "@/lib/utils";
@@ -33,6 +40,11 @@ type NavigationItem = {
 
 export type PlayerFilter = "both" | "player" | "opponent";
 export type BatchFilter = "both" | "player1" | "player2";
+
+type FormatFilterOption = {
+  value: string;
+  count: number;
+};
 
 type ReplayViewProps = {
   replay: ParsedReplay;
@@ -56,6 +68,11 @@ type ReplayViewProps = {
   batchFilter?: {
     value: BatchFilter;
     onChange: (value: BatchFilter) => void;
+  };
+  formatFilter?: {
+    value: string | null;
+    options: FormatFilterOption[];
+    onChange: (value: string | null) => void;
   };
 };
 
@@ -202,6 +219,17 @@ const aggregateCards = (
 const getReplayUrl = (replayId: number) =>
   `https://www.duelingbook.com/replay?id=${replayId}`;
 
+const flipMatchResult = (result: string): string => {
+  const parts = result.split("-");
+  if (parts.length === 2) {
+    return `${parts[1]}-${parts[0]}`;
+  }
+  if (parts.length === 3) {
+    return `${parts[1]}-${parts[0]}-${parts[2]}`;
+  }
+  return result;
+};
+
 const countExpandedCards = (cards: CardInfo[], maxPerCard?: number): number =>
   cards.reduce(
     (sum, card) =>
@@ -278,6 +306,7 @@ const downloadYdk = (
 
 export const ReplayView = ({
   batchFilter,
+  formatFilter,
   navigation,
   playerFilter,
   playerLinks,
@@ -320,6 +349,30 @@ export const ReplayView = ({
 
   const { showPlayer1, showPlayer2 } = computeShowPlayers();
 
+  const shouldSwapOrder = playerFilter && !focusedIsPlayer1;
+
+  const displayResult = shouldSwapOrder
+    ? flipMatchResult(replay.match_result)
+    : replay.match_result;
+
+  const firstPlayer = shouldSwapOrder ? replay.player2 : replay.player1;
+  const secondPlayer = shouldSwapOrder ? replay.player1 : replay.player2;
+  const firstPlayerId = shouldSwapOrder
+    ? playerLinks?.player2Id
+    : playerLinks?.player1Id;
+  const secondPlayerId = shouldSwapOrder
+    ? playerLinks?.player1Id
+    : playerLinks?.player2Id;
+
+  const firstTotalCards = shouldSwapOrder
+    ? player2TotalCards
+    : player1TotalCards;
+  const secondTotalCards = shouldSwapOrder
+    ? player1TotalCards
+    : player2TotalCards;
+  const showFirst = shouldSwapOrder ? showPlayer2 : showPlayer1;
+  const showSecond = shouldSwapOrder ? showPlayer1 : showPlayer2;
+
   const gridColsClass =
     showPlayer1 && showPlayer2 ? "md:grid-cols-2" : "md:grid-cols-1";
 
@@ -328,17 +381,15 @@ export const ReplayView = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-lg">
-            <PlayerName
-              name={replay.player1}
-              playerId={playerLinks?.player1Id}
-            />{" "}
-            vs{" "}
-            <PlayerName
-              name={replay.player2}
-              playerId={playerLinks?.player2Id}
-            />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="flex items-baseline gap-2 font-semibold text-lg">
+            <span>
+              <PlayerName name={firstPlayer} playerId={firstPlayerId} /> vs{" "}
+              <PlayerName name={secondPlayer} playerId={secondPlayerId} />
+            </span>
+            <span className="font-normal text-muted-foreground text-xs">
+              {new Date(replay.played_at).toLocaleDateString()}
+            </span>
           </h2>
           {navigation ? (
             <ReplayNavigation
@@ -352,7 +403,7 @@ export const ReplayView = ({
           ) : null}
         </div>
         <div className="flex items-center gap-4 text-muted-foreground text-sm">
-          <span>Result: {replay.match_result}</span>
+          <span>Result: {displayResult}</span>
           <a
             className="inline-flex items-center gap-1 hover:text-foreground"
             href={replayUrl}
@@ -363,56 +414,166 @@ export const ReplayView = ({
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>
-        {playerFilter ? (
-          <ToggleGroup
-            className="justify-start"
-            onValueChange={(val) => {
-              if (val) {
-                playerFilter.onChange(val as PlayerFilter);
-              }
-            }}
-            type="single"
-            value={playerFilter.value}
-          >
-            <ToggleGroupItem size="sm" value="both">
-              Both
-            </ToggleGroupItem>
-            <ToggleGroupItem size="sm" value="player">
-              {playerFilter.focusedPlayerName}
-            </ToggleGroupItem>
-            <ToggleGroupItem size="sm" value="opponent">
-              Opponent
-            </ToggleGroupItem>
-          </ToggleGroup>
-        ) : null}
-        {batchFilter ? (
-          <ToggleGroup
-            className="justify-start"
-            onValueChange={(val) => {
-              if (val) {
-                batchFilter.onChange(val as BatchFilter);
-              }
-            }}
-            type="single"
-            value={batchFilter.value}
-          >
-            <ToggleGroupItem size="sm" value="both">
-              Both
-            </ToggleGroupItem>
-            <ToggleGroupItem size="sm" value="player1">
-              {replay.player1}
-            </ToggleGroupItem>
-            <ToggleGroupItem size="sm" value="player2">
-              {replay.player2}
-            </ToggleGroupItem>
-          </ToggleGroup>
+        {playerFilter || batchFilter || formatFilter ? (
+          <div className="flex flex-wrap items-center gap-4">
+            {playerFilter ? (
+              <ToggleGroup
+                className="justify-start"
+                onValueChange={(val) => {
+                  if (val) {
+                    playerFilter.onChange(val as PlayerFilter);
+                  }
+                }}
+                type="single"
+                value={playerFilter.value}
+              >
+                <ToggleGroupItem size="sm" value="both">
+                  Both
+                </ToggleGroupItem>
+                <ToggleGroupItem size="sm" value="player">
+                  {playerFilter.focusedPlayerName}
+                </ToggleGroupItem>
+                <ToggleGroupItem size="sm" value="opponent">
+                  Opponent
+                </ToggleGroupItem>
+              </ToggleGroup>
+            ) : null}
+            {batchFilter ? (
+              <ToggleGroup
+                className="justify-start"
+                onValueChange={(val) => {
+                  if (val) {
+                    batchFilter.onChange(val as BatchFilter);
+                  }
+                }}
+                type="single"
+                value={batchFilter.value}
+              >
+                <ToggleGroupItem size="sm" value="both">
+                  Both
+                </ToggleGroupItem>
+                <ToggleGroupItem size="sm" value="player1">
+                  {replay.player1}
+                </ToggleGroupItem>
+                <ToggleGroupItem size="sm" value="player2">
+                  {replay.player2}
+                </ToggleGroupItem>
+              </ToggleGroup>
+            ) : null}
+            {formatFilter ? (
+              <Select
+                onValueChange={(val) =>
+                  formatFilter.onChange(val === "all" ? null : val)
+                }
+                value={formatFilter.value ?? "all"}
+              >
+                <SelectTrigger className="h-8 w-[140px]">
+                  <SelectValue placeholder="All Formats" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Formats</SelectItem>
+                  {formatFilter.options.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.value} ({opt.count})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
+          </div>
         ) : null}
       </div>
 
+      <div className="rounded-lg border border-border/50 p-4">
+        <h3 className="mb-3 font-medium">Total Cards Seen</h3>
+        <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
+          {(() => {
+            const totalMaxCards = Math.max(
+              countExpandedCards(firstTotalCards, 3),
+              countExpandedCards(secondTotalCards, 3)
+            );
+            return (
+              <>
+                {showFirst ? (
+                  <div>
+                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+                      <span>
+                        <PlayerName
+                          name={firstPlayer}
+                          playerId={firstPlayerId}
+                        />{" "}
+                        ({countExpandedCards(firstTotalCards, 3)})
+                      </span>
+                      <button
+                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
+                        onClick={() =>
+                          downloadYdk(
+                            firstTotalCards,
+                            firstPlayer,
+                            replay.played_at
+                          )
+                        }
+                        type="button"
+                      >
+                        Download deck
+                      </button>
+                    </p>
+                    <CardGrid
+                      cards={firstTotalCards}
+                      columns={cardColumns}
+                      maxPerCard={3}
+                      minTotalSlots={totalMaxCards}
+                    />
+                  </div>
+                ) : null}
+                {showSecond ? (
+                  <div>
+                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+                      <span>
+                        <PlayerName
+                          name={secondPlayer}
+                          playerId={secondPlayerId}
+                        />{" "}
+                        ({countExpandedCards(secondTotalCards, 3)})
+                      </span>
+                      <button
+                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
+                        onClick={() =>
+                          downloadYdk(
+                            secondTotalCards,
+                            secondPlayer,
+                            replay.played_at
+                          )
+                        }
+                        type="button"
+                      >
+                        Download deck
+                      </button>
+                    </p>
+                    <CardGrid
+                      cards={secondTotalCards}
+                      columns={cardColumns}
+                      maxPerCard={3}
+                      minTotalSlots={totalMaxCards}
+                    />
+                  </div>
+                ) : null}
+              </>
+            );
+          })()}
+        </div>
+      </div>
+
       {replay.games.map((game) => {
+        const firstGameCards = shouldSwapOrder
+          ? game.player2_cards
+          : game.player1_cards;
+        const secondGameCards = shouldSwapOrder
+          ? game.player1_cards
+          : game.player2_cards;
         const gameMaxCards = Math.max(
-          countExpandedCards(game.player1_cards.cards),
-          countExpandedCards(game.player2_cards.cards)
+          countExpandedCards(firstGameCards.cards),
+          countExpandedCards(secondGameCards.cards)
         );
         return (
           <div
@@ -427,22 +588,22 @@ export const ReplayView = ({
               </span>
             </h3>
             <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
-              {showPlayer1 ? (
+              {showFirst ? (
                 <div>
                   <p className="mb-2 flex items-center gap-3 font-medium text-sm">
                     <span>
                       <PlayerName
-                        name={game.player1_cards.username}
-                        playerId={playerLinks?.player1Id}
+                        name={firstGameCards.username}
+                        playerId={firstPlayerId}
                       />{" "}
-                      ({game.player1_cards.card_count})
+                      ({firstGameCards.card_count})
                     </span>
                     <button
                       className="font-normal text-muted-foreground text-xs hover:text-foreground"
                       onClick={() =>
                         downloadYdk(
-                          game.player1_cards.cards,
-                          game.player1_cards.username,
+                          firstGameCards.cards,
+                          firstGameCards.username,
                           replay.played_at
                         )
                       }
@@ -452,28 +613,28 @@ export const ReplayView = ({
                     </button>
                   </p>
                   <CardGrid
-                    cards={game.player1_cards.cards}
+                    cards={firstGameCards.cards}
                     columns={cardColumns}
                     minTotalSlots={gameMaxCards}
                   />
                 </div>
               ) : null}
-              {showPlayer2 ? (
+              {showSecond ? (
                 <div>
                   <p className="mb-2 flex items-center gap-3 font-medium text-sm">
                     <span>
                       <PlayerName
-                        name={game.player2_cards.username}
-                        playerId={playerLinks?.player2Id}
+                        name={secondGameCards.username}
+                        playerId={secondPlayerId}
                       />{" "}
-                      ({game.player2_cards.card_count})
+                      ({secondGameCards.card_count})
                     </span>
                     <button
                       className="font-normal text-muted-foreground text-xs hover:text-foreground"
                       onClick={() =>
                         downloadYdk(
-                          game.player2_cards.cards,
-                          game.player2_cards.username,
+                          secondGameCards.cards,
+                          secondGameCards.username,
                           replay.played_at
                         )
                       }
@@ -483,7 +644,7 @@ export const ReplayView = ({
                     </button>
                   </p>
                   <CardGrid
-                    cards={game.player2_cards.cards}
+                    cards={secondGameCards.cards}
                     columns={cardColumns}
                     minTotalSlots={gameMaxCards}
                   />
@@ -493,86 +654,6 @@ export const ReplayView = ({
           </div>
         );
       })}
-
-      <div className="rounded-lg border border-border/50 p-4">
-        <h3 className="mb-3 font-medium">Total Cards Seen</h3>
-        <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
-          {(() => {
-            const totalMaxCards = Math.max(
-              countExpandedCards(player1TotalCards, 3),
-              countExpandedCards(player2TotalCards, 3)
-            );
-            return (
-              <>
-                {showPlayer1 ? (
-                  <div>
-                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
-                      <span>
-                        <PlayerName
-                          name={replay.player1}
-                          playerId={playerLinks?.player1Id}
-                        />{" "}
-                        ({countExpandedCards(player1TotalCards, 3)})
-                      </span>
-                      <button
-                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
-                        onClick={() =>
-                          downloadYdk(
-                            player1TotalCards,
-                            replay.player1,
-                            replay.played_at
-                          )
-                        }
-                        type="button"
-                      >
-                        Download deck
-                      </button>
-                    </p>
-                    <CardGrid
-                      cards={player1TotalCards}
-                      columns={cardColumns}
-                      maxPerCard={3}
-                      minTotalSlots={totalMaxCards}
-                    />
-                  </div>
-                ) : null}
-                {showPlayer2 ? (
-                  <div>
-                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
-                      <span>
-                        <PlayerName
-                          name={replay.player2}
-                          playerId={playerLinks?.player2Id}
-                        />{" "}
-                        ({countExpandedCards(player2TotalCards, 3)})
-                      </span>
-                      <button
-                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
-                        onClick={() =>
-                          downloadYdk(
-                            player2TotalCards,
-                            replay.player2,
-                            replay.played_at
-                          )
-                        }
-                        type="button"
-                      >
-                        Download deck
-                      </button>
-                    </p>
-                    <CardGrid
-                      cards={player2TotalCards}
-                      columns={cardColumns}
-                      maxPerCard={3}
-                      minTotalSlots={totalMaxCards}
-                    />
-                  </div>
-                ) : null}
-              </>
-            );
-          })()}
-        </div>
-      </div>
     </div>
   );
 };

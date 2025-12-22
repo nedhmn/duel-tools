@@ -24,6 +24,7 @@ class JobResponse(BaseModel):
     player2: str | None = None
     match_result: str | None = None
     played_at: datetime | None = None
+    format: str | None = None
 
 
 class ScrapeResponse(BaseModel):

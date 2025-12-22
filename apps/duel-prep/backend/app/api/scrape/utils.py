@@ -20,6 +20,7 @@ def job_to_response(job: Job) -> JobResponse:
     player2 = None
     match_result = None
     played_at = None
+    format_ = None
 
     if job.replay:
         raw = job.replay.raw_json or {}
@@ -29,6 +30,7 @@ def job_to_response(job: Job) -> JobResponse:
         player2 = p2.get("username") if isinstance(p2, dict) else None
         match_result = job.replay.match_result
         played_at = job.replay.played_at
+        format_ = job.replay.format
 
     return JobResponse(
         job_id=job.id,
@@ -41,4 +43,5 @@ def job_to_response(job: Job) -> JobResponse:
         player2=player2,
         match_result=match_result,
         played_at=played_at,
+        format=format_,
     )

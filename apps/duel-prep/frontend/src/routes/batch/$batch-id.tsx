@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { JobResponse } from "@/features/api/types";
@@ -11,31 +11,42 @@ import { useReplay } from "@/features/replay/api";
 import { type BatchFilter, ReplayView } from "@/features/replay/replay-view";
 
 type BatchSearch = {
-  replay?: string;
+  replay?: number;
+  pov?: string;
+  format?: string;
 };
 
 const validateSearch = (search: Record<string, unknown>): BatchSearch => ({
-  replay: typeof search.replay === "string" ? search.replay : undefined,
+  replay: typeof search.replay === "number" ? search.replay : undefined,
+  pov: typeof search.pov === "string" ? search.pov : undefined,
+  format: typeof search.format === "string" ? search.format : undefined,
 });
 
-const stripQuotes = (s: string) => s.replace(/^"|"$/g, "");
+type FormatOption = { value: string; count: number };
 
 type ReplayViewerProps = {
   completedJobs: JobResponse[];
   currentIndex: number;
   onNavigate: (newIndex: number) => void;
+  pov: BatchFilter;
+  onPovChange: (pov: BatchFilter) => void;
+  formatValue: string | null;
+  formatOptions: FormatOption[];
+  onFormatChange: (format: string | null) => void;
 };
 
 const ReplayViewer = ({
   completedJobs,
   currentIndex,
   onNavigate,
+  pov,
+  onPovChange,
+  formatValue,
+  formatOptions,
+  onFormatChange,
 }: ReplayViewerProps) => {
-  const [batchFilter, setBatchFilter] = useState<BatchFilter>("both");
-
   const currentJob = completedJobs[currentIndex];
-  const rawId = currentJob?.duelingbook_id ?? "";
-  const currentDuelingbookId = stripQuotes(rawId);
+  const currentDuelingbookId = currentJob?.duelingbook_id ?? "";
 
   const {
     data: replay,
@@ -58,11 +69,6 @@ const ReplayViewer = ({
     };
   });
 
-  const handleNavigate = (newIndex: number) => {
-    setBatchFilter("both");
-    onNavigate(newIndex);
-  };
-
   if (isLoading && !replay) {
     return (
       <div className="space-y-4">
@@ -84,19 +90,22 @@ const ReplayViewer = ({
     >
       <ReplayView
         batchFilter={{
-          value: batchFilter,
-          onChange: setBatchFilter,
+          value: pov,
+          onChange: onPovChange,
+        }}
+        formatFilter={{
+          value: formatValue,
+          options: formatOptions,
+          onChange: onFormatChange,
         }}
         navigation={{
           current: currentIndex,
           total: completedJobs.length,
-          onPrev: () => handleNavigate(Math.max(0, currentIndex - 1)),
+          onPrev: () => onNavigate(Math.max(0, currentIndex - 1)),
           onNext: () =>
-            handleNavigate(
-              Math.min(completedJobs.length - 1, currentIndex + 1)
-            ),
+            onNavigate(Math.min(completedJobs.length - 1, currentIndex + 1)),
           items: navigationItems,
-          onSelect: handleNavigate,
+          onSelect: onNavigate,
         }}
         replay={replay}
       />
@@ -106,7 +115,7 @@ const ReplayViewer = ({
 
 const BatchPage = () => {
   const { "batch-id": batchId } = Route.useParams();
-  const { replay } = Route.useSearch();
+  const { replay, pov, format } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const hasHandledComplete = useRef(false);
@@ -125,6 +134,7 @@ const BatchPage = () => {
     }
 
     queryClient.invalidateQueries({ queryKey: ["batches"] });
+    queryClient.invalidateQueries({ queryKey: ["players"] });
 
     const completed = batch.jobs.filter((j) => j.status === "completed").length;
     const failed = batch.jobs.filter((j) => j.status === "failed").length;
@@ -139,24 +149,81 @@ const BatchPage = () => {
     hasHandledComplete.current = true;
   }, [batch, queryClient]);
 
-  const completedJobs =
+  const allCompletedJobs = (
     batch?.jobs.filter((j) => j.status === "completed" && j.duelingbook_id) ??
-    [];
+    []
+  ).sort((a, b) => {
+    if (!(a.played_at && b.played_at)) {
+      return 0;
+    }
+    return new Date(b.played_at).getTime() - new Date(a.played_at).getTime();
+  });
+
+  const formatOptions: FormatOption[] = (() => {
+    const counts = new Map<string, number>();
+    for (const job of allCompletedJobs) {
+      if (job.format) {
+        counts.set(job.format, (counts.get(job.format) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
+  })();
+
+  const currentFormat = format ?? null;
+
+  const completedJobs = currentFormat
+    ? allCompletedJobs.filter((j) => j.format === currentFormat)
+    : allCompletedJobs;
 
   const currentIndex = replay
     ? Math.max(
         0,
-        completedJobs.findIndex((j) => stripQuotes(j.duelingbook_id) === replay)
+        completedJobs.findIndex((j) => Number(j.duelingbook_id) === replay)
       )
     : 0;
 
+  const currentPov: BatchFilter =
+    pov === "player1" || pov === "player2" ? pov : "both";
+
   const handleNavigate = (newIndex: number) => {
     const rawId = completedJobs[newIndex]?.duelingbook_id;
-    const newReplayId = rawId ? stripQuotes(rawId) : undefined;
+    const newReplayId = rawId ? Number(rawId) : undefined;
     navigate({
       to: "/batch/$batch-id",
       params: { "batch-id": batchId },
-      search: { replay: newReplayId },
+      search: {
+        replay: newReplayId,
+        pov: currentPov === "both" ? undefined : currentPov,
+        format: currentFormat ?? undefined,
+      },
+      replace: true,
+    });
+  };
+
+  const handlePovChange = (newPov: BatchFilter) => {
+    navigate({
+      to: "/batch/$batch-id",
+      params: { "batch-id": batchId },
+      search: {
+        replay,
+        pov: newPov === "both" ? undefined : newPov,
+        format: currentFormat ?? undefined,
+      },
+      replace: true,
+    });
+  };
+
+  const handleFormatChange = (newFormat: string | null) => {
+    navigate({
+      to: "/batch/$batch-id",
+      params: { "batch-id": batchId },
+      search: {
+        replay: undefined,
+        pov: currentPov === "both" ? undefined : currentPov,
+        format: newFormat ?? undefined,
+      },
       replace: true,
     });
   };
@@ -217,7 +284,12 @@ const BatchPage = () => {
           <ReplayViewer
             completedJobs={completedJobs}
             currentIndex={currentIndex}
+            formatOptions={formatOptions}
+            formatValue={currentFormat}
+            onFormatChange={handleFormatChange}
             onNavigate={handleNavigate}
+            onPovChange={handlePovChange}
+            pov={currentPov}
           />
         ) : (
           <BatchProcessing jobs={batch.jobs} />

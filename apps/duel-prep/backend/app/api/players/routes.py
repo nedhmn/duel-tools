@@ -17,6 +17,16 @@ from db.models import Player, Replay, ReplayPlayer
 
 logger = get_logger(__name__)
 
+
+def flip_match_result(result: str) -> str:
+    parts = result.split("-")
+    if len(parts) == 2:
+        return f"{parts[1]}-{parts[0]}"
+    if len(parts) == 3:
+        return f"{parts[1]}-{parts[0]}-{parts[2]}"
+    return result
+
+
 router = APIRouter()
 
 
@@ -92,6 +102,15 @@ async def get_player(
         )
         opponent = opponent_rp.player.username if opponent_rp else "Unknown"
 
+        raw = replay.raw_json or {}
+        p1 = raw.get("player1", {})
+        player1_username = p1.get("username") if isinstance(p1, dict) else None
+        is_player1 = player.username == player1_username
+
+        match_result = replay.match_result
+        if not is_player1 and match_result:
+            match_result = flip_match_result(match_result)
+
         replays.append(
             ReplayMetadata(
                 id=replay.id,
@@ -99,7 +118,8 @@ async def get_player(
                 url=replay.url,
                 opponent=opponent,
                 played_at=replay.played_at,
-                match_result=replay.match_result,
+                match_result=match_result,
+                format=replay.format,
             )
         )
 
