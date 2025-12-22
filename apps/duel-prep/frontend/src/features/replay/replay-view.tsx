@@ -328,7 +328,7 @@ export const ReplayView = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-semibold text-lg">
             <PlayerName
               name={replay.player1}
