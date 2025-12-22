@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { JobResponse } from "@/features/api/types";
 import { useBatchStatus } from "@/features/batch/api";
+import { BatchProgress } from "@/features/batch/batch-progress";
 import { SiteHeader } from "@/features/layout/site-header";
 import { useReplay } from "@/features/replay/api";
 import { ReplayView } from "@/features/replay/replay-view";
@@ -154,7 +155,7 @@ const BatchPage = () => {
   const isComplete = batch.status === "completed" || batch.status === "failed";
   const showReplayViewer = isComplete && completedJobs.length > 0;
 
-  const batchTitle = `Batch: ${batchId.slice(0, 8)}...`;
+  const batchTitle = batch.name || `Batch: ${batchId.slice(0, 8)}...`;
 
   return (
     <>
@@ -172,7 +173,7 @@ const BatchPage = () => {
             onNavigate={handleNavigate}
           />
         ) : (
-          <p className="text-muted-foreground">Processing...</p>
+          <BatchProgress jobs={batch.jobs} status={batch.status} />
         )}
       </main>
     </>

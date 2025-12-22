@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Layers, Search, User } from "lucide-react";
+import { ChevronRight, Layers, Search, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,14 +13,22 @@ import {
 import { useBatches } from "@/features/batch/api";
 import { usePlayerList } from "@/features/players/api";
 
+const MAX_RESULTS = 5;
+
 export const GlobalSearch = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { data: batchData } = useBatches();
   const { data: playerData } = usePlayerList();
 
-  const batches = batchData?.batches ?? [];
-  const players = playerData?.players ?? [];
+  const allBatches = batchData?.batches ?? [];
+  const allPlayers = playerData?.players ?? [];
+
+  const batches = allBatches.slice(0, MAX_RESULTS);
+  const players = allPlayers.slice(0, MAX_RESULTS);
+
+  const hasMoreBatches = allBatches.length > MAX_RESULTS;
+  const hasMorePlayers = allPlayers.length > MAX_RESULTS;
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -48,6 +56,16 @@ export const GlobalSearch = () => {
       to: "/players/$player-id",
       params: { "player-id": playerId },
     });
+  };
+
+  const handleViewAllBatches = () => {
+    setOpen(false);
+    navigate({ to: "/batch" });
+  };
+
+  const handleViewAllPlayers = () => {
+    setOpen(false);
+    navigate({ to: "/players" });
   };
 
   return (
@@ -88,6 +106,12 @@ export const GlobalSearch = () => {
                 </span>
               </CommandItem>
             ))}
+            {hasMoreBatches ? (
+              <CommandItem onSelect={handleViewAllBatches}>
+                <span className="text-muted-foreground">View all batches</span>
+                <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+              </CommandItem>
+            ) : null}
           </CommandGroup>
           <CommandGroup heading="Players">
             {players.map((player) => (
@@ -102,6 +126,12 @@ export const GlobalSearch = () => {
                 </span>
               </CommandItem>
             ))}
+            {hasMorePlayers ? (
+              <CommandItem onSelect={handleViewAllPlayers}>
+                <span className="text-muted-foreground">View all players</span>
+                <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+              </CommandItem>
+            ) : null}
           </CommandGroup>
         </CommandList>
       </CommandDialog>

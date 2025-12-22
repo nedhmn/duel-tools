@@ -28,11 +28,14 @@ export type BatchStatusResponse = {
 };
 
 // Batch API types
+export type BatchStatus = "pending" | "processing" | "completed" | "failed";
+
 export type BatchSummary = {
   id: string;
   name: string;
   created_at: string;
   replay_count: number;
+  status: BatchStatus;
 };
 
 export type BatchListResponse = {

@@ -77,7 +77,7 @@ export const CardGrid = ({ cards, maxPerCard }: CardGridProps) => {
           <TooltipTrigger asChild>
             <img
               alt={card.card_name}
-              className="w-full rounded"
+              className="aspect-[421/614] w-full rounded"
               height={614}
               loading="lazy"
               src={getCardImageUrl(card.card_id)}

@@ -84,10 +84,16 @@ def _create_plays_df(plays: list[dict[str, Any]]) -> pd.DataFrame:
     rows = []
 
     for play in plays:
+        card_obj = play.get("card")
+        card_name_from_play = (
+            card_obj.get("name") if isinstance(card_obj, dict) else None
+        )
+
         base = {
             "seconds": play.get("seconds"),
             "play": play.get("play"),
             "owner": play.get("owner"),
+            "card_name_from_play": card_name_from_play,
         }
 
         logs = play.get("log")
@@ -125,6 +131,10 @@ def _add_derived_columns(df: pd.DataFrame) -> pd.DataFrame:
 def _extract_card_name(row: pd.Series) -> str | None:
     if row.get("play") == "Duel message":
         return None
+
+    card_name_from_play = row.get("card_name_from_play")
+    if card_name_from_play:
+        return card_name_from_play
 
     for log in (row.get("private_log"), row.get("public_log")):
         if not log:

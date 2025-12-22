@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Layers, Plus } from "lucide-react";
+import { Layers, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -62,7 +62,12 @@ export const AppSidebar = () => {
                       params={{ "batch-id": batch.id }}
                       to="/batch/$batch-id"
                     >
-                      <Layers className="h-4 w-4 shrink-0" />
+                      {batch.status === "processing" ||
+                      batch.status === "pending" ? (
+                        <Loader2 className="h-4 w-4 shrink-0 animate-spin text-blue-500" />
+                      ) : (
+                        <Layers className="h-4 w-4 shrink-0" />
+                      )}
                       <span className="truncate">{batch.name}</span>
                       <span className="ml-auto text-muted-foreground text-xs">
                         {batch.replay_count}

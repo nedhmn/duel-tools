@@ -9,6 +9,7 @@ class BatchSummary(BaseModel):
     name: str
     created_at: datetime
     replay_count: int
+    status: str
 
 
 class BatchListResponse(BaseModel):
