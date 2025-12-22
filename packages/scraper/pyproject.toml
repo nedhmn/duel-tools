@@ -12,6 +12,12 @@ dependencies = [
     "pydantic-settings>=2.12.0",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/scraper"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/scraper/capsolver_task.json" = "scraper/capsolver_task.json"
+
 [tool.uv.sources]
 logger = { workspace = true }
 
