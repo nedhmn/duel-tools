@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Layers, Loader2, Plus } from "lucide-react";
+import { Layers, Loader2, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -14,12 +14,20 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useBatches } from "@/features/batch/api";
+import { usePlayerList } from "@/features/players/api";
 import { ScrapeSheet } from "@/features/scrape/scrape-sheet";
+
+const SIDEBAR_LIMIT = 5;
 
 export const AppSidebar = () => {
   const location = useLocation();
-  const { data } = useBatches();
-  const batches = data?.batches ?? [];
+  const { data: batchData } = useBatches();
+  const { data: playerData } = usePlayerList();
+
+  const batches = (batchData?.batches ?? []).slice(0, SIDEBAR_LIMIT);
+  const players = (playerData?.players ?? [])
+    .sort((a, b) => b.replay_count - a.replay_count)
+    .slice(0, SIDEBAR_LIMIT);
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -77,6 +85,45 @@ export const AppSidebar = () => {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+            <Link
+              className="mt-2 block px-2 text-muted-foreground text-xs hover:text-foreground group-data-[collapsible=icon]:hidden"
+              to="/batch"
+            >
+              View all →
+            </Link>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Top Players</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {players.map((player) => (
+                <SidebarMenuItem key={player.id}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname.includes(player.id)}
+                    tooltip={`${player.username} (${player.replay_count})`}
+                  >
+                    <Link
+                      params={{ "player-id": player.id }}
+                      to="/players/$player-id"
+                    >
+                      <User className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{player.username}</span>
+                      <span className="ml-auto text-muted-foreground text-xs">
+                        {player.replay_count}
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+            <Link
+              className="mt-2 block px-2 text-muted-foreground text-xs hover:text-foreground group-data-[collapsible=icon]:hidden"
+              to="/players"
+            >
+              View all →
+            </Link>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
