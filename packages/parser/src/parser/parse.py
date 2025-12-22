@@ -34,7 +34,7 @@ def parse_replay(raw_json: dict[str, Any]) -> ParsedReplay:
             Game(
                 game_number=game_num,
                 winner=_get_game_winner(player1, player2, game_df),
-                went_first=_get_went_first(game_df),
+                went_first=_get_went_first(player1, player2, game_df),
                 player1_cards=_build_player_cards(player1, game_num, cards_df),
                 player2_cards=_build_player_cards(player2, game_num, cards_df),
             )
@@ -170,11 +170,17 @@ def _calculate_deck_change(row: pd.Series) -> int:
     return 0
 
 
-def _get_went_first(game_df: pd.DataFrame) -> str:
+def _get_went_first(player1: str, player2: str, game_df: pd.DataFrame) -> str:
     first_row = game_df[game_df["public_log"] == "Chose to go first"]
-    if first_row.empty:
-        return ""
-    return first_row.iloc[0]["username"]
+    if not first_row.empty:
+        return first_row.iloc[0]["username"]
+
+    second_row = game_df[game_df["public_log"] == "Chose to go second"]
+    if not second_row.empty:
+        chose_second = second_row.iloc[0]["username"]
+        return player1 if chose_second == player2 else player2
+
+    return ""
 
 
 def _get_game_winner(player1: str, player2: str, game_df: pd.DataFrame) -> str | None:
