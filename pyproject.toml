@@ -10,6 +10,7 @@ dependencies = [
     "logger",
     "parser",
     "scraper",
+    "seeder",
 ]
 
 [tool.uv.workspace]
@@ -19,6 +20,7 @@ members = [
     "packages/logger",
     "packages/parser",
     "packages/scraper",
+    "packages/seeder",
 ]
 
 [tool.uv.sources]
@@ -27,6 +29,7 @@ db = { workspace = true }
 logger = { workspace = true }
 parser = { workspace = true }
 scraper = { workspace = true }
+seeder = { workspace = true }
 
 [tool.uv]
 cache-dir = ".cache"

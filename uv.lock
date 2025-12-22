@@ -10,6 +10,7 @@ members = [
     "logger",
     "parser",
     "scraper",
+    "seeder",
 ]
 
 [[package]]
@@ -334,6 +335,7 @@ dependencies = [
     { name = "logger" },
     { name = "parser" },
     { name = "scraper" },
+    { name = "seeder" },
 ]
 
 [package.metadata]
@@ -343,6 +345,7 @@ requires-dist = [
     { name = "logger", editable = "packages/logger" },
     { name = "parser", editable = "packages/parser" },
     { name = "scraper", editable = "packages/scraper" },
+    { name = "seeder", editable = "packages/seeder" },
 ]
 
 [[package]]
@@ -1223,6 +1226,25 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
 ]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "ruff", specifier = ">=0.14.10" },
+    { name = "ty", specifier = ">=0.0.4" },
+]
+
+[[package]]
+name = "seeder"
+version = "0.1.0"
+source = { editable = "packages/seeder" }
+
+[package.dev-dependencies]
+dev = [
+    { name = "ruff" },
+    { name = "ty" },
+]
+
+[package.metadata]
 
 [package.metadata.requires-dev]
 dev = [
