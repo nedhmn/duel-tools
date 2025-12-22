@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CheckCircle, Circle, Loader2, XCircle } from "lucide-react";
+import {
+  ArrowUpDown,
+  CheckCircle,
+  Circle,
+  Eye,
+  Loader2,
+  XCircle,
+} from "lucide-react";
 import { DataTable } from "@/components/data-table";
+import { DataTableColumnFilter } from "@/components/data-table-column-filter";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { BatchStatus, BatchSummary } from "@/features/api/types";
 import { useBatches } from "@/features/batch/api";
@@ -32,20 +41,38 @@ const statusConfig: Record<
 const columns: ColumnDef<BatchSummary>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: ({ column }) => (
+      <div className="flex items-center gap-1">
+        <Button
+          className="-ml-4"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
+        >
+          Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+        <DataTableColumnFilter column={column} placeholder="Filter name..." />
+      </div>
+    ),
     cell: ({ row }) => (
-      <Link
-        className="font-medium hover:underline"
-        params={{ "batch-id": row.original.id }}
-        to="/batch/$batch-id"
-      >
-        {row.getValue("name")}
-      </Link>
+      <span className="font-medium">{row.getValue("name")}</span>
     ),
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => (
+      <div className="flex items-center gap-1">
+        <Button
+          className="-ml-4"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+        <DataTableColumnFilter column={column} placeholder="Filter status..." />
+      </div>
+    ),
     cell: ({ row }) => {
       const status = row.getValue("status") as BatchStatus;
       const config = statusConfig[status];
@@ -60,7 +87,22 @@ const columns: ColumnDef<BatchSummary>[] = [
   },
   {
     accessorKey: "replay_count",
-    header: "Replays",
+    header: ({ column }) => (
+      <div className="flex items-center gap-1">
+        <Button
+          className="-ml-4"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
+        >
+          Replays
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+        <DataTableColumnFilter
+          column={column}
+          placeholder="Filter replays..."
+        />
+      </div>
+    ),
     cell: ({ row }) => (
       <span className="text-muted-foreground">
         {row.getValue("replay_count")}
@@ -69,7 +111,22 @@ const columns: ColumnDef<BatchSummary>[] = [
   },
   {
     accessorKey: "created_at",
-    header: "Created",
+    header: ({ column }) => (
+      <div className="flex items-center gap-1">
+        <Button
+          className="-ml-4"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
+        >
+          Created
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+        <DataTableColumnFilter
+          column={column}
+          placeholder="Filter created..."
+        />
+      </div>
+    ),
     cell: ({ row }) => {
       const date = new Date(row.getValue("created_at"));
       return (
@@ -78,6 +135,17 @@ const columns: ColumnDef<BatchSummary>[] = [
         </span>
       );
     },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <Link params={{ "batch-id": row.original.id }} to="/batch/$batch-id">
+        <Button size="sm" variant="outline">
+          <Eye className="mr-2 h-4 w-4" />
+          View
+        </Button>
+      </Link>
+    ),
   },
 ];
 
@@ -103,12 +171,7 @@ const BatchIndexPage = () => {
     <>
       <SiteHeader breadcrumbs={[{ label: "Batches" }]} />
       <main className="flex-1 overflow-y-auto p-6">
-        <DataTable
-          columns={columns}
-          data={batches}
-          searchColumn="name"
-          searchPlaceholder="Search batches..."
-        />
+        <DataTable columns={columns} data={batches} totalLabel="batch(es)" />
       </main>
     </>
   );

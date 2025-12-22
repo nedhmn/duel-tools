@@ -1,10 +1,11 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { JobResponse } from "@/features/api/types";
 import { useBatchStatus } from "@/features/batch/api";
-import { BatchProgress } from "@/features/batch/batch-progress";
+import { BatchProcessing } from "@/features/batch/batch-processing";
 import { SiteHeader } from "@/features/layout/site-header";
 import { useReplay } from "@/features/replay/api";
 import { ReplayView } from "@/features/replay/replay-view";
@@ -67,12 +68,13 @@ const BatchPage = () => {
   const { "batch-id": batchId } = Route.useParams();
   const { replay } = Route.useSearch();
   const navigate = useNavigate();
-  const hasShownToast = useRef(false);
+  const queryClient = useQueryClient();
+  const hasHandledComplete = useRef(false);
 
   const { data: batch, isLoading: batchLoading } = useBatchStatus(batchId);
 
   useEffect(() => {
-    if (!batch || hasShownToast.current) {
+    if (!batch || hasHandledComplete.current) {
       return;
     }
 
@@ -81,6 +83,8 @@ const BatchPage = () => {
     if (!isComplete) {
       return;
     }
+
+    queryClient.invalidateQueries({ queryKey: ["batches"] });
 
     const completed = batch.jobs.filter((j) => j.status === "completed").length;
     const failed = batch.jobs.filter((j) => j.status === "failed").length;
@@ -92,8 +96,8 @@ const BatchPage = () => {
       });
     }
 
-    hasShownToast.current = true;
-  }, [batch]);
+    hasHandledComplete.current = true;
+  }, [batch, queryClient]);
 
   const completedJobs =
     batch?.jobs.filter((j) => j.status === "completed" && j.duelingbook_id) ??
@@ -165,7 +169,7 @@ const BatchPage = () => {
           { label: batchTitle },
         ]}
       />
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex flex-1 flex-col overflow-y-auto p-6">
         {showReplayViewer ? (
           <ReplayViewer
             completedJobs={completedJobs}
@@ -173,7 +177,7 @@ const BatchPage = () => {
             onNavigate={handleNavigate}
           />
         ) : (
-          <BatchProgress jobs={batch.jobs} status={batch.status} />
+          <BatchProcessing jobs={batch.jobs} />
         )}
       </main>
     </>

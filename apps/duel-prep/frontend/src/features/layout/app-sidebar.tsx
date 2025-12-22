@@ -28,7 +28,7 @@ export const AppSidebar = () => {
           className="font-semibold text-lg group-data-[collapsible=icon]:hidden"
           to="/batch"
         >
-          Duel Prep
+          Duel Tools
         </Link>
         <SidebarTrigger />
       </SidebarHeader>
