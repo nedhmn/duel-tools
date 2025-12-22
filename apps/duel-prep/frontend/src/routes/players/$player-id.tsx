@@ -125,6 +125,7 @@ const PlayerPage = () => {
       <>
         <SiteHeader
           breadcrumbs={[
+            { label: "Home", href: "/" },
             { label: "Players", href: "/players" },
             { label: "Loading..." },
           ]}
@@ -176,6 +177,7 @@ const PlayerPage = () => {
       <>
         <SiteHeader
           breadcrumbs={[
+            { label: "Home", href: "/" },
             { label: "Players", href: "/players" },
             { label: "Not Found" },
           ]}
@@ -191,6 +193,7 @@ const PlayerPage = () => {
     <>
       <SiteHeader
         breadcrumbs={[
+          { label: "Home", href: "/" },
           { label: "Players", href: "/players" },
           { label: player.username },
         ]}

@@ -154,6 +154,7 @@ const BatchPage = () => {
       <>
         <SiteHeader
           breadcrumbs={[
+            { label: "Home", href: "/" },
             { label: "Batches", href: "/batch" },
             { label: "Loading..." },
           ]}
@@ -173,6 +174,7 @@ const BatchPage = () => {
       <>
         <SiteHeader
           breadcrumbs={[
+            { label: "Home", href: "/" },
             { label: "Batches", href: "/batch" },
             { label: "Not Found" },
           ]}
@@ -193,6 +195,7 @@ const BatchPage = () => {
     <>
       <SiteHeader
         breadcrumbs={[
+          { label: "Home", href: "/" },
           { label: "Batches", href: "/batch" },
           { label: batchTitle },
         ]}

@@ -154,7 +154,9 @@ const BatchIndexPage = () => {
   if (isLoading) {
     return (
       <>
-        <SiteHeader breadcrumbs={[{ label: "Batches" }]} />
+        <SiteHeader
+          breadcrumbs={[{ label: "Home", href: "/" }, { label: "Batches" }]}
+        />
         <main className="flex-1 p-6">
           <div className="space-y-4">
             <Skeleton className="h-10 w-64" />

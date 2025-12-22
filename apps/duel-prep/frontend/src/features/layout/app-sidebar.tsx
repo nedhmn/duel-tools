@@ -26,7 +26,7 @@ export const AppSidebar = () => {
       <SidebarHeader className="flex flex-row items-center justify-between p-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
         <Link
           className="font-semibold text-lg group-data-[collapsible=icon]:hidden"
-          to="/batch"
+          to="/"
         >
           Duel Tools
         </Link>
