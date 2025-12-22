@@ -136,7 +136,7 @@ export const ReplayView = ({
             </span>
           </h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="rounded-lg bg-muted/50 p-3">
+            <div>
               <p className="mb-2 font-medium text-sm">
                 <PlayerName
                   name={game.player1_cards.username}
@@ -146,7 +146,7 @@ export const ReplayView = ({
               </p>
               <CardGrid cards={game.player1_cards.cards} />
             </div>
-            <div className="rounded-lg bg-muted/50 p-3">
+            <div>
               <p className="mb-2 font-medium text-sm">
                 <PlayerName
                   name={game.player2_cards.username}
@@ -163,7 +163,7 @@ export const ReplayView = ({
       <div className="rounded-lg border border-border/50 p-4">
         <h3 className="mb-3 font-medium">Total Cards Seen</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="rounded-lg bg-muted/50 p-3">
+          <div>
             <p className="mb-2 font-medium text-sm">
               <PlayerName
                 name={replay.player1}
@@ -172,7 +172,7 @@ export const ReplayView = ({
             </p>
             <CardGrid cards={player1TotalCards} maxPerCard={3} />
           </div>
-          <div className="rounded-lg bg-muted/50 p-3">
+          <div>
             <p className="mb-2 font-medium text-sm">
               <PlayerName
                 name={replay.player2}

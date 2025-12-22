@@ -67,8 +67,12 @@ const expandCards = (
   return expanded;
 };
 
+const MIN_SLOTS = 32;
+
 export const CardGrid = ({ cards, maxPerCard }: CardGridProps) => {
   const expandedCards = expandCards(cards, maxPerCard);
+  const totalSlots = Math.max(MIN_SLOTS, expandedCards.length);
+  const emptySlots = totalSlots - expandedCards.length;
 
   return (
     <div className="grid grid-cols-4 gap-[3px] sm:grid-cols-6 md:grid-cols-8">
@@ -77,7 +81,7 @@ export const CardGrid = ({ cards, maxPerCard }: CardGridProps) => {
           <TooltipTrigger asChild>
             <img
               alt={card.card_name}
-              className="aspect-[421/614] w-full rounded"
+              className="aspect-[421/614] w-full border border-white/[0.06] transition-colors hover:border-white/20"
               height={614}
               loading="lazy"
               src={getCardImageUrl(card.card_id)}
@@ -88,6 +92,13 @@ export const CardGrid = ({ cards, maxPerCard }: CardGridProps) => {
             <p>{card.card_name}</p>
           </TooltipContent>
         </Tooltip>
+      ))}
+      {Array.from({ length: emptySlots }).map((_, i) => (
+        <div
+          className="aspect-[421/614] border border-white/[0.04] transition-colors hover:border-white/10"
+          // biome-ignore lint/suspicious/noArrayIndexKey: empty placeholder slots
+          key={i}
+        />
       ))}
     </div>
   );
