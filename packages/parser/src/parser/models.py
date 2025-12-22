@@ -9,6 +9,7 @@ class CardInfo(BaseModel):
     card_id: int
     card_name: str
     card_amount: int
+    card_type: str
 
 
 class PlayerCards(BaseModel):

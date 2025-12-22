@@ -61,19 +61,21 @@ def parse_replay(raw_json: dict[str, Any]) -> ParsedReplay:
     )
 
 
-def _build_card_id_map(plays: list[dict[str, Any]]) -> dict[str, int]:
-    card_map: dict[str, int] = {}
+def _build_card_id_map(plays: list[dict[str, Any]]) -> dict[str, tuple[int, str]]:
+    card_map: dict[str, tuple[int, str]] = {}
 
     for play in plays:
         if "card" in play and isinstance(play["card"], dict):
             card = play["card"]
             if "name" in card and "id" in card:
-                card_map[card["name"]] = card["id"]
+                card_type = card.get("card_type", "")
+                card_map[card["name"]] = (card["id"], card_type)
 
         if "cards" in play and isinstance(play["cards"], list):
             for card in play["cards"]:
                 if isinstance(card, dict) and "name" in card and "id" in card:
-                    card_map[card["name"]] = card["id"]
+                    card_type = card.get("card_type", "")
+                    card_map[card["name"]] = (card["id"], card_type)
 
     return card_map
 
@@ -172,14 +174,21 @@ def _get_game_winner(player1: str, player2: str, game_df: pd.DataFrame) -> str |
 
 
 def _create_cards_df(
-    plays_df: pd.DataFrame, card_id_map: dict[str, int]
+    plays_df: pd.DataFrame, card_id_map: dict[str, tuple[int, str]]
 ) -> pd.DataFrame:
     df = plays_df.dropna(subset=["card_name"]).copy()
 
     if df.empty:
         return pd.DataFrame(
             columns=pd.Index(
-                ["game_number", "username", "card_name", "card_id", "card_amount"]
+                [
+                    "game_number",
+                    "username",
+                    "card_name",
+                    "card_id",
+                    "card_type",
+                    "card_amount",
+                ]
             )
         )
 
@@ -194,7 +203,12 @@ def _create_cards_df(
     )
 
     result = result[result["card_amount"] > 0]
-    result["card_id"] = result["card_name"].map(card_id_map).fillna(0).astype(int)
+    result["card_id"] = (
+        result["card_name"].map(lambda n: card_id_map.get(n, (0, ""))[0]).astype(int)
+    )
+    result["card_type"] = result["card_name"].map(
+        lambda n: card_id_map.get(n, (0, ""))[1]
+    )
 
     return result
 
@@ -211,6 +225,7 @@ def _build_player_cards(
             card_id=row["card_id"],
             card_name=row["card_name"],
             card_amount=row["card_amount"],
+            card_type=row["card_type"],
         )
         for _, row in player_cards.iterrows()
     ]

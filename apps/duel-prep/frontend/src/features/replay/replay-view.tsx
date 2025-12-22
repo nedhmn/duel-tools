@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CardInfo, ParsedReplay } from "@/features/api/types";
@@ -11,6 +12,30 @@ type ReplayViewProps = {
     onPrev: () => void;
     onNext: () => void;
   };
+  playerLinks?: {
+    player1Id?: string;
+    player2Id?: string;
+  };
+};
+
+type PlayerNameProps = {
+  name: string;
+  playerId?: string;
+};
+
+const PlayerName = ({ name, playerId }: PlayerNameProps) => {
+  if (playerId) {
+    return (
+      <Link
+        className="hover:text-primary hover:underline"
+        params={{ "player-id": playerId }}
+        to="/players/$player-id"
+      >
+        {name}
+      </Link>
+    );
+  }
+  return <>{name}</>;
 };
 
 const aggregateCards = (
@@ -36,7 +61,11 @@ const aggregateCards = (
 const getReplayUrl = (replayId: number) =>
   `https://www.duelingbook.com/replay?id=${replayId}`;
 
-export const ReplayView = ({ navigation, replay }: ReplayViewProps) => {
+export const ReplayView = ({
+  navigation,
+  playerLinks,
+  replay,
+}: ReplayViewProps) => {
   const player1TotalCards = aggregateCards(replay.games, "player1_cards");
   const player2TotalCards = aggregateCards(replay.games, "player2_cards");
   const replayUrl = getReplayUrl(replay.replay_id);
@@ -46,7 +75,15 @@ export const ReplayView = ({ navigation, replay }: ReplayViewProps) => {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-lg">
-            {replay.player1} vs {replay.player2}
+            <PlayerName
+              name={replay.player1}
+              playerId={playerLinks?.player1Id}
+            />{" "}
+            vs{" "}
+            <PlayerName
+              name={replay.player2}
+              playerId={playerLinks?.player2Id}
+            />
           </h2>
           {navigation ? (
             <div className="flex items-center gap-2">
@@ -101,13 +138,21 @@ export const ReplayView = ({ navigation, replay }: ReplayViewProps) => {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="rounded-lg bg-muted/50 p-3">
               <p className="mb-2 font-medium text-sm">
-                {game.player1_cards.username} ({game.player1_cards.card_count})
+                <PlayerName
+                  name={game.player1_cards.username}
+                  playerId={playerLinks?.player1Id}
+                />{" "}
+                ({game.player1_cards.card_count})
               </p>
               <CardGrid cards={game.player1_cards.cards} />
             </div>
             <div className="rounded-lg bg-muted/50 p-3">
               <p className="mb-2 font-medium text-sm">
-                {game.player2_cards.username} ({game.player2_cards.card_count})
+                <PlayerName
+                  name={game.player2_cards.username}
+                  playerId={playerLinks?.player2Id}
+                />{" "}
+                ({game.player2_cards.card_count})
               </p>
               <CardGrid cards={game.player2_cards.cards} />
             </div>
@@ -119,11 +164,21 @@ export const ReplayView = ({ navigation, replay }: ReplayViewProps) => {
         <h3 className="mb-3 font-medium">Total Cards Seen</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="rounded-lg bg-muted/50 p-3">
-            <p className="mb-2 font-medium text-sm">{replay.player1}</p>
+            <p className="mb-2 font-medium text-sm">
+              <PlayerName
+                name={replay.player1}
+                playerId={playerLinks?.player1Id}
+              />
+            </p>
             <CardGrid cards={player1TotalCards} maxPerCard={3} />
           </div>
           <div className="rounded-lg bg-muted/50 p-3">
-            <p className="mb-2 font-medium text-sm">{replay.player2}</p>
+            <p className="mb-2 font-medium text-sm">
+              <PlayerName
+                name={replay.player2}
+                playerId={playerLinks?.player2Id}
+              />
+            </p>
             <CardGrid cards={player2TotalCards} maxPerCard={3} />
           </div>
         </div>

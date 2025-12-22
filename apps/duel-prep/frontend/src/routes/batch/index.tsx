@@ -4,7 +4,7 @@ import { SiteHeader } from "@/features/layout/site-header";
 
 const BatchIndexPage = () => (
   <>
-    <SiteHeader title="Batches" />
+    <SiteHeader breadcrumbs={[{ label: "Batches" }]} />
     <main className="flex flex-1 items-center justify-center p-6">
       <div className="text-center">
         <h2 className="font-medium text-lg">No batch selected</h2>

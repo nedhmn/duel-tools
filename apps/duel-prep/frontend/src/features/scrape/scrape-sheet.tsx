@@ -15,7 +15,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useSubmitScrape } from "./api";
 
-const URL_REGEX = /https?:\/\/(?:www\.)?duelingbook\.com\/replay\?id=(\d+)/g;
+const URL_REGEX =
+  /https?:\/\/(?:www\.)?duelingbook\.com\/replay\?id=(\d+(?:-\d+)?)/g;
 
 const extractUrls = (text: string): string[] => {
   const matches = text.matchAll(URL_REGEX);
@@ -50,17 +51,20 @@ export const ScrapeSheet = ({ children }: ScrapeSheetProps) => {
       return;
     }
 
-    submitScrape.mutate(urls, {
-      onSuccess: (data) => {
-        setOpen(false);
-        setBatchName("");
-        setRawText("");
-        navigate({
-          to: "/batch/$batch-id",
-          params: { "batch-id": data.batch_id },
-        });
-      },
-    });
+    submitScrape.mutate(
+      { urls, name: batchName.trim() },
+      {
+        onSuccess: (data) => {
+          setOpen(false);
+          setBatchName("");
+          setRawText("");
+          navigate({
+            to: "/batch/$batch-id",
+            params: { "batch-id": data.batch_id },
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -71,8 +75,8 @@ export const ScrapeSheet = ({ children }: ScrapeSheetProps) => {
           <SheetTitle>New Batch</SheetTitle>
         </SheetHeader>
 
-        <div className="flex flex-1 flex-col gap-6 px-4">
-          <div className="space-y-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-4">
+          <div className="shrink-0 space-y-2">
             <label className="font-medium text-sm" htmlFor="batch-name">
               Batch Name
             </label>
@@ -84,12 +88,12 @@ export const ScrapeSheet = ({ children }: ScrapeSheetProps) => {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="shrink-0 space-y-2">
             <label className="font-medium text-sm" htmlFor="urls">
               Paste URLs
             </label>
             <Textarea
-              className="min-h-32 resize-none"
+              className="h-32 resize-none"
               id="urls"
               onChange={(e) => setRawText(e.target.value)}
               placeholder="Paste text containing DuelingBook replay URLs..."
@@ -98,9 +102,11 @@ export const ScrapeSheet = ({ children }: ScrapeSheetProps) => {
           </div>
 
           {urls.length > 0 ? (
-            <div className="space-y-2">
-              <p className="font-medium text-sm">Extracted ({urls.length})</p>
-              <div className="max-h-48 space-y-2 overflow-y-auto">
+            <div className="flex min-h-0 flex-1 flex-col space-y-2">
+              <p className="shrink-0 font-medium text-sm">
+                Extracted ({urls.length})
+              </p>
+              <div className="flex-1 space-y-2 overflow-y-auto">
                 {urls.map((url) => {
                   const id = url.split("id=")[1];
                   return (
@@ -124,7 +130,7 @@ export const ScrapeSheet = ({ children }: ScrapeSheetProps) => {
           ) : null}
 
           {submitScrape.isError ? (
-            <p className="text-destructive text-sm">
+            <p className="shrink-0 text-destructive text-sm">
               {submitScrape.error.message}
             </p>
           ) : null}

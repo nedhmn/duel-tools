@@ -7,6 +7,7 @@ from db.models import JobStatus
 
 class ScrapeRequest(BaseModel):
     urls: list[str] = Field(min_length=1, max_length=50)
+    name: str = Field(min_length=1, max_length=255)
 
 
 class JobResponse(BaseModel):
@@ -27,5 +28,6 @@ class ScrapeResponse(BaseModel):
 
 class BatchStatusResponse(BaseModel):
     batch_id: UUID
+    name: str
     status: str
     jobs: list[JobResponse]

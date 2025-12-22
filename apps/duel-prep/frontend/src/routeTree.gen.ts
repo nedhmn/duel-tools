@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlayersIndexRouteImport } from './routes/players/index'
 import { Route as BatchIndexRouteImport } from './routes/batch/index'
+import { Route as PlayersPlayerIdRouteImport } from './routes/players/$player-id'
 import { Route as BatchBatchIdRouteImport } from './routes/batch/$batch-id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -18,9 +20,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlayersIndexRoute = PlayersIndexRouteImport.update({
+  id: '/players/',
+  path: '/players/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BatchIndexRoute = BatchIndexRouteImport.update({
   id: '/batch/',
   path: '/batch/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayersPlayerIdRoute = PlayersPlayerIdRouteImport.update({
+  id: '/players/$player-id',
+  path: '/players/$player-id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BatchBatchIdRoute = BatchBatchIdRouteImport.update({
@@ -32,31 +44,50 @@ const BatchBatchIdRoute = BatchBatchIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/batch/$batch-id': typeof BatchBatchIdRoute
+  '/players/$player-id': typeof PlayersPlayerIdRoute
   '/batch': typeof BatchIndexRoute
+  '/players': typeof PlayersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/batch/$batch-id': typeof BatchBatchIdRoute
+  '/players/$player-id': typeof PlayersPlayerIdRoute
   '/batch': typeof BatchIndexRoute
+  '/players': typeof PlayersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/batch/$batch-id': typeof BatchBatchIdRoute
+  '/players/$player-id': typeof PlayersPlayerIdRoute
   '/batch/': typeof BatchIndexRoute
+  '/players/': typeof PlayersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/batch/$batch-id' | '/batch'
+  fullPaths:
+    | '/'
+    | '/batch/$batch-id'
+    | '/players/$player-id'
+    | '/batch'
+    | '/players'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/batch/$batch-id' | '/batch'
-  id: '__root__' | '/' | '/batch/$batch-id' | '/batch/'
+  to: '/' | '/batch/$batch-id' | '/players/$player-id' | '/batch' | '/players'
+  id:
+    | '__root__'
+    | '/'
+    | '/batch/$batch-id'
+    | '/players/$player-id'
+    | '/batch/'
+    | '/players/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BatchBatchIdRoute: typeof BatchBatchIdRoute
+  PlayersPlayerIdRoute: typeof PlayersPlayerIdRoute
   BatchIndexRoute: typeof BatchIndexRoute
+  PlayersIndexRoute: typeof PlayersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,11 +99,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/players/': {
+      id: '/players/'
+      path: '/players'
+      fullPath: '/players'
+      preLoaderRoute: typeof PlayersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/batch/': {
       id: '/batch/'
       path: '/batch'
       fullPath: '/batch'
       preLoaderRoute: typeof BatchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/players/$player-id': {
+      id: '/players/$player-id'
+      path: '/players/$player-id'
+      fullPath: '/players/$player-id'
+      preLoaderRoute: typeof PlayersPlayerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/batch/$batch-id': {
@@ -88,7 +133,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BatchBatchIdRoute: BatchBatchIdRoute,
+  PlayersPlayerIdRoute: PlayersPlayerIdRoute,
   BatchIndexRoute: BatchIndexRoute,
+  PlayersIndexRoute: PlayersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
