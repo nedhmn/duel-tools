@@ -1,0 +1,63 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/duel-prep/**"
+      - "packages/**"
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install backend dependencies
+        run: uv sync --frozen
+
+      - name: Backend checks
+        working-directory: apps/duel-prep/backend
+        run: make check
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Frontend checks
+        working-directory: apps/duel-prep/frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm check
+
+  deploy-api:
+    needs: lint
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy API
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service=duel-prep-api
+
+  deploy-worker:
+    needs: lint
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Worker
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service=duel-prep-worker
