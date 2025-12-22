@@ -1,4 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { JobResponse } from "@/features/api/types";
 import { useBatchStatus } from "@/features/batch/api";
@@ -64,8 +66,33 @@ const BatchPage = () => {
   const { "batch-id": batchId } = Route.useParams();
   const { replay } = Route.useSearch();
   const navigate = useNavigate();
+  const hasShownToast = useRef(false);
 
   const { data: batch, isLoading: batchLoading } = useBatchStatus(batchId);
+
+  useEffect(() => {
+    if (!batch || hasShownToast.current) {
+      return;
+    }
+
+    const isComplete =
+      batch.status === "completed" || batch.status === "failed";
+    if (!isComplete) {
+      return;
+    }
+
+    const completed = batch.jobs.filter((j) => j.status === "completed").length;
+    const failed = batch.jobs.filter((j) => j.status === "failed").length;
+    const total = batch.jobs.length;
+
+    if (failed > 0) {
+      toast.warning(`${completed} of ${total} jobs succeeded`, {
+        description: `${failed} job${failed > 1 ? "s" : ""} failed`,
+      });
+    }
+
+    hasShownToast.current = true;
+  }, [batch]);
 
   const completedJobs =
     batch?.jobs.filter((j) => j.status === "completed" && j.duelingbook_id) ??

@@ -15,6 +15,17 @@ const validateSearch = (search: Record<string, unknown>): PlayerSearch => ({
 
 const stripQuotes = (s: string) => s.replace(/^"|"$/g, "");
 
+const SKELETON_CARD_IDS = [
+  "skel-1",
+  "skel-2",
+  "skel-3",
+  "skel-4",
+  "skel-5",
+  "skel-6",
+  "skel-7",
+  "skel-8",
+];
+
 type ReplayViewerProps = {
   replays: { duelingbook_id: string }[];
   currentIndex: number;
@@ -95,9 +106,41 @@ const PlayerPage = () => {
           ]}
         />
         <main className="flex-1 p-6">
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-32" />
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <Skeleton className="h-7 w-48" />
+              <Skeleton className="h-5 w-32" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-64" />
+              <div className="rounded-lg border border-border/50 p-4">
+                <Skeleton className="mb-3 h-5 w-32" />
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="rounded-lg bg-muted/50 p-3">
+                    <Skeleton className="mb-2 h-5 w-24" />
+                    <div className="grid grid-cols-4 gap-[3px] sm:grid-cols-6 md:grid-cols-8">
+                      {SKELETON_CARD_IDS.map((id) => (
+                        <Skeleton
+                          className="aspect-[421/614] w-full rounded"
+                          key={`p1-${id}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-muted/50 p-3">
+                    <Skeleton className="mb-2 h-5 w-24" />
+                    <div className="grid grid-cols-4 gap-[3px] sm:grid-cols-6 md:grid-cols-8">
+                      {SKELETON_CARD_IDS.map((id) => (
+                        <Skeleton
+                          className="aspect-[421/614] w-full rounded"
+                          key={`p2-${id}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </main>
       </>

@@ -71,7 +71,7 @@ export const CardGrid = ({ cards, maxPerCard }: CardGridProps) => {
   const expandedCards = expandCards(cards, maxPerCard);
 
   return (
-    <div className="grid grid-cols-8 gap-[3px]">
+    <div className="grid grid-cols-4 gap-[3px] sm:grid-cols-6 md:grid-cols-8">
       {expandedCards.map((card) => (
         <Tooltip key={`${card.card_id}-${card.index}`}>
           <TooltipTrigger asChild>
