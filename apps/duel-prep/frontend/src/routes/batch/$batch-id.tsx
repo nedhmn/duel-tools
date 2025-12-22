@@ -119,6 +119,7 @@ const BatchPage = () => {
     }
 
     queryClient.invalidateQueries({ queryKey: ["batches"] });
+    queryClient.invalidateQueries({ queryKey: ["players"] });
 
     const completed = batch.jobs.filter((j) => j.status === "completed").length;
     const failed = batch.jobs.filter((j) => j.status === "failed").length;
