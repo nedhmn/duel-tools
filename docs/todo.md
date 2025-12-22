@@ -124,7 +124,7 @@
   - Two groups: "Batches" and "Players" (dummy data for now)
 - [x] Add GlobalSearch to `SiteHeader` (right side, before theme toggle)
 - [x] Remove `BatchSearch` from sidebar (kept recent batches list)
-- [ ] Wire to API: fetches `/batches` + `/players` (pending backend)
+- [x] Wire to API: fetches `/batches` + `/players`
 
 **Players Index (`/players`)** ✅
 - [x] Create route `routes/players/index.tsx`
@@ -134,8 +134,8 @@
 - [x] Create route `routes/players/$player-id.tsx`
 - [x] Header: player username + total games count
 - [x] Inline replay viewer with prev/next navigation
-- [x] Create `features/players/api.ts` with `usePlayerDetail(playerId)` (dummy data)
-- [ ] Replay list with metadata (pending backend for real data)
+- [x] Create `features/players/api.ts` with `usePlayerDetail(playerId)`
+- [x] Wired to real backend API
 
 **Shareable Replay URLs (query param)** ✅
 - [x] Batch page: `/batch/$batch-id?replay=duelingbook_id`
@@ -147,45 +147,46 @@
 **Player Navigation** ✅
 - [x] Make player names in `ReplayView` clickable via `playerLinks` prop
 - [x] Created `PlayerName` helper component with Link support
-- [ ] Wire player IDs from API (pending backend update)
+- [x] Wire player IDs from API (`player1_id`, `player2_id` in replay response)
 
 **Notes:**
 - Removed `@tanstack/zod-adapter` usage due to zod 4.x incompatibility (expects 3.x)
 - Using plain `validateSearch` functions instead
 - Added `stripQuotes` helper to handle potential quoted duelingbook_id values from API
 
-### Phase 5g: Backend Integration
+### Phase 5g: Backend Integration ✅
 
-**Parser Update**
-- [ ] Update `packages/parser/` to extract `card_type` from raw JSON
-  - Add `card_type: str` to `CardInfo` model (e.g., "monster", "spell", "trap")
-  - Extract from `cards` array in replay data
-- [ ] Update frontend `CardInfo` type to include `card_type`
-- [ ] Update `CardGrid` to sort by: card_type (monster → spell → trap) then alphabetical
+**Parser Update** ✅
+- [x] Update `packages/parser/` to extract `card_type` from raw JSON
+  - Added `card_type: str` to `CardInfo` model
+  - Extract from `cards` array in replay data (stores `(id, card_type)` tuples)
+  - Fixed Maxx "C" bug: now extracts card info directly from `card` object in plays
+- [x] Update frontend `CardInfo` type to include `card_type`
+- [x] Update `CardGrid` to sort by: card_type (Monster → Spell → Trap) then alphabetical
 
-**New Endpoints**
-- [ ] `GET /batches` - List recent batches
+**New Endpoints** ✅
+- [x] `GET /batches` - List recent batches
   - Response: `{ batches: [{ id, name, created_at, replay_count }] }`
   - Ordered by `created_at` desc, limit 50
-- [ ] Update `GET /players` - Add `replay_count` to each player for global search
-- [ ] Update `POST /scrape` - Accept `name` field
+- [x] Update `GET /players` - Add `replay_count` to each player for global search
+- [x] Update `POST /scrape` - Accept `name` field
   - Request: `{ urls: [...], name: "Tournament Finals" }`
-  - Store in `batches.name` column (add migration)
-- [ ] Update `GET /scrape/{batch_id}` - Return batch name
-  - Add `name` field to `BatchStatusResponse`
-- [ ] Update `GET /replays/{duelingbook_id}` - Include player IDs
-  - Add `player1_id`, `player2_id` to response for navigation
+  - Store in `batches.name` column
+- [x] Update `GET /scrape/{batch_id}` - Return batch name
+  - Added `name` field to `BatchStatusResponse`
+- [x] Update `GET /replays/{duelingbook_id}` - Include player IDs
+  - Added `player1_id`, `player2_id` to response for navigation
 
-**Database Changes**
-- [ ] Add `name` column to `batches` table (nullable, varchar)
-- [ ] Migration script or ALTER TABLE
+**Database Changes** ✅
+- [x] Add `name` column to `batches` table (varchar 255)
+- [x] Migration: `ALTER TABLE batches ADD COLUMN name VARCHAR(255) NOT NULL DEFAULT '';`
 
-**Frontend Wiring**
-- [ ] Update `ScrapeSheet` to send `name` field
-- [ ] Update `BatchStatusResponse` type to include `name`
-- [ ] Sidebar recent batches → `useBatches()` query
-- [ ] Global search → `useBatches()` + `usePlayers()` queries
-- [ ] Batch page header → show batch name instead of truncated ID
+**Frontend Wiring** ✅
+- [x] Update `ScrapeSheet` to send `name` field
+- [x] Update `BatchStatusResponse` type to include `name`
+- [x] Sidebar recent batches → `useBatches()` query
+- [x] Global search → `useBatches()` + `usePlayerList()` queries
+- [x] Added `BatchSummary`, `BatchListResponse` types
 
 ### Phase 5h: Polish
 
