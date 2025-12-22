@@ -195,7 +195,8 @@ export const ReplayView = ({
                     <PlayerName
                       name={replay.player1}
                       playerId={playerLinks?.player1Id}
-                    />
+                    />{" "}
+                    ({countExpandedCards(player1TotalCards, 3)})
                   </p>
                   <CardGrid
                     cards={player1TotalCards}
@@ -208,7 +209,8 @@ export const ReplayView = ({
                     <PlayerName
                       name={replay.player2}
                       playerId={playerLinks?.player2Id}
-                    />
+                    />{" "}
+                    ({countExpandedCards(player2TotalCards, 3)})
                   </p>
                   <CardGrid
                     cards={player2TotalCards}
