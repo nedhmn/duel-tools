@@ -1,36 +1,32 @@
-# duel-tools
+# Duel Tools
 
-A Python monorepo with web apps for analyzing Yu-Gi-Oh DuelingBook replays.
+Monorepo for Yu-Gi-Oh DuelingBook replay analysis.
 
-## Apps
+## Project Structure
 
-- **duel-prep** - Input replay URLs, scrape and display games with card images
-- **replay-viewer** - Upload replay JSON directly, view parsed games
-
-## Packages
-
-- **db** - SQLAlchemy models and async session
-- **logger** - Shared structlog configuration
-- **parser** - Replay JSON parsing with Pydantic models
-- **scraper** - DuelingBook scraping (planned)
-
-## Tech Stack
-
-Python + FastAPI | React + Vite | PostgreSQL | Celery + Redis
+```
+duel-tools/
+├── apps/
+│   └── duel-prep/          # Replay scraping + analysis app
+│       ├── backend/        # FastAPI + Celery
+│       └── frontend/       # React + Vite
+├── packages/
+│   ├── db/                 # SQLAlchemy models
+│   ├── logger/             # structlog config
+│   ├── parser/             # Replay JSON parsing
+│   └── scraper/            # DuelingBook scraping
+└── docs/                   # Documentation
+```
 
 ## Documentation
 
-See [docs/](./docs/) for full documentation.
+| Guide                                       | Description            |
+| ------------------------------------------- | ---------------------- |
+| [Development](./docs/guides/development.md) | Local setup + commands |
+| [Deployment](./docs/guides/deploy.md)       | Pre-reqs + CI/CD       |
+| [Railway](./docs/services/railway.md)       | Railway configuration  |
 
-## Quick Start
-
-```bash
-# Start local services
-docker compose up -d
-
-# Install dependencies
-uv sync
-
-# Run an app
-cd apps/duel-prep/backend && uv run uvicorn app.main:app --reload
-```
+| App Reference                                 | Description            |
+| --------------------------------------------- | ---------------------- |
+| [Backend](./docs/apps/duel-prep-backend.md)   | API, database, Celery  |
+| [Frontend](./docs/apps/duel-prep-frontend.md) | Routes, components, UI |

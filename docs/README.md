@@ -32,11 +32,11 @@ duel-tools/
 
 ## Guides
 
-| Guide                                             | Description                 |
-| ------------------------------------------------- | --------------------------- |
-| [guides/development.md](./guides/development.md)  | Local setup + commands      |
-| [guides/deploy.md](./guides/deploy.md)            | Deployment pre-reqs + CI/CD |
-| [services/railway.md](./services/railway.md)      | Railway configuration       |
+| Guide                                            | Description                 |
+| ------------------------------------------------ | --------------------------- |
+| [guides/development.md](./guides/development.md) | Local setup + commands      |
+| [guides/deploy.md](./guides/deploy.md)           | Deployment pre-reqs + CI/CD |
+| [services/railway.md](./services/railway.md)     | Railway configuration       |
 
 ## Apps
 
