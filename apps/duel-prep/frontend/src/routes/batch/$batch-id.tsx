@@ -139,9 +139,15 @@ const BatchPage = () => {
     hasHandledComplete.current = true;
   }, [batch, queryClient]);
 
-  const completedJobs =
+  const completedJobs = (
     batch?.jobs.filter((j) => j.status === "completed" && j.duelingbook_id) ??
-    [];
+    []
+  ).sort((a, b) => {
+    if (!(a.played_at && b.played_at)) {
+      return 0;
+    }
+    return new Date(b.played_at).getTime() - new Date(a.played_at).getTime();
+  });
 
   const currentIndex = replay
     ? Math.max(

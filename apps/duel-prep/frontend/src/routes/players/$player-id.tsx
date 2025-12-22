@@ -110,7 +110,9 @@ const PlayerPage = () => {
 
   const { data: player, isLoading } = usePlayerDetail(playerId);
 
-  const replays = player?.replays ?? [];
+  const replays = [...(player?.replays ?? [])].sort(
+    (a, b) => new Date(b.played_at).getTime() - new Date(a.played_at).getTime()
+  );
 
   const currentIndex = replay
     ? Math.max(
@@ -209,12 +211,12 @@ const PlayerPage = () => {
         ]}
       />
       <main className="flex-1 overflow-y-auto p-6">
-        {player.replays.length > 0 ? (
+        {replays.length > 0 ? (
           <ReplayViewer
             currentIndex={currentIndex}
             focusedPlayerName={player.username}
             onNavigate={handleNavigate}
-            replays={player.replays}
+            replays={replays}
           />
         ) : (
           <p className="text-muted-foreground">No replays available</p>
