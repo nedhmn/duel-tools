@@ -65,6 +65,7 @@ const columns: ColumnDef<PlayerResponse>[] = [
         </Button>
       </Link>
     ),
+    meta: { sticky: "right" },
   },
 ];
 

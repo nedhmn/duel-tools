@@ -144,6 +144,7 @@ const columns: ColumnDef<BatchSummary>[] = [
         </Button>
       </Link>
     ),
+    meta: { sticky: "right" },
   },
 ];
 

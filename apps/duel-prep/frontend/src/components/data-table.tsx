@@ -33,6 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
@@ -43,13 +44,13 @@ const DataTablePagination = <TData,>({
   table,
   totalLabel = "row(s)",
 }: DataTablePaginationProps<TData>) => (
-  <div className="flex items-center justify-between px-2">
-    <div className="flex-1 text-muted-foreground text-sm">
+  <div className="flex flex-col gap-4 px-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className="text-muted-foreground text-sm">
       {table.getFilteredRowModel().rows.length} {totalLabel}
     </div>
-    <div className="flex items-center space-x-6 lg:space-x-8">
-      <div className="flex items-center space-x-2">
-        <p className="font-medium text-sm">Rows per page</p>
+    <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
+      <div className="flex items-center gap-2">
+        <p className="hidden font-medium text-sm sm:block">Rows per page</p>
         <Select
           onValueChange={(value) => {
             table.setPageSize(Number(value));
@@ -68,11 +69,11 @@ const DataTablePagination = <TData,>({
           </SelectContent>
         </Select>
       </div>
-      <div className="flex w-[100px] items-center justify-center font-medium text-sm">
+      <div className="font-medium text-sm">
         Page {table.getState().pagination.pageIndex + 1} of{" "}
         {table.getPageCount()}
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center gap-2">
         <Button
           className="hidden size-8 lg:flex"
           disabled={!table.getCanPreviousPage()}
@@ -154,21 +155,29 @@ export const DataTable = <TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         <TableComponent>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const isSticky =
+                    (header.column.columnDef.meta as { sticky?: string })
+                      ?.sticky === "right";
+                  return (
+                    <TableHead
+                      className={cn(isSticky && "sticky right-0 bg-background")}
+                      key={header.id}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
@@ -179,14 +188,24 @@ export const DataTable = <TData, TValue>({
                   data-state={row.getIsSelected() ? "selected" : undefined}
                   key={row.id}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const isSticky =
+                      (cell.column.columnDef.meta as { sticky?: string })
+                        ?.sticky === "right";
+                    return (
+                      <TableCell
+                        className={cn(
+                          isSticky && "sticky right-0 bg-background"
+                        )}
+                        key={cell.id}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
