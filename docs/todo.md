@@ -225,6 +225,25 @@
 - [x] Failed jobs excluded from replay navigation (filtered to completed only)
 - [x] Loading skeleton for player page
 
+### Phase 5i: YDK Export & UX Polish ✅
+
+**YDK Deck Export** ✅
+- [x] Added `serial_number` field to `CardInfo` model (parser + frontend types)
+- [x] Parser extracts `serial_number` from card objects in raw JSON
+- [x] "Download deck" button next to player name + count (games + total cards sections)
+- [x] YDK file format: sorted by type (Monster → Spell → Trap → alphabetical)
+- [x] Max 3 copies per card in export, filename: `{player}_{date}.ydk`
+
+**Parser Bug Fix** ✅
+- [x] Fixed `_get_went_first()` to handle "Chose to go second" case
+- [x] Now returns the other player when RPS winner chose to go second
+
+**Page Transition UX** ✅
+- [x] Added `keepPreviousData` to `useReplay` hook (TanStack Query)
+- [x] Previous replay stays visible while fetching next (no layout shift)
+- [x] Opacity fade + pointer-events-none during transition
+- [x] Skeleton only shows on initial load, not between replays
+
 **Stack:** Vite + React 19 + TypeScript, TanStack Router/Query, Zustand, Tailwind v4, shadcn/ui, Ultracite (Biome)
 
 **Route Structure:**
@@ -272,7 +291,7 @@ routes/
 │ ┌─────────────────────────────────────────────────────────┐ │
 │ │ Game 1  Winner: Player1 | First: Player2                │ │
 │ │ ┌─────────────────────┐ ┌─────────────────────┐         │ │
-│ │ │ Player1 (38)        │ │ Player2 (40)        │         │ │
+│ │ │ Player1 (38)  ↓deck │ │ Player2 (40)  ↓deck │         │ │
 │ │ │ [card grid 8 cols]  │ │ [card grid 8 cols]  │         │ │
 │ │ └─────────────────────┘ └─────────────────────┘         │ │
 │ └─────────────────────────────────────────────────────────┘ │
@@ -283,12 +302,70 @@ routes/
 │ ┌─────────────────────────────────────────────────────────┐ │
 │ │ Total Cards Seen                                        │ │
 │ │ ┌─────────────────────┐ ┌─────────────────────┐         │ │
-│ │ │ Player1             │ │ Player2             │         │ │
+│ │ │ Player1 (42)  ↓deck │ │ Player2 (45)  ↓deck │         │ │
 │ │ │ [card grid]         │ │ [card grid]         │         │ │
 │ │ └─────────────────────┘ └─────────────────────┘         │ │
 │ └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
+`↓deck` = "Download deck" link (exports .ydk file)
+
+### Phase 6a: Dockerfile + Static Serving
+
+**Pattern:** Turborepo-style - Dockerfile in app dir, build context at repo root.
+
+- [ ] `apps/duel-prep/backend/Dockerfile` - Create
+  - Multi-stage: Node frontend build → Python backend with uv
+  - Build context is repo root (access to `packages/`)
+  - Uses `fastapi run` (modern CLI)
+  - Railway uses `RAILWAY_DOCKERFILE_PATH` env var to find it
+- [ ] `.dockerignore` - Create (repo root)
+- [ ] `apps/duel-prep/backend/app/main.py` - Modify (add static file serving)
+  - Mount `/assets` directory
+  - Catch-all route returns `index.html` for SPA
+
+**Test locally:**
+```bash
+docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
+```
+
+### Phase 6b: GitHub Actions CI/CD
+
+- [ ] `.github/workflows/deploy.yml` - Create
+  - Trigger: push to main (paths: `apps/duel-prep/**`, `packages/**`) + manual dispatch
+  - Job 1: `lint` - Backend (`make check`) + Frontend (`pnpm check`)
+  - Job 2: `deploy-api` - Railway CLI deploy to `duel-prep-api` service
+  - Job 3: `deploy-worker` - Railway CLI deploy to `duel-prep-worker` service
+  - Requires: `RAILWAY_TOKEN` secret in GitHub repo
+
+### Phase 6c: Railway Setup (Manual)
+
+- [ ] Create project: "duel-tools"
+- [ ] Add PostgreSQL plugin → `DATABASE_URL`
+- [ ] Add Redis plugin → `REDIS_URL`
+- [ ] Create service: `duel-prep-api`
+  - Source: GitHub repo
+  - Root Directory: (empty = repo root)
+  - Variable: `RAILWAY_DOCKERFILE_PATH=apps/duel-prep/backend/Dockerfile`
+  - Link DATABASE_URL, REDIS_URL from plugins
+  - Add: CAPSOLVER_API_KEY, SITE_KEY, DB_USERNAME, DB_PASSWORD, DB_ID, DB_REGULAR
+- [ ] Create service: `duel-prep-worker`
+  - Same config as API
+  - Start command override: `celery -A app.worker.celery_app worker --loglevel=info`
+- [ ] Init database (one-time): Railway shell → `python scripts/init_db.py`
+- [ ] Add `RAILWAY_TOKEN` secret to GitHub repo settings
+
+**Environment Variables:**
+| Variable          | Source                    |
+| ----------------- | ------------------------- |
+| DATABASE_URL      | PostgreSQL plugin         |
+| REDIS_URL         | Redis plugin              |
+| CAPSOLVER_API_KEY | Manual                    |
+| SITE_KEY          | Manual                    |
+| DB_USERNAME       | Manual (DuelingBook auth) |
+| DB_PASSWORD       | Manual (DuelingBook auth) |
+| DB_ID             | Manual (DuelingBook auth) |
+| DB_REGULAR        | Manual (optional)         |
 
 ---
 
