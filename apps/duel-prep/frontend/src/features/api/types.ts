@@ -3,6 +3,7 @@ export type JobStatus = "pending" | "processing" | "completed" | "failed";
 
 export type ScrapeRequest = {
   urls: string[];
+  name: string;
 };
 
 export type JobResponse = {
@@ -21,8 +22,21 @@ export type ScrapeResponse = {
 
 export type BatchStatusResponse = {
   batch_id: string;
+  name: string;
   status: string;
   jobs: JobResponse[];
+};
+
+// Batch API types
+export type BatchSummary = {
+  id: string;
+  name: string;
+  created_at: string;
+  replay_count: number;
+};
+
+export type BatchListResponse = {
+  batches: BatchSummary[];
 };
 
 // Replay API types
@@ -30,6 +44,7 @@ export type CardInfo = {
   card_id: number;
   card_name: string;
   card_amount: number;
+  card_type: string;
 };
 
 export type PlayerCards = {
@@ -54,12 +69,15 @@ export type ParsedReplay = {
   player2: string;
   match_result: string;
   games: Game[];
+  player1_id: string | null;
+  player2_id: string | null;
 };
 
 // Player API types
 export type PlayerResponse = {
   id: string;
   username: string;
+  replay_count: number;
 };
 
 export type PlayerListResponse = {

@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import type { BatchStatusResponse } from "@/features/api/types";
+import type {
+  BatchListResponse,
+  BatchStatusResponse,
+} from "@/features/api/types";
 import { fetchJson } from "@/lib/fetch";
 
 export const useBatchStatus = (batchId: string) =>
@@ -13,4 +16,10 @@ export const useBatchStatus = (batchId: string) =>
       }
       return 2000;
     },
+  });
+
+export const useBatches = () =>
+  useQuery({
+    queryKey: ["batches"],
+    queryFn: () => fetchJson<BatchListResponse>("/api/v1/batches"),
   });

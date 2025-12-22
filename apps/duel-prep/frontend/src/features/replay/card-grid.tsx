@@ -13,6 +13,30 @@ type CardGridProps = {
 const getCardImageUrl = (cardId: number) =>
   `https://images.duelingbook.com/low-res/${cardId}.jpg`;
 
+const getCardTypeOrder = (cardType: string): number => {
+  const type = cardType.toLowerCase();
+  if (type.includes("monster")) {
+    return 0;
+  }
+  if (type.includes("spell")) {
+    return 1;
+  }
+  if (type.includes("trap")) {
+    return 2;
+  }
+  return 3;
+};
+
+const sortCards = (cards: CardInfo[]): CardInfo[] =>
+  [...cards].sort((a, b) => {
+    const typeOrderA = getCardTypeOrder(a.card_type);
+    const typeOrderB = getCardTypeOrder(b.card_type);
+    if (typeOrderA !== typeOrderB) {
+      return typeOrderA - typeOrderB;
+    }
+    return a.card_name.localeCompare(b.card_name);
+  });
+
 type ExpandedCard = {
   card_id: number;
   card_name: string;
@@ -23,9 +47,10 @@ const expandCards = (
   cards: CardInfo[],
   maxPerCard?: number
 ): ExpandedCard[] => {
+  const sortedCards = sortCards(cards);
   const expanded: ExpandedCard[] = [];
 
-  for (const card of cards) {
+  for (const card of sortedCards) {
     const count = maxPerCard
       ? Math.min(card.card_amount, maxPerCard)
       : card.card_amount;

@@ -10,22 +10,17 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-
-const dummyBatches = [
-  { id: "abc123", name: "Tournament Finals", count: 3 },
-  { id: "def456", name: "Practice Session", count: 5 },
-  { id: "ghi789", name: "Ladder Games", count: 2 },
-];
-
-const dummyPlayers = [
-  { id: "player1", username: "ProDuelist99" },
-  { id: "player2", username: "CardMaster2024" },
-  { id: "player3", username: "DeckBuilder" },
-];
+import { useBatches } from "@/features/batch/api";
+import { usePlayerList } from "@/features/players/api";
 
 export const GlobalSearch = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { data: batchData } = useBatches();
+  const { data: playerData } = usePlayerList();
+
+  const batches = batchData?.batches ?? [];
+  const players = playerData?.players ?? [];
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -81,7 +76,7 @@ export const GlobalSearch = () => {
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Batches">
-            {dummyBatches.map((batch) => (
+            {batches.map((batch) => (
               <CommandItem
                 key={batch.id}
                 onSelect={() => handleSelectBatch(batch.id)}
@@ -89,19 +84,22 @@ export const GlobalSearch = () => {
                 <Layers className="h-4 w-4" />
                 <span>{batch.name}</span>
                 <span className="ml-auto text-muted-foreground text-xs">
-                  {batch.count} replays
+                  {batch.replay_count} replays
                 </span>
               </CommandItem>
             ))}
           </CommandGroup>
           <CommandGroup heading="Players">
-            {dummyPlayers.map((player) => (
+            {players.map((player) => (
               <CommandItem
                 key={player.id}
                 onSelect={() => handleSelectPlayer(player.id)}
               >
                 <User className="h-4 w-4" />
                 <span>{player.username}</span>
+                <span className="ml-auto text-muted-foreground text-xs">
+                  {player.replay_count} replays
+                </span>
               </CommandItem>
             ))}
           </CommandGroup>

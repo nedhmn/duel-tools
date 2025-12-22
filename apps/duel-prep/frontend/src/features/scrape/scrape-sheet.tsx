@@ -51,17 +51,20 @@ export const ScrapeSheet = ({ children }: ScrapeSheetProps) => {
       return;
     }
 
-    submitScrape.mutate(urls, {
-      onSuccess: (data) => {
-        setOpen(false);
-        setBatchName("");
-        setRawText("");
-        navigate({
-          to: "/batch/$batch-id",
-          params: { "batch-id": data.batch_id },
-        });
-      },
-    });
+    submitScrape.mutate(
+      { urls, name: batchName.trim() },
+      {
+        onSuccess: (data) => {
+          setOpen(false);
+          setBatchName("");
+          setRawText("");
+          navigate({
+            to: "/batch/$batch-id",
+            params: { "batch-id": data.batch_id },
+          });
+        },
+      }
+    );
   };
 
   return (

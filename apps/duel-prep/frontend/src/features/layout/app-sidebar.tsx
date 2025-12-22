@@ -13,16 +13,13 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useBatches } from "@/features/batch/api";
 import { ScrapeSheet } from "@/features/scrape/scrape-sheet";
-
-const dummyBatches = [
-  { id: "abc123", name: "Tournament Finals", date: "Dec 21", count: 3 },
-  { id: "def456", name: "Practice Session", date: "Dec 20", count: 5 },
-  { id: "ghi789", name: "Ladder Games", date: "Dec 19", count: 2 },
-];
 
 export const AppSidebar = () => {
   const location = useLocation();
+  const { data } = useBatches();
+  const batches = data?.batches ?? [];
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -54,12 +51,12 @@ export const AppSidebar = () => {
           <SidebarGroupLabel>Recent Batches</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {dummyBatches.map((batch) => (
+              {batches.map((batch) => (
                 <SidebarMenuItem key={batch.id}>
                   <SidebarMenuButton
                     asChild
                     isActive={location.pathname.includes(batch.id)}
-                    tooltip={`${batch.name} (${batch.count})`}
+                    tooltip={`${batch.name} (${batch.replay_count})`}
                   >
                     <Link
                       params={{ "batch-id": batch.id }}
@@ -68,7 +65,7 @@ export const AppSidebar = () => {
                       <Layers className="h-4 w-4 shrink-0" />
                       <span className="truncate">{batch.name}</span>
                       <span className="ml-auto text-muted-foreground text-xs">
-                        {batch.count}
+                        {batch.replay_count}
                       </span>
                     </Link>
                   </SidebarMenuButton>
