@@ -42,5 +42,9 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app/apps/duel-prep/backend
 
+# Run as non-root user
+RUN useradd --create-home appuser
+USER appuser
+
 # Default: run API (override CMD for worker)
 CMD fastapi run --host 0.0.0.0 --port ${PORT:-8000} app/main.py
