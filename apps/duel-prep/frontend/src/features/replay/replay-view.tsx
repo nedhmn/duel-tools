@@ -429,12 +429,27 @@ export const ReplayView = ({
             <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
               {showPlayer1 ? (
                 <div>
-                  <p className="mb-2 font-medium text-sm">
-                    <PlayerName
-                      name={game.player1_cards.username}
-                      playerId={playerLinks?.player1Id}
-                    />{" "}
-                    ({game.player1_cards.card_count})
+                  <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+                    <span>
+                      <PlayerName
+                        name={game.player1_cards.username}
+                        playerId={playerLinks?.player1Id}
+                      />{" "}
+                      ({game.player1_cards.card_count})
+                    </span>
+                    <button
+                      className="font-normal text-muted-foreground text-xs hover:text-foreground"
+                      onClick={() =>
+                        downloadYdk(
+                          game.player1_cards.cards,
+                          game.player1_cards.username,
+                          replay.played_at
+                        )
+                      }
+                      type="button"
+                    >
+                      Download deck
+                    </button>
                   </p>
                   <CardGrid
                     cards={game.player1_cards.cards}
@@ -445,12 +460,27 @@ export const ReplayView = ({
               ) : null}
               {showPlayer2 ? (
                 <div>
-                  <p className="mb-2 font-medium text-sm">
-                    <PlayerName
-                      name={game.player2_cards.username}
-                      playerId={playerLinks?.player2Id}
-                    />{" "}
-                    ({game.player2_cards.card_count})
+                  <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+                    <span>
+                      <PlayerName
+                        name={game.player2_cards.username}
+                        playerId={playerLinks?.player2Id}
+                      />{" "}
+                      ({game.player2_cards.card_count})
+                    </span>
+                    <button
+                      className="font-normal text-muted-foreground text-xs hover:text-foreground"
+                      onClick={() =>
+                        downloadYdk(
+                          game.player2_cards.cards,
+                          game.player2_cards.username,
+                          replay.played_at
+                        )
+                      }
+                      type="button"
+                    >
+                      Download deck
+                    </button>
                   </p>
                   <CardGrid
                     cards={game.player2_cards.cards}
