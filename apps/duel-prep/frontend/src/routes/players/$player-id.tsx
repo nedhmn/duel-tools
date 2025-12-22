@@ -6,16 +6,14 @@ import { useReplay } from "@/features/replay/api";
 import { type PlayerFilter, ReplayView } from "@/features/replay/replay-view";
 
 type PlayerSearch = {
-  replay?: string;
+  replay?: number;
   pov?: string;
 };
 
 const validateSearch = (search: Record<string, unknown>): PlayerSearch => ({
-  replay: typeof search.replay === "string" ? search.replay : undefined,
+  replay: typeof search.replay === "number" ? search.replay : undefined,
   pov: typeof search.pov === "string" ? search.pov : undefined,
 });
-
-const stripQuotes = (s: string) => s.replace(/^"|"$/g, "");
 
 const SKELETON_CARD_IDS = [
   "skel-1",
@@ -52,8 +50,7 @@ const ReplayViewer = ({
   pov,
   onPovChange,
 }: ReplayViewerProps) => {
-  const rawId = replays[currentIndex]?.duelingbook_id ?? "";
-  const currentDuelingbookId = stripQuotes(rawId);
+  const currentDuelingbookId = replays[currentIndex]?.duelingbook_id ?? "";
 
   const {
     data: replay,
@@ -120,7 +117,7 @@ const PlayerPage = () => {
   const currentIndex = replay
     ? Math.max(
         0,
-        replays.findIndex((r) => stripQuotes(r.duelingbook_id) === replay)
+        replays.findIndex((r) => Number(r.duelingbook_id) === replay)
       )
     : 0;
 
@@ -129,7 +126,7 @@ const PlayerPage = () => {
 
   const handleNavigate = (newIndex: number) => {
     const rawId = replays[newIndex]?.duelingbook_id;
-    const newReplayId = rawId ? stripQuotes(rawId) : undefined;
+    const newReplayId = rawId ? Number(rawId) : undefined;
     navigate({
       to: "/players/$player-id",
       params: { "player-id": playerId },

@@ -11,16 +11,14 @@ import { useReplay } from "@/features/replay/api";
 import { type BatchFilter, ReplayView } from "@/features/replay/replay-view";
 
 type BatchSearch = {
-  replay?: string;
+  replay?: number;
   pov?: string;
 };
 
 const validateSearch = (search: Record<string, unknown>): BatchSearch => ({
-  replay: typeof search.replay === "string" ? search.replay : undefined,
+  replay: typeof search.replay === "number" ? search.replay : undefined,
   pov: typeof search.pov === "string" ? search.pov : undefined,
 });
-
-const stripQuotes = (s: string) => s.replace(/^"|"$/g, "");
 
 type ReplayViewerProps = {
   completedJobs: JobResponse[];
@@ -38,8 +36,7 @@ const ReplayViewer = ({
   onPovChange,
 }: ReplayViewerProps) => {
   const currentJob = completedJobs[currentIndex];
-  const rawId = currentJob?.duelingbook_id ?? "";
-  const currentDuelingbookId = stripQuotes(rawId);
+  const currentDuelingbookId = currentJob?.duelingbook_id ?? "";
 
   const {
     data: replay,
@@ -149,7 +146,7 @@ const BatchPage = () => {
   const currentIndex = replay
     ? Math.max(
         0,
-        completedJobs.findIndex((j) => stripQuotes(j.duelingbook_id) === replay)
+        completedJobs.findIndex((j) => Number(j.duelingbook_id) === replay)
       )
     : 0;
 
@@ -158,7 +155,7 @@ const BatchPage = () => {
 
   const handleNavigate = (newIndex: number) => {
     const rawId = completedJobs[newIndex]?.duelingbook_id;
-    const newReplayId = rawId ? stripQuotes(rawId) : undefined;
+    const newReplayId = rawId ? Number(rawId) : undefined;
     navigate({
       to: "/batch/$batch-id",
       params: { "batch-id": batchId },
