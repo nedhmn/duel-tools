@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { JobResponse } from "@/features/api/types";
@@ -8,7 +8,7 @@ import { useBatchStatus } from "@/features/batch/api";
 import { BatchProcessing } from "@/features/batch/batch-processing";
 import { SiteHeader } from "@/features/layout/site-header";
 import { useReplay } from "@/features/replay/api";
-import { ReplayView } from "@/features/replay/replay-view";
+import { type BatchFilter, ReplayView } from "@/features/replay/replay-view";
 
 type BatchSearch = {
   replay?: string;
@@ -31,6 +31,8 @@ const ReplayViewer = ({
   currentIndex,
   onNavigate,
 }: ReplayViewerProps) => {
+  const [batchFilter, setBatchFilter] = useState<BatchFilter>("both");
+
   const currentJob = completedJobs[currentIndex];
   const rawId = currentJob?.duelingbook_id ?? "";
   const currentDuelingbookId = stripQuotes(rawId);
@@ -52,6 +54,11 @@ const ReplayViewer = ({
     };
   });
 
+  const handleNavigate = (newIndex: number) => {
+    setBatchFilter("both");
+    onNavigate(newIndex);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -67,14 +74,18 @@ const ReplayViewer = ({
 
   return (
     <ReplayView
+      batchFilter={{
+        value: batchFilter,
+        onChange: setBatchFilter,
+      }}
       navigation={{
         current: currentIndex,
         total: completedJobs.length,
-        onPrev: () => onNavigate(Math.max(0, currentIndex - 1)),
+        onPrev: () => handleNavigate(Math.max(0, currentIndex - 1)),
         onNext: () =>
-          onNavigate(Math.min(completedJobs.length - 1, currentIndex + 1)),
+          handleNavigate(Math.min(completedJobs.length - 1, currentIndex + 1)),
         items: navigationItems,
-        onSelect: onNavigate,
+        onSelect: handleNavigate,
       }}
       replay={replay}
     />

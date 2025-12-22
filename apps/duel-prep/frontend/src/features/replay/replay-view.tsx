@@ -32,6 +32,7 @@ type NavigationItem = {
 };
 
 export type PlayerFilter = "both" | "player" | "opponent";
+export type BatchFilter = "both" | "player1" | "player2";
 
 type ReplayViewProps = {
   replay: ParsedReplay;
@@ -51,6 +52,10 @@ type ReplayViewProps = {
     focusedPlayerName: string;
     value: PlayerFilter;
     onChange: (value: PlayerFilter) => void;
+  };
+  batchFilter?: {
+    value: BatchFilter;
+    onChange: (value: BatchFilter) => void;
   };
 };
 
@@ -206,6 +211,7 @@ const countExpandedCards = (cards: CardInfo[], maxPerCard?: number): number =>
   );
 
 export const ReplayView = ({
+  batchFilter,
   navigation,
   playerFilter,
   playerLinks,
@@ -219,17 +225,34 @@ export const ReplayView = ({
     ? replay.player1 === playerFilter.focusedPlayerName
     : true;
 
-  const showPlayer1 =
-    !playerFilter ||
-    playerFilter.value === "both" ||
-    (playerFilter.value === "player" && focusedIsPlayer1) ||
-    (playerFilter.value === "opponent" && !focusedIsPlayer1);
+  const computeShowPlayers = (): {
+    showPlayer1: boolean;
+    showPlayer2: boolean;
+  } => {
+    if (batchFilter) {
+      return {
+        showPlayer1:
+          batchFilter.value === "both" || batchFilter.value === "player1",
+        showPlayer2:
+          batchFilter.value === "both" || batchFilter.value === "player2",
+      };
+    }
+    if (playerFilter) {
+      return {
+        showPlayer1:
+          playerFilter.value === "both" ||
+          (playerFilter.value === "player" && focusedIsPlayer1) ||
+          (playerFilter.value === "opponent" && !focusedIsPlayer1),
+        showPlayer2:
+          playerFilter.value === "both" ||
+          (playerFilter.value === "player" && !focusedIsPlayer1) ||
+          (playerFilter.value === "opponent" && focusedIsPlayer1),
+      };
+    }
+    return { showPlayer1: true, showPlayer2: true };
+  };
 
-  const showPlayer2 =
-    !playerFilter ||
-    playerFilter.value === "both" ||
-    (playerFilter.value === "player" && !focusedIsPlayer1) ||
-    (playerFilter.value === "opponent" && focusedIsPlayer1);
+  const { showPlayer1, showPlayer2 } = computeShowPlayers();
 
   const gridColsClass =
     showPlayer1 && showPlayer2 ? "md:grid-cols-2" : "md:grid-cols-1";
@@ -293,6 +316,28 @@ export const ReplayView = ({
             </ToggleGroupItem>
             <ToggleGroupItem size="sm" value="opponent">
               Opponent
+            </ToggleGroupItem>
+          </ToggleGroup>
+        ) : null}
+        {batchFilter ? (
+          <ToggleGroup
+            className="justify-start"
+            onValueChange={(val) => {
+              if (val) {
+                batchFilter.onChange(val as BatchFilter);
+              }
+            }}
+            type="single"
+            value={batchFilter.value}
+          >
+            <ToggleGroupItem size="sm" value="both">
+              Both
+            </ToggleGroupItem>
+            <ToggleGroupItem size="sm" value="player1">
+              {replay.player1}
+            </ToggleGroupItem>
+            <ToggleGroupItem size="sm" value="player2">
+              {replay.player2}
             </ToggleGroupItem>
           </ToggleGroup>
         ) : null}
