@@ -52,14 +52,18 @@ const ReplayViewer = ({
   const rawId = replays[currentIndex]?.duelingbook_id ?? "";
   const currentDuelingbookId = stripQuotes(rawId);
 
-  const { data: replay, isLoading } = useReplay(currentDuelingbookId);
+  const {
+    data: replay,
+    isLoading,
+    isFetching,
+  } = useReplay(currentDuelingbookId);
 
   const navigationItems = replays.map((r) => ({
     label: `vs ${r.opponent} · ${r.match_result}`,
     sublabel: new Date(r.played_at).toLocaleDateString(),
   }));
 
-  if (isLoading) {
+  if (isLoading && !replay) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-64" />
@@ -73,23 +77,29 @@ const ReplayViewer = ({
   }
 
   return (
-    <ReplayView
-      navigation={{
-        current: currentIndex,
-        total: replays.length,
-        onPrev: () => onNavigate(Math.max(0, currentIndex - 1)),
-        onNext: () =>
-          onNavigate(Math.min(replays.length - 1, currentIndex + 1)),
-        items: navigationItems,
-        onSelect: onNavigate,
-      }}
-      playerFilter={{
-        focusedPlayerName,
-        value: playerFilter,
-        onChange: setPlayerFilter,
-      }}
-      replay={replay}
-    />
+    <div
+      className={
+        isFetching ? "pointer-events-none opacity-60 transition-opacity" : ""
+      }
+    >
+      <ReplayView
+        navigation={{
+          current: currentIndex,
+          total: replays.length,
+          onPrev: () => onNavigate(Math.max(0, currentIndex - 1)),
+          onNext: () =>
+            onNavigate(Math.min(replays.length - 1, currentIndex + 1)),
+          items: navigationItems,
+          onSelect: onNavigate,
+        }}
+        playerFilter={{
+          focusedPlayerName,
+          value: playerFilter,
+          onChange: setPlayerFilter,
+        }}
+        replay={replay}
+      />
+    </div>
   );
 };
 

@@ -37,7 +37,11 @@ const ReplayViewer = ({
   const rawId = currentJob?.duelingbook_id ?? "";
   const currentDuelingbookId = stripQuotes(rawId);
 
-  const { data: replay, isLoading } = useReplay(currentDuelingbookId);
+  const {
+    data: replay,
+    isLoading,
+    isFetching,
+  } = useReplay(currentDuelingbookId);
 
   const navigationItems = completedJobs.map((job) => {
     const hasMetadata = job.player1 && job.player2;
@@ -59,7 +63,7 @@ const ReplayViewer = ({
     onNavigate(newIndex);
   };
 
-  if (isLoading) {
+  if (isLoading && !replay) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-64" />
@@ -73,22 +77,30 @@ const ReplayViewer = ({
   }
 
   return (
-    <ReplayView
-      batchFilter={{
-        value: batchFilter,
-        onChange: setBatchFilter,
-      }}
-      navigation={{
-        current: currentIndex,
-        total: completedJobs.length,
-        onPrev: () => handleNavigate(Math.max(0, currentIndex - 1)),
-        onNext: () =>
-          handleNavigate(Math.min(completedJobs.length - 1, currentIndex + 1)),
-        items: navigationItems,
-        onSelect: handleNavigate,
-      }}
-      replay={replay}
-    />
+    <div
+      className={
+        isFetching ? "pointer-events-none opacity-60 transition-opacity" : ""
+      }
+    >
+      <ReplayView
+        batchFilter={{
+          value: batchFilter,
+          onChange: setBatchFilter,
+        }}
+        navigation={{
+          current: currentIndex,
+          total: completedJobs.length,
+          onPrev: () => handleNavigate(Math.max(0, currentIndex - 1)),
+          onNext: () =>
+            handleNavigate(
+              Math.min(completedJobs.length - 1, currentIndex + 1)
+            ),
+          items: navigationItems,
+          onSelect: handleNavigate,
+        }}
+        replay={replay}
+      />
+    </div>
   );
 };
 
