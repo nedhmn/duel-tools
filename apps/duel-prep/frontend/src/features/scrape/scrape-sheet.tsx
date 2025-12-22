@@ -82,6 +82,7 @@ export const ScrapeSheet = ({ children }: ScrapeSheetProps) => {
             </label>
             <Input
               id="batch-name"
+              maxLength={100}
               onChange={(e) => setBatchName(e.target.value)}
               placeholder="e.g., Tournament Finals, Practice Session"
               value={batchName}

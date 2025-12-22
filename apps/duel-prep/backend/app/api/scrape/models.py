@@ -7,7 +7,7 @@ from db.models import JobStatus
 
 class ScrapeRequest(BaseModel):
     urls: list[str] = Field(min_length=1, max_length=50)
-    name: str = Field(min_length=1, max_length=255)
+    name: str = Field(min_length=1, max_length=100)
 
 
 class JobResponse(BaseModel):

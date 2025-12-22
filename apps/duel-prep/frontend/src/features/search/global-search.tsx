@@ -93,26 +93,6 @@ export const GlobalSearch = () => {
         <CommandInput placeholder="Search batches and players..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Batches">
-            {batches.map((batch) => (
-              <CommandItem
-                key={batch.id}
-                onSelect={() => handleSelectBatch(batch.id)}
-              >
-                <Layers className="h-4 w-4" />
-                <span>{batch.name}</span>
-                <span className="ml-auto text-muted-foreground text-xs">
-                  {batch.replay_count} replays
-                </span>
-              </CommandItem>
-            ))}
-            {hasMoreBatches ? (
-              <CommandItem onSelect={handleViewAllBatches}>
-                <span className="text-muted-foreground">View all batches</span>
-                <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
-              </CommandItem>
-            ) : null}
-          </CommandGroup>
           <CommandGroup heading="Players">
             {players.map((player) => (
               <CommandItem
@@ -129,6 +109,26 @@ export const GlobalSearch = () => {
             {hasMorePlayers ? (
               <CommandItem onSelect={handleViewAllPlayers}>
                 <span className="text-muted-foreground">View all players</span>
+                <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+              </CommandItem>
+            ) : null}
+          </CommandGroup>
+          <CommandGroup heading="Batches">
+            {batches.map((batch) => (
+              <CommandItem
+                key={batch.id}
+                onSelect={() => handleSelectBatch(batch.id)}
+              >
+                <Layers className="h-4 w-4" />
+                <span>{batch.name}</span>
+                <span className="ml-auto text-muted-foreground text-xs">
+                  {batch.replay_count} replays
+                </span>
+              </CommandItem>
+            ))}
+            {hasMoreBatches ? (
+              <CommandItem onSelect={handleViewAllBatches}>
+                <span className="text-muted-foreground">View all batches</span>
                 <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
               </CommandItem>
             ) : null}
