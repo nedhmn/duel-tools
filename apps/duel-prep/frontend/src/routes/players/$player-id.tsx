@@ -26,8 +26,15 @@ const SKELETON_CARD_IDS = [
   "skel-8",
 ];
 
+type ReplayMetadataItem = {
+  duelingbook_id: string;
+  opponent: string;
+  match_result: string;
+  played_at: string;
+};
+
 type ReplayViewerProps = {
-  replays: { duelingbook_id: string }[];
+  replays: ReplayMetadataItem[];
   currentIndex: number;
   onNavigate: (newIndex: number) => void;
 };
@@ -41,6 +48,11 @@ const ReplayViewer = ({
   const currentDuelingbookId = stripQuotes(rawId);
 
   const { data: replay, isLoading } = useReplay(currentDuelingbookId);
+
+  const navigationItems = replays.map((r) => ({
+    label: `vs ${r.opponent} · ${r.match_result}`,
+    sublabel: new Date(r.played_at).toLocaleDateString(),
+  }));
 
   if (isLoading) {
     return (
@@ -63,6 +75,8 @@ const ReplayViewer = ({
         onPrev: () => onNavigate(Math.max(0, currentIndex - 1)),
         onNext: () =>
           onNavigate(Math.min(replays.length - 1, currentIndex + 1)),
+        items: navigationItems,
+        onSelect: onNavigate,
       }}
       replay={replay}
     />

@@ -13,6 +13,10 @@ export type JobResponse = {
   status: JobStatus;
   replay_id: string | null;
   error: string | null;
+  player1: string | null;
+  player2: string | null;
+  match_result: string | null;
+  played_at: string | null;
 };
 
 export type ScrapeResponse = {

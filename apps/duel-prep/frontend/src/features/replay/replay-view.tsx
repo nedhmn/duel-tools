@@ -1,8 +1,34 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  ExternalLink,
+} from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import type { CardInfo, ParsedReplay } from "@/features/api/types";
+import { cn } from "@/lib/utils";
 import { CardGrid } from "./card-grid";
+
+type NavigationItem = {
+  label: string;
+  sublabel?: string;
+};
 
 type ReplayViewProps = {
   replay: ParsedReplay;
@@ -11,6 +37,8 @@ type ReplayViewProps = {
     total: number;
     onPrev: () => void;
     onNext: () => void;
+    items?: NavigationItem[];
+    onSelect?: (index: number) => void;
   };
   playerLinks?: {
     player1Id?: string;
@@ -36,6 +64,106 @@ const PlayerName = ({ name, playerId }: PlayerNameProps) => {
     );
   }
   return <>{name}</>;
+};
+
+type ReplayNavigationProps = {
+  current: number;
+  total: number;
+  items?: NavigationItem[];
+  onPrev: () => void;
+  onNext: () => void;
+  onSelect?: (index: number) => void;
+};
+
+const ReplayNavigation = ({
+  current,
+  total,
+  items,
+  onPrev,
+  onNext,
+  onSelect,
+}: ReplayNavigationProps) => {
+  const [open, setOpen] = useState(false);
+
+  const currentItem = items?.[current];
+  const hasCombobox = items && items.length > 0 && onSelect;
+
+  return (
+    <div className="flex items-center gap-1">
+      <Button
+        disabled={current === 0}
+        onClick={onPrev}
+        size="icon"
+        variant="outline"
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      {hasCombobox ? (
+        <Popover onOpenChange={setOpen} open={open}>
+          <PopoverTrigger asChild>
+            <Button
+              className="w-[200px] justify-between"
+              role="combobox"
+              size="sm"
+              variant="outline"
+            >
+              <span className="truncate">
+                {currentItem?.label ?? `${current + 1} of ${total}`}
+              </span>
+              <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[280px] p-0">
+            <Command>
+              <CommandInput placeholder="Search replays..." />
+              <CommandList>
+                <CommandEmpty>No replay found.</CommandEmpty>
+                <CommandGroup>
+                  {items.map((item, index) => (
+                    <CommandItem
+                      key={`${item.label}-${item.sublabel ?? index}`}
+                      onSelect={() => {
+                        onSelect(index);
+                        setOpen(false);
+                      }}
+                      value={`${item.label} ${item.sublabel ?? ""}`}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          current === index ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <div className="flex flex-col">
+                        <span>{item.label}</span>
+                        {item.sublabel ? (
+                          <span className="text-muted-foreground text-xs">
+                            {item.sublabel}
+                          </span>
+                        ) : null}
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <span className="px-2 text-muted-foreground text-sm">
+          {current + 1} of {total}
+        </span>
+      )}
+      <Button
+        disabled={current === total - 1}
+        onClick={onNext}
+        size="icon"
+        variant="outline"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 };
 
 const aggregateCards = (
@@ -94,27 +222,14 @@ export const ReplayView = ({
             />
           </h2>
           {navigation ? (
-            <div className="flex items-center gap-2">
-              <Button
-                disabled={navigation.current === 0}
-                onClick={navigation.onPrev}
-                size="icon"
-                variant="outline"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-muted-foreground text-sm">
-                {navigation.current + 1} of {navigation.total}
-              </span>
-              <Button
-                disabled={navigation.current === navigation.total - 1}
-                onClick={navigation.onNext}
-                size="icon"
-                variant="outline"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            <ReplayNavigation
+              current={navigation.current}
+              items={navigation.items}
+              onNext={navigation.onNext}
+              onPrev={navigation.onPrev}
+              onSelect={navigation.onSelect}
+              total={navigation.total}
+            />
           ) : null}
         </div>
         <div className="flex items-center gap-4 text-muted-foreground text-sm">

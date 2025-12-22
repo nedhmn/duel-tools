@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -19,6 +20,10 @@ class JobResponse(BaseModel):
     status: JobStatus
     replay_id: UUID | None
     error: str | None
+    player1: str | None = None
+    player2: str | None = None
+    match_result: str | None = None
+    played_at: datetime | None = None
 
 
 class ScrapeResponse(BaseModel):

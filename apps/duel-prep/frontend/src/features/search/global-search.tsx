@@ -90,7 +90,7 @@ export const GlobalSearch = () => {
         showCloseButton={false}
         title="Global Search"
       >
-        <CommandInput placeholder="Search batches and players..." />
+        <CommandInput placeholder="Search players and batches..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Players">

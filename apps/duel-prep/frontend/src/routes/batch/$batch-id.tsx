@@ -37,6 +37,21 @@ const ReplayViewer = ({
 
   const { data: replay, isLoading } = useReplay(currentDuelingbookId);
 
+  const navigationItems = completedJobs.map((job) => {
+    const hasMetadata = job.player1 && job.player2;
+    if (hasMetadata) {
+      return {
+        label: `${job.player1} vs ${job.player2} · ${job.match_result ?? ""}`,
+        sublabel: job.played_at
+          ? new Date(job.played_at).toLocaleDateString()
+          : undefined,
+      };
+    }
+    return {
+      label: `Replay ${job.duelingbook_id}`,
+    };
+  });
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -58,6 +73,8 @@ const ReplayViewer = ({
         onPrev: () => onNavigate(Math.max(0, currentIndex - 1)),
         onNext: () =>
           onNavigate(Math.min(completedJobs.length - 1, currentIndex + 1)),
+        items: navigationItems,
+        onSelect: onNavigate,
       }}
       replay={replay}
     />

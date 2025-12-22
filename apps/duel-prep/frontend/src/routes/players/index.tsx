@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Eye } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnFilter } from "@/components/data-table-column-filter";
 import { Button } from "@/components/ui/button";
@@ -61,8 +61,7 @@ const columns: ColumnDef<PlayerResponse>[] = [
     cell: ({ row }) => (
       <Link params={{ "player-id": row.original.id }} to="/players/$player-id">
         <Button size="sm" variant="outline">
-          <Eye className="mr-2 h-4 w-4" />
-          View
+          Link
         </Button>
       </Link>
     ),

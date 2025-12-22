@@ -4,7 +4,6 @@ import {
   ArrowUpDown,
   CheckCircle,
   Circle,
-  Eye,
   Loader2,
   XCircle,
 } from "lucide-react";
@@ -141,8 +140,7 @@ const columns: ColumnDef<BatchSummary>[] = [
     cell: ({ row }) => (
       <Link params={{ "batch-id": row.original.id }} to="/batch/$batch-id">
         <Button size="sm" variant="outline">
-          <Eye className="mr-2 h-4 w-4" />
-          View
+          Link
         </Button>
       </Link>
     ),

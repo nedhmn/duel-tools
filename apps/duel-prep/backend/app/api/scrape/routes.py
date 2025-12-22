@@ -6,6 +6,7 @@ from scraper import extract_replay_id
 from scraper.exceptions import ScraperError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_db
 from app.api.scrape.models import (
@@ -101,7 +102,9 @@ async def get_batch_status(
         logger.warning("batch_not_found", batch_id=str(batch_id))
         raise HTTPException(status_code=404, detail="Batch not found")
 
-    result = await db.execute(select(Job).where(Job.batch_id == batch_id))
+    result = await db.execute(
+        select(Job).where(Job.batch_id == batch_id).options(selectinload(Job.replay))
+    )
     jobs = list(result.scalars().all())
 
     status = compute_batch_status(jobs)
