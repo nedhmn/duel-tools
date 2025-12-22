@@ -12,20 +12,22 @@ dependencies = [
     "pydantic-settings>=2.12.0",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/scraper"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"src/scraper/capsolver_task.json" = "scraper/capsolver_task.json"
-
-[tool.uv.sources]
-logger = { workspace = true }
-
 [dependency-groups]
 dev = [
     "ruff>=0.14.10",
     "ty>=0.0.4",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/scraper"]
+artifacts = ["*.json"]
+
+[tool.uv.sources]
+logger = { workspace = true }
 
 [tool.ty.environment]
 python-version = "3.13"
