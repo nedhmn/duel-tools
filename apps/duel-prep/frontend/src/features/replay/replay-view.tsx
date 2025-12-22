@@ -21,6 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { CardInfo, ParsedReplay } from "@/features/api/types";
 import { cn } from "@/lib/utils";
 import { CardGrid } from "./card-grid";
@@ -29,6 +30,8 @@ type NavigationItem = {
   label: string;
   sublabel?: string;
 };
+
+export type PlayerFilter = "both" | "player" | "opponent";
 
 type ReplayViewProps = {
   replay: ParsedReplay;
@@ -43,6 +46,11 @@ type ReplayViewProps = {
   playerLinks?: {
     player1Id?: string;
     player2Id?: string;
+  };
+  playerFilter?: {
+    focusedPlayerName: string;
+    value: PlayerFilter;
+    onChange: (value: PlayerFilter) => void;
   };
 };
 
@@ -199,12 +207,34 @@ const countExpandedCards = (cards: CardInfo[], maxPerCard?: number): number =>
 
 export const ReplayView = ({
   navigation,
+  playerFilter,
   playerLinks,
   replay,
 }: ReplayViewProps) => {
   const player1TotalCards = aggregateCards(replay.games, "player1_cards");
   const player2TotalCards = aggregateCards(replay.games, "player2_cards");
   const replayUrl = getReplayUrl(replay.replay_id);
+
+  const focusedIsPlayer1 = playerFilter
+    ? replay.player1 === playerFilter.focusedPlayerName
+    : true;
+
+  const showPlayer1 =
+    !playerFilter ||
+    playerFilter.value === "both" ||
+    (playerFilter.value === "player" && focusedIsPlayer1) ||
+    (playerFilter.value === "opponent" && !focusedIsPlayer1);
+
+  const showPlayer2 =
+    !playerFilter ||
+    playerFilter.value === "both" ||
+    (playerFilter.value === "player" && !focusedIsPlayer1) ||
+    (playerFilter.value === "opponent" && focusedIsPlayer1);
+
+  const gridColsClass =
+    showPlayer1 && showPlayer2 ? "md:grid-cols-2" : "md:grid-cols-1";
+
+  const cardColumns = showPlayer1 && showPlayer2 ? 8 : 12;
 
   return (
     <div className="space-y-4">
@@ -244,6 +274,28 @@ export const ReplayView = ({
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>
+        {playerFilter ? (
+          <ToggleGroup
+            className="justify-start"
+            onValueChange={(val) => {
+              if (val) {
+                playerFilter.onChange(val as PlayerFilter);
+              }
+            }}
+            type="single"
+            value={playerFilter.value}
+          >
+            <ToggleGroupItem size="sm" value="both">
+              Both
+            </ToggleGroupItem>
+            <ToggleGroupItem size="sm" value="player">
+              {playerFilter.focusedPlayerName}
+            </ToggleGroupItem>
+            <ToggleGroupItem size="sm" value="opponent">
+              Opponent
+            </ToggleGroupItem>
+          </ToggleGroup>
+        ) : null}
       </div>
 
       {replay.games.map((game) => {
@@ -263,33 +315,39 @@ export const ReplayView = ({
                 {game.went_first}
               </span>
             </h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <p className="mb-2 font-medium text-sm">
-                  <PlayerName
-                    name={game.player1_cards.username}
-                    playerId={playerLinks?.player1Id}
-                  />{" "}
-                  ({game.player1_cards.card_count})
-                </p>
-                <CardGrid
-                  cards={game.player1_cards.cards}
-                  minTotalSlots={gameMaxCards}
-                />
-              </div>
-              <div>
-                <p className="mb-2 font-medium text-sm">
-                  <PlayerName
-                    name={game.player2_cards.username}
-                    playerId={playerLinks?.player2Id}
-                  />{" "}
-                  ({game.player2_cards.card_count})
-                </p>
-                <CardGrid
-                  cards={game.player2_cards.cards}
-                  minTotalSlots={gameMaxCards}
-                />
-              </div>
+            <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
+              {showPlayer1 ? (
+                <div>
+                  <p className="mb-2 font-medium text-sm">
+                    <PlayerName
+                      name={game.player1_cards.username}
+                      playerId={playerLinks?.player1Id}
+                    />{" "}
+                    ({game.player1_cards.card_count})
+                  </p>
+                  <CardGrid
+                    cards={game.player1_cards.cards}
+                    columns={cardColumns}
+                    minTotalSlots={gameMaxCards}
+                  />
+                </div>
+              ) : null}
+              {showPlayer2 ? (
+                <div>
+                  <p className="mb-2 font-medium text-sm">
+                    <PlayerName
+                      name={game.player2_cards.username}
+                      playerId={playerLinks?.player2Id}
+                    />{" "}
+                    ({game.player2_cards.card_count})
+                  </p>
+                  <CardGrid
+                    cards={game.player2_cards.cards}
+                    columns={cardColumns}
+                    minTotalSlots={gameMaxCards}
+                  />
+                </div>
+              ) : null}
             </div>
           </div>
         );
@@ -297,7 +355,7 @@ export const ReplayView = ({
 
       <div className="rounded-lg border border-border/50 p-4">
         <h3 className="mb-3 font-medium">Total Cards Seen</h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
           {(() => {
             const totalMaxCards = Math.max(
               countExpandedCards(player1TotalCards, 3),
@@ -305,34 +363,40 @@ export const ReplayView = ({
             );
             return (
               <>
-                <div>
-                  <p className="mb-2 font-medium text-sm">
-                    <PlayerName
-                      name={replay.player1}
-                      playerId={playerLinks?.player1Id}
-                    />{" "}
-                    ({countExpandedCards(player1TotalCards, 3)})
-                  </p>
-                  <CardGrid
-                    cards={player1TotalCards}
-                    maxPerCard={3}
-                    minTotalSlots={totalMaxCards}
-                  />
-                </div>
-                <div>
-                  <p className="mb-2 font-medium text-sm">
-                    <PlayerName
-                      name={replay.player2}
-                      playerId={playerLinks?.player2Id}
-                    />{" "}
-                    ({countExpandedCards(player2TotalCards, 3)})
-                  </p>
-                  <CardGrid
-                    cards={player2TotalCards}
-                    maxPerCard={3}
-                    minTotalSlots={totalMaxCards}
-                  />
-                </div>
+                {showPlayer1 ? (
+                  <div>
+                    <p className="mb-2 font-medium text-sm">
+                      <PlayerName
+                        name={replay.player1}
+                        playerId={playerLinks?.player1Id}
+                      />{" "}
+                      ({countExpandedCards(player1TotalCards, 3)})
+                    </p>
+                    <CardGrid
+                      cards={player1TotalCards}
+                      columns={cardColumns}
+                      maxPerCard={3}
+                      minTotalSlots={totalMaxCards}
+                    />
+                  </div>
+                ) : null}
+                {showPlayer2 ? (
+                  <div>
+                    <p className="mb-2 font-medium text-sm">
+                      <PlayerName
+                        name={replay.player2}
+                        playerId={playerLinks?.player2Id}
+                      />{" "}
+                      ({countExpandedCards(player2TotalCards, 3)})
+                    </p>
+                    <CardGrid
+                      cards={player2TotalCards}
+                      columns={cardColumns}
+                      maxPerCard={3}
+                      minTotalSlots={totalMaxCards}
+                    />
+                  </div>
+                ) : null}
               </>
             );
           })()}

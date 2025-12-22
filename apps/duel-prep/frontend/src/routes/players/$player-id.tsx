@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SiteHeader } from "@/features/layout/site-header";
 import { usePlayerDetail } from "@/features/players/api";
 import { useReplay } from "@/features/replay/api";
-import { ReplayView } from "@/features/replay/replay-view";
+import { type PlayerFilter, ReplayView } from "@/features/replay/replay-view";
 
 type PlayerSearch = {
   replay?: string;
@@ -37,13 +38,17 @@ type ReplayViewerProps = {
   replays: ReplayMetadataItem[];
   currentIndex: number;
   onNavigate: (newIndex: number) => void;
+  focusedPlayerName: string;
 };
 
 const ReplayViewer = ({
   replays,
   currentIndex,
   onNavigate,
+  focusedPlayerName,
 }: ReplayViewerProps) => {
+  const [playerFilter, setPlayerFilter] = useState<PlayerFilter>("both");
+
   const rawId = replays[currentIndex]?.duelingbook_id ?? "";
   const currentDuelingbookId = stripQuotes(rawId);
 
@@ -77,6 +82,11 @@ const ReplayViewer = ({
           onNavigate(Math.min(replays.length - 1, currentIndex + 1)),
         items: navigationItems,
         onSelect: onNavigate,
+      }}
+      playerFilter={{
+        focusedPlayerName,
+        value: playerFilter,
+        onChange: setPlayerFilter,
       }}
       replay={replay}
     />
@@ -186,16 +196,10 @@ const PlayerPage = () => {
         ]}
       />
       <main className="flex-1 overflow-y-auto p-6">
-        <div className="mb-6 space-y-1">
-          <h2 className="font-semibold text-xl">{player.username}</h2>
-          <p className="text-muted-foreground text-sm">
-            {player.replays.length} games recorded
-          </p>
-        </div>
-
         {player.replays.length > 0 ? (
           <ReplayViewer
             currentIndex={currentIndex}
+            focusedPlayerName={player.username}
             onNavigate={handleNavigate}
             replays={player.replays}
           />

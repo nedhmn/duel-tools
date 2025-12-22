@@ -9,6 +9,7 @@ type CardGridProps = {
   cards: CardInfo[];
   maxPerCard?: number;
   minTotalSlots?: number;
+  columns?: 8 | 12;
 };
 
 const getCardImageUrl = (cardId: number) =>
@@ -68,25 +69,32 @@ const expandCards = (
   return expanded;
 };
 
-const MIN_SLOTS = 32;
-const COLS = 8;
+const MIN_SLOTS_8 = 32;
+const MIN_SLOTS_12 = 48;
 
 export const CardGrid = ({
   cards,
   maxPerCard,
   minTotalSlots,
+  columns = 8,
 }: CardGridProps) => {
   const expandedCards = expandCards(cards, maxPerCard);
+  const defaultMinSlots = columns === 12 ? MIN_SLOTS_12 : MIN_SLOTS_8;
   const minSlots = Math.max(
-    MIN_SLOTS,
+    defaultMinSlots,
     minTotalSlots ?? 0,
     expandedCards.length
   );
-  const totalSlots = Math.ceil(minSlots / COLS) * COLS;
+  const totalSlots = Math.ceil(minSlots / columns) * columns;
   const emptySlots = totalSlots - expandedCards.length;
 
+  const gridClass =
+    columns === 12
+      ? "grid grid-cols-6 gap-[3px] sm:grid-cols-9 md:grid-cols-12"
+      : "grid grid-cols-4 gap-[3px] sm:grid-cols-6 md:grid-cols-8";
+
   return (
-    <div className="grid grid-cols-4 gap-[3px] sm:grid-cols-6 md:grid-cols-8">
+    <div className={gridClass}>
       {expandedCards.map((card) => (
         <Tooltip key={`${card.card_id}-${card.index}`}>
           <TooltipTrigger asChild>
