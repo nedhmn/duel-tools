@@ -26,7 +26,8 @@ duel-tools/
 │   ├── db/               # SQLAlchemy models
 │   ├── logger/           # structlog config
 │   ├── parser/           # Replay JSON parsing
-│   └── scraper/          # DuelingBook scraping
+│   ├── scraper/          # DuelingBook scraping
+│   └── seeder/           # S3 replay import
 └── docs/
 ```
 

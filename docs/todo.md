@@ -390,79 +390,28 @@ docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
 
 ## In Progress
 
-### Phase 7: Seeder Package (packages/seeder) 🚧
+---
+
+## Completed
+
+### Phase 7: Seeder Package (packages/seeder) ✅
 
 **Goal:** Import ~5k replay JSONs from AWS S3 bucket into the database.
 
-**S3 Details:**
-- Bucket: `gfwl`
-- Prefix: `replays/`
-- Filename pattern: `{replay_id}_replay.json`
-- URL constructed: `https://www.duelingbook.com/replay?id={replay_id}`
+**Run:** `make seed-s3` (from `packages/seeder/`)
 
-**Architecture (Async + Functional + aiometer):**
-```
-packages/seeder/
-├── pyproject.toml
-├── Makefile
-├── src/seeder/
-│   ├── __init__.py         ✅ Created
-│   ├── config.py           ✅ Created
-│   ├── loaders/
-│   │   ├── __init__.py     ✅ Created
-│   │   └── s3.py           🚧 In progress (type issue with types_aiobotocore_s3)
-│   └── db.py               ⏳ Pending
-└── scripts/
-    └── seed_s3.py          ⏳ Pending
-```
+**Design:**
+- Async: aioboto3 for S3, asyncpg for DB
+- Concurrency: aiometer `run_on_each()` with `max_at_once=20`
+- Per-replay processing: download → parse → insert → commit (own session)
+- Pre-filters duplicates by querying existing `duelingbook_id`s
+- Error handling: logs failures and continues
 
-**Design Decisions:**
-- **Async all the way:** aioboto3 for S3, asyncpg for DB
-- **aiometer for concurrency:** `run_on_each()` with `max_at_once=20`
-- **Process per replay:** Each replay: download → parse → insert → commit (own session)
-  - Memory efficient: O(20) not O(5000)
-  - Progress saved incrementally (resumable)
-  - Connection pooling handles concurrent sessions
-- **Pre-filter duplicates:** Query existing `duelingbook_id`s before downloading (save bandwidth)
-- **No comments/docstrings:** Follow project code style
-
-**Flow:**
-1. List all S3 keys
-2. Query DB for existing `duelingbook_id`s
-3. Filter to only new keys
-4. `aiometer.run_on_each(process, new_keys, max_at_once=20)`
-   - `process`: download → parse_replay() → seed_replay() → commit
-
-**Dependencies (in pyproject.toml):**
-```toml
-dependencies = [
-    "aioboto3>=15.5.0",      # ✅ Added
-    "aiometer>=1.0.0",       # ✅ Added
-    "pydantic>=2.12.5",      # ✅ Added
-    "pydantic-settings>=2.12.0",  # ✅ Added
-    "db",                    # ⏳ Need to add
-    "parser",                # ⏳ Need to add
-    "logger",                # ⏳ Need to add
-]
-```
-
-**Files Created So Far:**
-- `src/seeder/__init__.py` - Empty
-- `src/seeder/config.py` - Settings with DATABASE_URL, S3_BUCKET, S3_PREFIX, S3_CONCURRENCY
-- `src/seeder/loaders/__init__.py` - Empty
-- `src/seeder/loaders/s3.py` - `extract_replay_id()`, `list_keys()`, `download_replay()` (needs TYPE_CHECKING fix)
-
-**Remaining Work:**
-- [ ] Fix s3.py type import (use TYPE_CHECKING or remove types_aiobotocore_s3)
-- [ ] Create `src/seeder/db.py` with:
-  - `get_existing_ids(session_factory)` - Query all duelingbook_ids
-  - `get_or_create_player(session, username)` - Reuse pattern from worker
-  - `seed_replay(session_factory, duelingbook_id, raw_json)` - Parse + insert + commit
-- [ ] Create `scripts/seed_s3.py` - Main script with aiometer
-- [ ] Add internal deps to pyproject.toml (db, parser, logger)
-- [ ] Test locally with `uv run python scripts/seed_s3.py`
-
-**Run command:** `uv run python scripts/seed_s3.py`
+**Files:**
+- `src/seeder/config.py` - Settings (DATABASE_URL, S3_*, AWS_*)
+- `src/seeder/loaders/s3.py` - `list_keys()`, `download_replay()`, `extract_replay_id()`
+- `src/seeder/db.py` - `get_existing_ids()`, `get_or_create_player()`, `seed_replay()`
+- `scripts/seed_s3.py` - Main entrypoint
 
 ---
 
