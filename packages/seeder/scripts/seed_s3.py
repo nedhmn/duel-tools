@@ -31,9 +31,7 @@ async def main() -> None:
         existing_ids = await get_existing_ids(session_factory)
         logger.info("existing_replays", count=len(existing_ids))
 
-        new_keys = [k for k in all_keys if extract_replay_id(k) not in existing_ids][
-            :40
-        ]
+        new_keys = [k for k in all_keys if extract_replay_id(k) not in existing_ids]
         logger.info("new_replays", count=len(new_keys))
 
         if not new_keys:

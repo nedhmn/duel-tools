@@ -1,6 +1,7 @@
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from db.models import Player, Replay, ReplayPlayer
@@ -18,11 +19,20 @@ async def get_existing_ids(
 async def get_or_create_player(session: AsyncSession, username: str) -> Player:
     result = await session.execute(select(Player).where(Player.username == username))
     player = result.scalar_one_or_none()
-    if not player:
+    if player:
+        return player
+
+    try:
         player = Player(username=username)
         session.add(player)
         await session.flush()
-    return player
+        return player
+    except IntegrityError:
+        await session.rollback()
+        result = await session.execute(
+            select(Player).where(Player.username == username)
+        )
+        return result.scalar_one()
 
 
 async def seed_replay(
