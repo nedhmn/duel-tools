@@ -23,12 +23,12 @@ async def get_or_create_player(session: AsyncSession, username: str) -> Player:
         return player
 
     try:
-        player = Player(username=username)
-        session.add(player)
-        await session.flush()
-        return player
+        async with session.begin_nested():
+            player = Player(username=username)
+            session.add(player)
+            await session.flush()
+            return player
     except IntegrityError:
-        await session.rollback()
         result = await session.execute(
             select(Player).where(Player.username == username)
         )
