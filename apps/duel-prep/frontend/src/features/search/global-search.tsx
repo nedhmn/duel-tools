@@ -89,13 +89,13 @@ export const GlobalSearch = () => {
   return (
     <>
       <Button
-        className="h-9 w-48 justify-between text-muted-foreground"
+        className="h-9 w-9 justify-center text-muted-foreground sm:w-48 sm:justify-between"
         onClick={() => setOpen(true)}
         variant="outline"
       >
         <div className="flex items-center gap-2">
           <Search className="h-4 w-4" />
-          <span>Search...</span>
+          <span className="hidden sm:inline">Search...</span>
         </div>
         <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium font-mono text-[10px] text-muted-foreground sm:flex">
           <span className="text-xs">⌘</span>K

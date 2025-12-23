@@ -242,7 +242,7 @@ type PlayerCardSectionProps = {
   playerName: string;
   playerId?: string;
   cards: CardInfo[];
-  columns: number;
+  columns: 8 | 12;
   playedAt: string;
   maxPerCard?: number;
   minTotalSlots?: number;
@@ -336,7 +336,7 @@ type TotalCardsSectionProps = {
   secondTotalCards: CardInfo[];
   showFirst: boolean;
   showSecond: boolean;
-  cardColumns: number;
+  cardColumns: 8 | 12;
   gridColsClass: string;
   playedAt: string;
 };
@@ -417,7 +417,7 @@ type GameCardProps = {
   showSecond: boolean;
   firstPlayerId?: string;
   secondPlayerId?: string;
-  cardColumns: number;
+  cardColumns: 8 | 12;
   gridColsClass: string;
   playedAt: string;
 };
@@ -491,7 +491,7 @@ type DisplayConfig = {
   displayResult: string;
   shouldSwapOrder: boolean;
   gridColsClass: string;
-  cardColumns: number;
+  cardColumns: 8 | 12;
 };
 
 type DisplayConfigParams = {
@@ -633,7 +633,8 @@ export const ReplayView = ({
             rel="noopener noreferrer"
             target="_blank"
           >
-            {replayUrl}
+            <span className="sm:hidden">Duelingbook replay</span>
+            <span className="hidden sm:inline">{replayUrl}</span>
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>
