@@ -12,6 +12,9 @@ check:
 	make format
 	make typecheck
 
+seed-s3:
+	uv run python scripts/seed_s3.py
+
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete

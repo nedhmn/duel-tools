@@ -16,7 +16,11 @@ async def main() -> None:
     setup_logging()
     session_factory = create_async_session_factory(settings.DATABASE_URL_ASYNC)
 
-    session = aioboto3.Session()
+    session = aioboto3.Session(
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION,
+    )
     async with session.client("s3") as s3:
         logger.info(
             "listing_keys", bucket=settings.S3_BUCKET, prefix=settings.S3_PREFIX
