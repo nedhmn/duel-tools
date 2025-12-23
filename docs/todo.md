@@ -388,11 +388,37 @@ docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
 
 ---
 
+## In Progress
+
+---
+
+## Completed
+
+### Phase 7: Seeder Package (packages/seeder) ✅
+
+**Goal:** Import ~5k replay JSONs from AWS S3 bucket into the database.
+
+**Run:** `make seed-s3` (from `packages/seeder/`)
+
+**Design:**
+- Async: aioboto3 for S3, asyncpg for DB
+- Concurrency: aiometer `run_on_each()` with `max_at_once=20`
+- Per-replay processing: download → parse → insert → commit (own session)
+- Pre-filters duplicates by querying existing `duelingbook_id`s
+- Error handling: logs failures and continues
+
+**Files:**
+- `src/seeder/config.py` - Settings (DATABASE_URL, S3_*, AWS_*)
+- `src/seeder/loaders/s3.py` - `list_keys()`, `download_replay()`, `extract_replay_id()`
+- `src/seeder/db.py` - `get_existing_ids()`, `get_or_create_player()`, `seed_replay()`
+- `scripts/seed_s3.py` - Main entrypoint
+
+---
+
 ## Future Work
 
-### Seeder Package (packages/seeder)
-- [ ] S3 Replay Import - Seed DB with replay JSONs from AWS S3
-- [ ] XLSX Parser - Extract replay links from Excel files, dedup, scrape if not in DB
+### XLSX Parser (packages/seeder)
+- [ ] Extract replay links from Excel files, dedup, scrape if not in DB
 
 **Note:** Replay/Player tables are independent of Batch/Job. Seeding can insert directly into `replays`, `players`, `replay_players` without creating batches.
 

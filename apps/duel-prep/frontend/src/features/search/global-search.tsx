@@ -15,20 +15,38 @@ import { usePlayerList } from "@/features/players/api";
 
 const MAX_RESULTS = 5;
 
+const filterByName = <T extends { name?: string; username?: string }>(
+  items: T[],
+  query: string
+): T[] => {
+  if (!query) {
+    return items;
+  }
+  const lower = query.toLowerCase();
+  return items.filter((item) => {
+    const name = item.name ?? item.username ?? "";
+    return name.toLowerCase().includes(lower);
+  });
+};
+
 export const GlobalSearch = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const { data: batchData } = useBatches();
   const { data: playerData } = usePlayerList();
 
   const allBatches = batchData?.batches ?? [];
   const allPlayers = playerData?.players ?? [];
 
-  const batches = allBatches.slice(0, MAX_RESULTS);
-  const players = allPlayers.slice(0, MAX_RESULTS);
-
-  const hasMoreBatches = allBatches.length > MAX_RESULTS;
-  const hasMorePlayers = allPlayers.length > MAX_RESULTS;
+  const filteredBatches = filterByName(allBatches, search).slice(
+    0,
+    MAX_RESULTS
+  );
+  const filteredPlayers = filterByName(allPlayers, search).slice(
+    0,
+    MAX_RESULTS
+  );
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -71,13 +89,13 @@ export const GlobalSearch = () => {
   return (
     <>
       <Button
-        className="h-9 w-48 justify-between text-muted-foreground"
+        className="h-9 w-9 justify-center text-muted-foreground sm:w-48 sm:justify-between"
         onClick={() => setOpen(true)}
         variant="outline"
       >
         <div className="flex items-center gap-2">
           <Search className="h-4 w-4" />
-          <span>Search...</span>
+          <span className="hidden sm:inline">Search...</span>
         </div>
         <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-medium font-mono text-[10px] text-muted-foreground sm:flex">
           <span className="text-xs">⌘</span>K
@@ -85,16 +103,26 @@ export const GlobalSearch = () => {
       </Button>
       <CommandDialog
         description="Search for batches and players"
-        onOpenChange={setOpen}
+        onOpenChange={(isOpen) => {
+          setOpen(isOpen);
+          if (!isOpen) {
+            setSearch("");
+          }
+        }}
         open={open}
+        shouldFilter={false}
         showCloseButton={false}
         title="Global Search"
       >
-        <CommandInput placeholder="Search players and batches..." />
+        <CommandInput
+          onValueChange={setSearch}
+          placeholder="Search players and batches..."
+          value={search}
+        />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Players">
-            {players.map((player) => (
+            {filteredPlayers.map((player) => (
               <CommandItem
                 key={player.id}
                 onSelect={() => handleSelectPlayer(player.id)}
@@ -106,15 +134,13 @@ export const GlobalSearch = () => {
                 </span>
               </CommandItem>
             ))}
-            {hasMorePlayers ? (
-              <CommandItem onSelect={handleViewAllPlayers}>
-                <span className="text-muted-foreground">View all players</span>
-                <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
-              </CommandItem>
-            ) : null}
+            <CommandItem onSelect={handleViewAllPlayers}>
+              <span className="text-muted-foreground">View all players</span>
+              <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+            </CommandItem>
           </CommandGroup>
           <CommandGroup heading="Batches">
-            {batches.map((batch) => (
+            {filteredBatches.map((batch) => (
               <CommandItem
                 key={batch.id}
                 onSelect={() => handleSelectBatch(batch.id)}
@@ -126,12 +152,10 @@ export const GlobalSearch = () => {
                 </span>
               </CommandItem>
             ))}
-            {hasMoreBatches ? (
-              <CommandItem onSelect={handleViewAllBatches}>
-                <span className="text-muted-foreground">View all batches</span>
-                <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
-              </CommandItem>
-            ) : null}
+            <CommandItem onSelect={handleViewAllBatches}>
+              <span className="text-muted-foreground">View all batches</span>
+              <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
+            </CommandItem>
           </CommandGroup>
         </CommandList>
       </CommandDialog>

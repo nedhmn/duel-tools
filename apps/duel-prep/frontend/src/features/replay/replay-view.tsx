@@ -238,6 +238,50 @@ const countExpandedCards = (cards: CardInfo[], maxPerCard?: number): number =>
     0
   );
 
+type PlayerCardSectionProps = {
+  playerName: string;
+  playerId?: string;
+  cards: CardInfo[];
+  columns: 8 | 12;
+  playedAt: string;
+  maxPerCard?: number;
+  minTotalSlots?: number;
+};
+
+const PlayerCardSection = ({
+  playerName,
+  playerId,
+  cards,
+  columns,
+  playedAt,
+  maxPerCard,
+  minTotalSlots,
+}: PlayerCardSectionProps) => {
+  const cardCount = countExpandedCards(cards, maxPerCard);
+  return (
+    <div>
+      <p className="mb-2 flex items-center gap-3 font-medium text-sm">
+        <span>
+          <PlayerName name={playerName} playerId={playerId} /> ({cardCount})
+        </span>
+        <button
+          className="font-normal text-muted-foreground text-xs hover:text-foreground"
+          onClick={() => downloadYdk(cards, playerName, playedAt)}
+          type="button"
+        >
+          Download deck
+        </button>
+      </p>
+      <CardGrid
+        cards={cards}
+        columns={columns}
+        maxPerCard={maxPerCard}
+        minTotalSlots={minTotalSlots}
+      />
+    </div>
+  );
+};
+
 const getCardTypeOrder = (cardType: string): number => {
   const type = cardType.toLowerCase();
   if (type.includes("monster")) {
@@ -283,6 +327,68 @@ const generateYdkContent = (cards: CardInfo[], maxPerCard = 3): string => {
 const sanitizeFilename = (name: string): string =>
   name.replace(/[/\\:*?"<>|]/g, "_");
 
+type TotalCardsSectionProps = {
+  firstPlayer: string;
+  secondPlayer: string;
+  firstPlayerId?: string;
+  secondPlayerId?: string;
+  firstTotalCards: CardInfo[];
+  secondTotalCards: CardInfo[];
+  showFirst: boolean;
+  showSecond: boolean;
+  cardColumns: 8 | 12;
+  gridColsClass: string;
+  playedAt: string;
+};
+
+const TotalCardsSection = ({
+  firstPlayer,
+  secondPlayer,
+  firstPlayerId,
+  secondPlayerId,
+  firstTotalCards,
+  secondTotalCards,
+  showFirst,
+  showSecond,
+  cardColumns,
+  gridColsClass,
+  playedAt,
+}: TotalCardsSectionProps) => {
+  const totalMaxCards = Math.max(
+    countExpandedCards(firstTotalCards, 3),
+    countExpandedCards(secondTotalCards, 3)
+  );
+  return (
+    <div className="rounded-lg border border-border/50 p-4">
+      <h3 className="mb-3 font-medium">Total Cards Seen</h3>
+      <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
+        {showFirst ? (
+          <PlayerCardSection
+            cards={firstTotalCards}
+            columns={cardColumns}
+            maxPerCard={3}
+            minTotalSlots={totalMaxCards}
+            playedAt={playedAt}
+            playerId={firstPlayerId}
+            playerName={firstPlayer}
+          />
+        ) : null}
+        {showSecond ? (
+          <PlayerCardSection
+            cards={secondTotalCards}
+            columns={cardColumns}
+            maxPerCard={3}
+            minTotalSlots={totalMaxCards}
+            playedAt={playedAt}
+            playerId={secondPlayerId}
+            playerName={secondPlayer}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+};
+
 const downloadYdk = (
   cards: CardInfo[],
   playerName: string,
@@ -304,6 +410,163 @@ const downloadYdk = (
   URL.revokeObjectURL(url);
 };
 
+type GameCardProps = {
+  game: ParsedReplay["games"][number];
+  shouldSwapOrder: boolean;
+  showFirst: boolean;
+  showSecond: boolean;
+  firstPlayerId?: string;
+  secondPlayerId?: string;
+  cardColumns: 8 | 12;
+  gridColsClass: string;
+  playedAt: string;
+};
+
+const GameCard = ({
+  game,
+  shouldSwapOrder,
+  showFirst,
+  showSecond,
+  firstPlayerId,
+  secondPlayerId,
+  cardColumns,
+  gridColsClass,
+  playedAt,
+}: GameCardProps) => {
+  const firstGameCards = shouldSwapOrder
+    ? game.player2_cards
+    : game.player1_cards;
+  const secondGameCards = shouldSwapOrder
+    ? game.player1_cards
+    : game.player2_cards;
+  const gameMaxCards = Math.max(
+    countExpandedCards(firstGameCards.cards),
+    countExpandedCards(secondGameCards.cards)
+  );
+
+  return (
+    <div className="rounded-lg border border-border/50 p-4">
+      <h3 className="mb-3 font-medium">
+        Game {game.game_number}
+        <span className="ml-2 font-normal text-muted-foreground text-sm">
+          {game.winner ? `Winner: ${game.winner}` : "No winner"} | First:{" "}
+          {game.went_first}
+        </span>
+      </h3>
+      <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
+        {showFirst ? (
+          <PlayerCardSection
+            cards={firstGameCards.cards}
+            columns={cardColumns}
+            minTotalSlots={gameMaxCards}
+            playedAt={playedAt}
+            playerId={firstPlayerId}
+            playerName={firstGameCards.username}
+          />
+        ) : null}
+        {showSecond ? (
+          <PlayerCardSection
+            cards={secondGameCards.cards}
+            columns={cardColumns}
+            minTotalSlots={gameMaxCards}
+            playedAt={playedAt}
+            playerId={secondPlayerId}
+            playerName={secondGameCards.username}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+};
+
+type DisplayConfig = {
+  firstPlayer: string;
+  secondPlayer: string;
+  firstPlayerId?: string;
+  secondPlayerId?: string;
+  firstTotalCards: CardInfo[];
+  secondTotalCards: CardInfo[];
+  showFirst: boolean;
+  showSecond: boolean;
+  displayResult: string;
+  shouldSwapOrder: boolean;
+  gridColsClass: string;
+  cardColumns: 8 | 12;
+};
+
+type DisplayConfigParams = {
+  replay: ParsedReplay;
+  playerFilter: ReplayViewProps["playerFilter"];
+  batchFilter: ReplayViewProps["batchFilter"];
+  playerLinks: ReplayViewProps["playerLinks"];
+  player1TotalCards: CardInfo[];
+  player2TotalCards: CardInfo[];
+};
+
+const computeDisplayConfig = ({
+  replay,
+  playerFilter,
+  batchFilter,
+  playerLinks,
+  player1TotalCards,
+  player2TotalCards,
+}: DisplayConfigParams): DisplayConfig => {
+  const focusedIsPlayer1 = playerFilter
+    ? replay.player1 === playerFilter.focusedPlayerName
+    : true;
+
+  const computeShowPlayers = () => {
+    if (batchFilter) {
+      return {
+        showPlayer1:
+          batchFilter.value === "both" || batchFilter.value === "player1",
+        showPlayer2:
+          batchFilter.value === "both" || batchFilter.value === "player2",
+      };
+    }
+    if (playerFilter) {
+      const isPlayer = playerFilter.value === "player";
+      const isOpponent = playerFilter.value === "opponent";
+      return {
+        showPlayer1:
+          playerFilter.value === "both" ||
+          (isPlayer && focusedIsPlayer1) ||
+          (isOpponent && !focusedIsPlayer1),
+        showPlayer2:
+          playerFilter.value === "both" ||
+          (isPlayer && !focusedIsPlayer1) ||
+          (isOpponent && focusedIsPlayer1),
+      };
+    }
+    return { showPlayer1: true, showPlayer2: true };
+  };
+
+  const { showPlayer1, showPlayer2 } = computeShowPlayers();
+  const shouldSwapOrder = Boolean(playerFilter && !focusedIsPlayer1);
+
+  return {
+    firstPlayer: shouldSwapOrder ? replay.player2 : replay.player1,
+    secondPlayer: shouldSwapOrder ? replay.player1 : replay.player2,
+    firstPlayerId: shouldSwapOrder
+      ? playerLinks?.player2Id
+      : playerLinks?.player1Id,
+    secondPlayerId: shouldSwapOrder
+      ? playerLinks?.player1Id
+      : playerLinks?.player2Id,
+    firstTotalCards: shouldSwapOrder ? player2TotalCards : player1TotalCards,
+    secondTotalCards: shouldSwapOrder ? player1TotalCards : player2TotalCards,
+    showFirst: shouldSwapOrder ? showPlayer2 : showPlayer1,
+    showSecond: shouldSwapOrder ? showPlayer1 : showPlayer2,
+    displayResult: shouldSwapOrder
+      ? flipMatchResult(replay.match_result)
+      : replay.match_result,
+    shouldSwapOrder,
+    gridColsClass:
+      showPlayer1 && showPlayer2 ? "md:grid-cols-2" : "md:grid-cols-1",
+    cardColumns: showPlayer1 && showPlayer2 ? 8 : 12,
+  };
+};
+
 export const ReplayView = ({
   batchFilter,
   formatFilter,
@@ -316,67 +579,27 @@ export const ReplayView = ({
   const player2TotalCards = aggregateCards(replay.games, "player2_cards");
   const replayUrl = getReplayUrl(replay.replay_id);
 
-  const focusedIsPlayer1 = playerFilter
-    ? replay.player1 === playerFilter.focusedPlayerName
-    : true;
-
-  const computeShowPlayers = (): {
-    showPlayer1: boolean;
-    showPlayer2: boolean;
-  } => {
-    if (batchFilter) {
-      return {
-        showPlayer1:
-          batchFilter.value === "both" || batchFilter.value === "player1",
-        showPlayer2:
-          batchFilter.value === "both" || batchFilter.value === "player2",
-      };
-    }
-    if (playerFilter) {
-      return {
-        showPlayer1:
-          playerFilter.value === "both" ||
-          (playerFilter.value === "player" && focusedIsPlayer1) ||
-          (playerFilter.value === "opponent" && !focusedIsPlayer1),
-        showPlayer2:
-          playerFilter.value === "both" ||
-          (playerFilter.value === "player" && !focusedIsPlayer1) ||
-          (playerFilter.value === "opponent" && focusedIsPlayer1),
-      };
-    }
-    return { showPlayer1: true, showPlayer2: true };
-  };
-
-  const { showPlayer1, showPlayer2 } = computeShowPlayers();
-
-  const shouldSwapOrder = playerFilter && !focusedIsPlayer1;
-
-  const displayResult = shouldSwapOrder
-    ? flipMatchResult(replay.match_result)
-    : replay.match_result;
-
-  const firstPlayer = shouldSwapOrder ? replay.player2 : replay.player1;
-  const secondPlayer = shouldSwapOrder ? replay.player1 : replay.player2;
-  const firstPlayerId = shouldSwapOrder
-    ? playerLinks?.player2Id
-    : playerLinks?.player1Id;
-  const secondPlayerId = shouldSwapOrder
-    ? playerLinks?.player1Id
-    : playerLinks?.player2Id;
-
-  const firstTotalCards = shouldSwapOrder
-    ? player2TotalCards
-    : player1TotalCards;
-  const secondTotalCards = shouldSwapOrder
-    ? player1TotalCards
-    : player2TotalCards;
-  const showFirst = shouldSwapOrder ? showPlayer2 : showPlayer1;
-  const showSecond = shouldSwapOrder ? showPlayer1 : showPlayer2;
-
-  const gridColsClass =
-    showPlayer1 && showPlayer2 ? "md:grid-cols-2" : "md:grid-cols-1";
-
-  const cardColumns = showPlayer1 && showPlayer2 ? 8 : 12;
+  const {
+    firstPlayer,
+    secondPlayer,
+    firstPlayerId,
+    secondPlayerId,
+    firstTotalCards,
+    secondTotalCards,
+    showFirst,
+    showSecond,
+    displayResult,
+    shouldSwapOrder,
+    gridColsClass,
+    cardColumns,
+  } = computeDisplayConfig({
+    replay,
+    playerFilter,
+    batchFilter,
+    playerLinks,
+    player1TotalCards,
+    player2TotalCards,
+  });
 
   return (
     <div className="space-y-4">
@@ -410,7 +633,8 @@ export const ReplayView = ({
             rel="noopener noreferrer"
             target="_blank"
           >
-            {replayUrl}
+            <span className="sm:hidden">Duelingbook replay</span>
+            <span className="hidden sm:inline">{replayUrl}</span>
             <ExternalLink className="h-3 w-3" />
           </a>
         </div>
@@ -484,176 +708,34 @@ export const ReplayView = ({
         ) : null}
       </div>
 
-      <div className="rounded-lg border border-border/50 p-4">
-        <h3 className="mb-3 font-medium">Total Cards Seen</h3>
-        <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
-          {(() => {
-            const totalMaxCards = Math.max(
-              countExpandedCards(firstTotalCards, 3),
-              countExpandedCards(secondTotalCards, 3)
-            );
-            return (
-              <>
-                {showFirst ? (
-                  <div>
-                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
-                      <span>
-                        <PlayerName
-                          name={firstPlayer}
-                          playerId={firstPlayerId}
-                        />{" "}
-                        ({countExpandedCards(firstTotalCards, 3)})
-                      </span>
-                      <button
-                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
-                        onClick={() =>
-                          downloadYdk(
-                            firstTotalCards,
-                            firstPlayer,
-                            replay.played_at
-                          )
-                        }
-                        type="button"
-                      >
-                        Download deck
-                      </button>
-                    </p>
-                    <CardGrid
-                      cards={firstTotalCards}
-                      columns={cardColumns}
-                      maxPerCard={3}
-                      minTotalSlots={totalMaxCards}
-                    />
-                  </div>
-                ) : null}
-                {showSecond ? (
-                  <div>
-                    <p className="mb-2 flex items-center gap-3 font-medium text-sm">
-                      <span>
-                        <PlayerName
-                          name={secondPlayer}
-                          playerId={secondPlayerId}
-                        />{" "}
-                        ({countExpandedCards(secondTotalCards, 3)})
-                      </span>
-                      <button
-                        className="font-normal text-muted-foreground text-xs hover:text-foreground"
-                        onClick={() =>
-                          downloadYdk(
-                            secondTotalCards,
-                            secondPlayer,
-                            replay.played_at
-                          )
-                        }
-                        type="button"
-                      >
-                        Download deck
-                      </button>
-                    </p>
-                    <CardGrid
-                      cards={secondTotalCards}
-                      columns={cardColumns}
-                      maxPerCard={3}
-                      minTotalSlots={totalMaxCards}
-                    />
-                  </div>
-                ) : null}
-              </>
-            );
-          })()}
-        </div>
-      </div>
+      <TotalCardsSection
+        cardColumns={cardColumns}
+        firstPlayer={firstPlayer}
+        firstPlayerId={firstPlayerId}
+        firstTotalCards={firstTotalCards}
+        gridColsClass={gridColsClass}
+        playedAt={replay.played_at}
+        secondPlayer={secondPlayer}
+        secondPlayerId={secondPlayerId}
+        secondTotalCards={secondTotalCards}
+        showFirst={showFirst}
+        showSecond={showSecond}
+      />
 
-      {replay.games.map((game) => {
-        const firstGameCards = shouldSwapOrder
-          ? game.player2_cards
-          : game.player1_cards;
-        const secondGameCards = shouldSwapOrder
-          ? game.player1_cards
-          : game.player2_cards;
-        const gameMaxCards = Math.max(
-          countExpandedCards(firstGameCards.cards),
-          countExpandedCards(secondGameCards.cards)
-        );
-        return (
-          <div
-            className="rounded-lg border border-border/50 p-4"
-            key={game.game_number}
-          >
-            <h3 className="mb-3 font-medium">
-              Game {game.game_number}
-              <span className="ml-2 font-normal text-muted-foreground text-sm">
-                {game.winner ? `Winner: ${game.winner}` : "No winner"} | First:{" "}
-                {game.went_first}
-              </span>
-            </h3>
-            <div className={cn("grid grid-cols-1 gap-4", gridColsClass)}>
-              {showFirst ? (
-                <div>
-                  <p className="mb-2 flex items-center gap-3 font-medium text-sm">
-                    <span>
-                      <PlayerName
-                        name={firstGameCards.username}
-                        playerId={firstPlayerId}
-                      />{" "}
-                      ({firstGameCards.card_count})
-                    </span>
-                    <button
-                      className="font-normal text-muted-foreground text-xs hover:text-foreground"
-                      onClick={() =>
-                        downloadYdk(
-                          firstGameCards.cards,
-                          firstGameCards.username,
-                          replay.played_at
-                        )
-                      }
-                      type="button"
-                    >
-                      Download deck
-                    </button>
-                  </p>
-                  <CardGrid
-                    cards={firstGameCards.cards}
-                    columns={cardColumns}
-                    minTotalSlots={gameMaxCards}
-                  />
-                </div>
-              ) : null}
-              {showSecond ? (
-                <div>
-                  <p className="mb-2 flex items-center gap-3 font-medium text-sm">
-                    <span>
-                      <PlayerName
-                        name={secondGameCards.username}
-                        playerId={secondPlayerId}
-                      />{" "}
-                      ({secondGameCards.card_count})
-                    </span>
-                    <button
-                      className="font-normal text-muted-foreground text-xs hover:text-foreground"
-                      onClick={() =>
-                        downloadYdk(
-                          secondGameCards.cards,
-                          secondGameCards.username,
-                          replay.played_at
-                        )
-                      }
-                      type="button"
-                    >
-                      Download deck
-                    </button>
-                  </p>
-                  <CardGrid
-                    cards={secondGameCards.cards}
-                    columns={cardColumns}
-                    minTotalSlots={gameMaxCards}
-                  />
-                </div>
-              ) : null}
-            </div>
-          </div>
-        );
-      })}
+      {replay.games.map((game) => (
+        <GameCard
+          cardColumns={cardColumns}
+          firstPlayerId={firstPlayerId}
+          game={game}
+          gridColsClass={gridColsClass}
+          key={game.game_number}
+          playedAt={replay.played_at}
+          secondPlayerId={secondPlayerId}
+          shouldSwapOrder={shouldSwapOrder}
+          showFirst={showFirst}
+          showSecond={showSecond}
+        />
+      ))}
     </div>
   );
 };
