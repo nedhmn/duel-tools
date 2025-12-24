@@ -6,7 +6,9 @@ from db.session import create_async_session_factory
 
 from app.core.config import settings
 
-async_session = create_async_session_factory(settings.DATABASE_URL_ASYNC)
+async_session = create_async_session_factory(
+    settings.DATABASE_URL_ASYNC, pool_size=30, max_overflow=10
+)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

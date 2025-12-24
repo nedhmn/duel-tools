@@ -63,6 +63,10 @@ def _solve_captcha(url: str, api_key: str, site_key: str) -> dict[str, Any]:
 def extract_replay_id(url: str) -> int:
     logger.debug("extracting_replay_id", url=url)
 
+    # Normalize URL: ensure https:// scheme
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+
     try:
         parsed = urlparse(url)
     except Exception as exc:

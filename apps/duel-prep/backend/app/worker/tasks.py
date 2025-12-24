@@ -15,7 +15,9 @@ from app.worker.services import ensure_replay_parsed, extract_players
 
 logger = get_logger(__name__)
 
-sync_session = create_sync_session_factory(settings.DATABASE_URL)
+sync_session = create_sync_session_factory(
+    settings.DATABASE_URL, pool_size=40, max_overflow=10
+)
 
 
 @celery_app.task(
