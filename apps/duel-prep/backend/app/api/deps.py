@@ -1,10 +1,18 @@
+import secrets
 from collections.abc import AsyncGenerator
 
+from fastapi import Header, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.session import create_async_session_factory
 
 from app.core.config import settings
+
+
+def verify_auth(x_auth_password: str = Header(...)) -> None:
+    if not secrets.compare_digest(x_auth_password, settings.AUTH_PASSWORD):
+        raise HTTPException(status_code=401, detail="Invalid password")
+
 
 async_session = create_async_session_factory(
     settings.DATABASE_URL_ASYNC, pool_size=30, max_overflow=10

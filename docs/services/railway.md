@@ -82,6 +82,7 @@ docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
 RAILWAY_DOCKERFILE_PATH=apps/duel-prep/backend/Dockerfile
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 REDIS_URL=${{Redis.REDIS_URL}}
+AUTH_PASSWORD=<app-access-password>
 CAPSOLVER_API_KEY=<your-key>
 SITE_KEY=<duelingbook-site-key>
 DB_USERNAME=<duelingbook-username>
@@ -158,6 +159,7 @@ python scripts/clear_db.py
 | `DATABASE_URL`      | PostgreSQL plugin | Auto-provided by Railway                  |
 | `REDIS_URL`         | Redis plugin      | Auto-provided by Railway                  |
 | `PORT`              | Railway           | Auto-injected, used by `fastapi run`      |
+| `AUTH_PASSWORD`     | Manual            | App access password (required)            |
 | `CAPSOLVER_API_KEY` | Manual            | CapSolver API key for captcha solving     |
 | `SITE_KEY`          | Manual            | DuelingBook reCAPTCHA site key            |
 | `DB_USERNAME`       | Manual            | DuelingBook account username              |

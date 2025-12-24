@@ -129,12 +129,6 @@ export const ScrapeSheet = ({ children }: ScrapeSheetProps) => {
               </div>
             </div>
           ) : null}
-
-          {submitScrape.isError ? (
-            <p className="shrink-0 text-destructive text-sm">
-              {submitScrape.error.message}
-            </p>
-          ) : null}
         </div>
 
         <SheetFooter>

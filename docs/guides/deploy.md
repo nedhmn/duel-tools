@@ -75,6 +75,7 @@ See [services/railway.md](../services/railway.md) for Railway-specific setup:
 | ----------------- | --------------------------------- | -------- |
 | DATABASE_URL      | PostgreSQL connection string      | Yes      |
 | REDIS_URL         | Redis connection string           | Yes      |
+| AUTH_PASSWORD     | App access password               | Yes      |
 | CAPSOLVER_API_KEY | CapSolver API key                 | Yes      |
 | SITE_KEY          | DuelingBook reCAPTCHA site key    | Yes      |
 | DB_USERNAME       | DuelingBook account username      | Yes      |
