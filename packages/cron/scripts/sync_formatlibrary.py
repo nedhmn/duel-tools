@@ -22,7 +22,11 @@ logger = get_logger(__name__)
 
 
 async def main(fetch_all: bool = False) -> None:
-    session_factory = create_async_session_factory(settings.DATABASE_URL_ASYNC)
+    session_factory = create_async_session_factory(
+        settings.DATABASE_URL_ASYNC,
+        pool_size=settings.SYNC_CONCURRENCY,
+        max_overflow=5,
+    )
 
     existing_ids = await get_existing_ids(session_factory)
     logger.info("existing_replays", count=len(existing_ids))
