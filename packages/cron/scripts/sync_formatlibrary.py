@@ -38,7 +38,8 @@ async def main(fetch_all: bool = False) -> None:
         logger.info("events_fetched", count=len(events))
 
         all_urls: list[str] = []
-        for event in events:
+
+        async def fetch_replays_for_event(event: dict) -> None:
             abbr = event["abbreviation"]
             replays = await fetch_event_replays(client, abbr, settings.fl_cookies)
             urls = [
@@ -48,6 +49,12 @@ async def main(fetch_all: bool = False) -> None:
             ]
             all_urls.extend(urls)
             logger.info("event_replays", abbreviation=abbr, count=len(urls))
+
+        await aiometer.run_on_each(
+            fetch_replays_for_event,
+            events,
+            max_at_once=settings.SYNC_CONCURRENCY,
+        )
 
     new_urls = [
         url for url in all_urls if str(extract_replay_id(url)) not in existing_ids
