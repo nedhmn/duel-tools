@@ -18,18 +18,18 @@ make sync-all    # Backfill mode (all pages)
 
 ## Configuration
 
-| Variable           | Description                  | Default                       |
-| ------------------ | ---------------------------- | ----------------------------- |
-| `DATABASE_URL`     | PostgreSQL connection string | (required)                    |
-| `FL_ACCESS`        | FormLibrary access cookie    | (required)                    |
-| `FL_PLAYER_ID`     | FormLibrary player ID cookie | (required)                    |
-| `FL_PLAYER_NAME`   | FormLibrary player name      | (required)                    |
-| `CAPSOLVER_API_KEY`| CapSolver API key            | (required, from scraper)      |
-| `SITE_KEY`         | reCAPTCHA site key           | (required, from scraper)      |
-| `DB_USERNAME`      | DuelingBook username         | (required, from scraper)      |
-| `DB_PASSWORD`      | DuelingBook password         | (required, from scraper)      |
-| `DB_ID`            | DuelingBook user ID          | (required, from scraper)      |
-| `DB_REGULAR`       | DuelingBook regular flag     | `not`                         |
+| Variable            | Description                  | Default                  |
+| ------------------- | ---------------------------- | ------------------------ |
+| `DATABASE_URL`      | PostgreSQL connection string | (required)               |
+| `FL_ACCESS`         | FormLibrary access cookie    | (required)               |
+| `FL_PLAYER_ID`      | FormLibrary player ID cookie | (required)               |
+| `FL_PLAYER_NAME`    | FormLibrary player name      | (required)               |
+| `CAPSOLVER_API_KEY` | CapSolver API key            | (required, from scraper) |
+| `SITE_KEY`          | reCAPTCHA site key           | (required, from scraper) |
+| `DB_USERNAME`       | DuelingBook username         | (required, from scraper) |
+| `DB_PASSWORD`       | DuelingBook password         | (required, from scraper) |
+| `DB_ID`             | DuelingBook user ID          | (required, from scraper) |
+| `DB_REGULAR`        | DuelingBook regular flag     | `not`                    |
 
 ## How It Works
 

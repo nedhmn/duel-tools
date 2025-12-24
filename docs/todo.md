@@ -186,22 +186,21 @@
 - [x] `src/seeder/db.py` - `get_existing_ids()`, `get_or_create_player()`, `seed_replay()`
 - [x] `scripts/seed_s3.py` - Main entrypoint
 
-## Phase 8: Cron Package
+## Phase 8: Cron Package ✅
 - [x] Package scaffold (`packages/cron/pyproject.toml`, `Makefile`)
-- [ ] Add workspace deps: `db`, `parser`, `scraper`, `logger` → run `make check`
-- [ ] Update Makefile: add `sync` and `sync-all` commands → run `make check`
-- [ ] `src/cron/__init__.py` → run `make check`
-- [ ] `src/cron/config.py` - Settings (FL_ACCESS, FL_PLAYER_ID, FL_PLAYER_NAME, scraper creds) → run `make check`
-- [ ] `src/cron/sources/__init__.py` → run `make check`
-- [ ] `src/cron/sources/formatlibrary.py` - fetch_events, fetch_all_events, fetch_event_replays, extract_duelingbook_id → run `make check`
-- [ ] `src/cron/db.py` - get_existing_ids, get_or_create_player, seed_replay (copy from seeder) → run `make check`
-- [ ] `src/cron/pipeline.py` - process_replay (scrape→parse→seed with asyncio.to_thread) → run `make check`
-- [ ] `scripts/sync_formatlibrary.py` - Main entrypoint with `--all` flag → run `make check`
-- [ ] `packages/cron/Dockerfile` - Standalone container (no frontend) → test build
-- [ ] `.github/workflows/deploy.yml` - Add `deploy-cron` job
-- [ ] Railway: Create `duel-prep-cron` service with cron schedule `0 0 * * *`
+- [x] Add workspace deps: `db`, `parser`, `scraper`, `logger`
+- [x] Update Makefile: add `sync` and `sync-all` commands
+- [x] `src/cron/__init__.py`
+- [x] `src/cron/config.py` - Settings (DATABASE_URL, FL_ACCESS, FL_PLAYER_ID, FL_PLAYER_NAME)
+- [x] `src/cron/sources/__init__.py`
+- [x] `src/cron/sources/formatlibrary.py` - fetch_events, fetch_all_events, fetch_event_replays
+- [x] `src/cron/db.py` - get_existing_ids, get_or_create_player, seed_replay (copy from seeder)
+- [x] `src/cron/pipeline.py` - process_replay (scrape→parse→seed with asyncio.to_thread)
+- [x] `scripts/sync_formatlibrary.py` - Main entrypoint with `--all` flag
+- [x] `packages/cron/Dockerfile` - Standalone container (no CMD, specify at runtime)
+- [x] `.github/workflows/deploy.yml` - Add `deploy-cron` job for `duel-prep-fl-cron`
+- [ ] Railway: Create `duel-prep-fl-cron` service with cron schedule `0 0 * * *`
 - [ ] Update `docs/services/railway.md` - Document cron service
-- [ ] See full plan: `/Users/nh/.claude/plans/snoopy-nibbling-bird.md`
 
 ## Future Work
 - [ ] `packages/seeder/` - XLSX parser for Excel replay links

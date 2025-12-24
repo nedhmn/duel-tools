@@ -23,6 +23,7 @@ duel-tools/
 │       ├── backend/      # FastAPI + Celery
 │       └── frontend/     # React + TanStack
 ├── packages/
+│   ├── cron/             # Scheduled sync jobs
 │   ├── db/               # SQLAlchemy models
 │   ├── logger/           # structlog config
 │   ├── parser/           # Replay JSON parsing
