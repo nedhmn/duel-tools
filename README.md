@@ -11,6 +11,7 @@ duel-tools/
 │       ├── backend/        # FastAPI + Celery
 │       └── frontend/       # React + Vite
 ├── packages/
+│   ├── cron/               # Scheduled sync jobs
 │   ├── db/                 # SQLAlchemy models
 │   ├── logger/             # structlog config
 │   ├── parser/             # Replay JSON parsing
