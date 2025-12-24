@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     FL_PLAYER_ID: str = Field(...)
     FL_PLAYER_NAME: str = Field(...)
 
+    SYNC_CONCURRENCY: int = Field(default=20)
+
     @property
     def DATABASE_URL_ASYNC(self) -> str:
         url = self.DATABASE_URL

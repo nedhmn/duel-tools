@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 
+import aiometer
 import httpx
 
 from db.session import create_async_session_factory
@@ -40,7 +41,11 @@ async def main(fetch_all: bool = False) -> None:
         for event in events:
             abbr = event["abbreviation"]
             replays = await fetch_event_replays(client, abbr, settings.fl_cookies)
-            urls = [r["url"] for r in replays if r.get("url")]
+            urls = [
+                r["url"]
+                for r in replays
+                if r.get("url") and "duelingbook.com" in r["url"]
+            ]
             all_urls.extend(urls)
             logger.info("event_replays", abbreviation=abbr, count=len(urls))
 
@@ -55,11 +60,19 @@ async def main(fetch_all: bool = False) -> None:
 
     success = 0
     failed = 0
-    for url in new_urls:
+
+    async def process(url: str) -> None:
+        nonlocal success, failed
         if await process_replay(session_factory, url):
             success += 1
         else:
             failed += 1
+
+    await aiometer.run_on_each(
+        process,
+        new_urls,
+        max_at_once=settings.SYNC_CONCURRENCY,
+    )
 
     print(f"Processed {success} replays, {failed} failed")
 

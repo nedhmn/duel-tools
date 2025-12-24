@@ -485,6 +485,7 @@ name = "cron"
 version = "0.1.0"
 source = { editable = "packages/cron" }
 dependencies = [
+    { name = "aiometer" },
     { name = "db" },
     { name = "httpx" },
     { name = "logger" },
@@ -502,6 +503,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aiometer", specifier = ">=1.0.0" },
     { name = "db", editable = "packages/db" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "logger", editable = "packages/logger" },

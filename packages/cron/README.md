@@ -30,13 +30,15 @@ make sync-all    # Backfill mode (all pages)
 | `DB_PASSWORD`       | DuelingBook password         | (required, from scraper) |
 | `DB_ID`             | DuelingBook user ID          | (required, from scraper) |
 | `DB_REGULAR`        | DuelingBook regular flag     | `not`                    |
+| `SYNC_CONCURRENCY`  | Max concurrent scrapes       | `20`                     |
 
 ## How It Works
 
 1. Fetches Goat format events from FormLibrary API
 2. Queries DB for existing `duelingbook_id`s (skip duplicates)
-3. For each new replay URL: scrape → parse → insert replay + players → commit
-4. Logs failures and continues (resumable)
+3. Scrapes new replays concurrently (20 at a time via aiometer)
+4. For each replay: scrape → parse → insert replay + players → commit
+5. Logs failures and continues (resumable)
 
 ## Sources
 
