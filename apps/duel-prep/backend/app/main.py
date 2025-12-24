@@ -4,8 +4,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.api.main import public_router
+from app.core.limiter import limiter
 from app.core.logging import setup_logging
 
 setup_logging()
@@ -17,6 +21,10 @@ app = FastAPI(
     redoc_url=None,
     openapi_url=None,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
+app.add_middleware(SlowAPIMiddleware)  # type: ignore[arg-type]
 
 app.add_middleware(
     CORSMiddleware,  # type: ignore[arg-type]
