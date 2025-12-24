@@ -17,6 +17,15 @@ def create_async_session_factory(
     return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
-def create_sync_session_factory(database_url: str) -> sessionmaker[Session]:
-    engine = create_engine(database_url, echo=False)
+def create_sync_session_factory(
+    database_url: str,
+    pool_size: int = 5,
+    max_overflow: int = 10,
+) -> sessionmaker[Session]:
+    engine = create_engine(
+        database_url,
+        echo=False,
+        pool_size=pool_size,
+        max_overflow=max_overflow,
+    )
     return sessionmaker(engine, class_=Session, expire_on_commit=False)

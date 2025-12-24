@@ -95,7 +95,7 @@ async def main(fetch_all: bool = False) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Sync replays from FormLibrary")
+    parser = argparse.ArgumentParser(description="Sync replays from FormatLibrary")
     parser.add_argument(
         "--all",
         action="store_true",

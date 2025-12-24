@@ -15,8 +15,8 @@ async def process_replay(
     session_factory: async_sessionmaker[AsyncSession],
     url: str,
 ) -> bool:
-    duelingbook_id = str(extract_replay_id(url))
     replay_id = extract_replay_id(url)
+    duelingbook_id = str(replay_id)
 
     logger.info("processing_replay", duelingbook_id=duelingbook_id, url=url)
 
