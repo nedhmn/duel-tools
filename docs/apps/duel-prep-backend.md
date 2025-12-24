@@ -54,6 +54,7 @@ backend/
 │   │       └── models.py        # PlayerResponse, PlayerDetailResponse
 │   ├── core/
 │   │   ├── config.py            # pydantic-settings
+│   │   ├── limiter.py           # slowapi rate limiter
 │   │   └── logging.py           # structlog setup
 │   └── worker/
 │       ├── celery_app.py        # Celery config
@@ -71,6 +72,21 @@ backend/
 ## API Specification
 
 Base URL: `/api/v1`
+
+**Authentication**: All routes except `/health` require `X-Auth-Password` header.
+
+**Rate Limiting**: 200 requests/minute per IP (global).
+
+**OpenAPI docs**: Disabled in production.
+
+### Auth
+
+```
+GET /auth/verify
+Headers: X-Auth-Password: <password>
+Response: { "ok": true }
+Error: 401 { "detail": "Invalid password" }
+```
 
 ### Health
 
@@ -304,6 +320,7 @@ class Settings(BaseSettings):
 | ----------------- | ------------------------------ |
 | DATABASE_URL      | PostgreSQL connection string   |
 | REDIS_URL         | Redis connection string        |
+| AUTH_PASSWORD     | App access password            |
 | CAPSOLVER_API_KEY | CapSolver API key              |
 | SITE_KEY          | DuelingBook reCAPTCHA site key |
 | DB_USERNAME       | DuelingBook account username   |

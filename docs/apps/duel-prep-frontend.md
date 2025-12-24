@@ -25,7 +25,7 @@ React SPA for DuelingBook replay analysis with card grids and YDK export.
 ```
 src/
 ├── routes/                          # TanStack Router file-based routes
-│   ├── __root.tsx                   # Root layout (SidebarProvider + Outlet)
+│   ├── __root.tsx                   # Root layout (LoginModal + Sidebar + Outlet)
 │   ├── index.tsx                    # Home page (/)
 │   ├── batch/
 │   │   ├── index.tsx                # /batch - Batch list
@@ -37,6 +37,9 @@ src/
 ├── features/                        # Feature-based modules
 │   ├── api/
 │   │   └── types.ts                 # Centralized API types
+│   ├── auth/
+│   │   ├── store.ts                 # Zustand auth store (persist)
+│   │   └── login-modal.tsx          # Password login modal
 │   ├── batch/
 │   │   ├── api.ts                   # useBatches(), useBatchStatus()
 │   │   ├── batch-processing.tsx     # Spinner + progress bar
@@ -307,6 +310,21 @@ pnpm build    # TypeScript + Vite build
 pnpm check    # Biome linting
 pnpm fix      # Biome auto-fix
 ```
+
+## Authentication
+
+Password-based auth with login modal:
+
+- Password stored in localStorage via Zustand persist
+- Sent as `X-Auth-Password` header on all API requests
+- Login modal blocks UI until authenticated
+- 401 responses trigger auto-logout
+
+## Error Handling
+
+- `fetchJson()` parses `error.detail` from API responses
+- `useSubmitScrape` shows toast on error via sonner
+- Toast notifications for 400/401/404/422/429/500/503 errors
 
 ## Code Conventions
 
