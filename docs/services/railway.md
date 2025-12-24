@@ -164,9 +164,7 @@ python scripts/clear_db.py
 | `DB_PASSWORD`       | Manual            | DuelingBook account password              |
 | `DB_ID`             | Manual            | DuelingBook account ID                    |
 | `DB_REGULAR`        | Manual            | DuelingBook account type (default: "not") |
-| `FL_ACCESS`         | Manual            | FormLibrary access cookie (cron only)     |
-| `FL_PLAYER_ID`      | Manual            | FormLibrary player ID cookie (cron only)  |
-| `FL_PLAYER_NAME`    | Manual            | FormLibrary player name (cron only)       |
+| `FL_TOKEN`          | Manual            | FormLibrary auth token (cron only)        |
 
 ## Troubleshooting
 
