@@ -36,8 +36,8 @@ async def main(fetch_all: bool = False) -> None:
             logger.info("mode", mode="backfill (all pages)")
             events = await fetch_all_events(client)
         else:
-            logger.info("mode", mode="daily (page 1 only)")
-            events = await fetch_events(client, page=1, limit=100)
+            logger.info("mode", mode="daily (5 most recent events)")
+            events = await fetch_events(client, page=1, limit=5)
 
         logger.info("events_fetched", count=len(events))
 
