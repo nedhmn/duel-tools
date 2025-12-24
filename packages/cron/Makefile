@@ -17,3 +17,9 @@ clean:
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name "*.pyo" -delete
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
+
+sync:
+	uv run python scripts/sync_formatlibrary.py
+
+sync-all:
+	uv run python scripts/sync_formatlibrary.py --all
