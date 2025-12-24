@@ -41,10 +41,11 @@ async def fetch_all_events(client: httpx.AsyncClient) -> list[dict]:
 async def fetch_event_replays(
     client: httpx.AsyncClient,
     abbreviation: str,
-    cookies: dict[str, str],
+    token: str,
 ) -> list[dict]:
-    url = f"{FL_BASE_URL}/events/{abbreviation}"
-    response = await client.get(url, cookies=cookies)
+    url = f"{FL_BASE_URL}/events/subscriber/{abbreviation}"
+    headers = {"Authorization": f"Bearer {token}"}
+    response = await client.get(url, headers=headers)
     response.raise_for_status()
     data = response.json()
     return data.get("replays", [])

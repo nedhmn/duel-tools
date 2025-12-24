@@ -21,9 +21,7 @@ make sync-all    # Backfill mode (all pages)
 | Variable            | Description                  | Default                  |
 | ------------------- | ---------------------------- | ------------------------ |
 | `DATABASE_URL`      | PostgreSQL connection string | (required)               |
-| `FL_ACCESS`         | FormLibrary access cookie    | (required)               |
-| `FL_PLAYER_ID`      | FormLibrary player ID cookie | (required)               |
-| `FL_PLAYER_NAME`    | FormLibrary player name      | (required)               |
+| `FL_TOKEN`          | FormLibrary auth token       | (required)               |
 | `CAPSOLVER_API_KEY` | CapSolver API key            | (required, from scraper) |
 | `SITE_KEY`          | reCAPTCHA site key           | (required, from scraper) |
 | `DB_USERNAME`       | DuelingBook username         | (required, from scraper) |

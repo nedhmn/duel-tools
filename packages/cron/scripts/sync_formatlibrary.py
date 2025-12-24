@@ -41,7 +41,7 @@ async def main(fetch_all: bool = False) -> None:
 
         async def fetch_replays_for_event(event: dict) -> None:
             abbr = event["abbreviation"]
-            replays = await fetch_event_replays(client, abbr, settings.fl_cookies)
+            replays = await fetch_event_replays(client, abbr, settings.FL_TOKEN)
             urls = [
                 r["url"]
                 for r in replays

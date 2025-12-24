@@ -112,9 +112,7 @@ Same as API, except:
 ```
 RAILWAY_DOCKERFILE_PATH=packages/cron/Dockerfile
 DATABASE_URL=${{Postgres.DATABASE_URL}}
-FL_ACCESS=<formatlibrary-access-cookie>
-FL_PLAYER_ID=<formatlibrary-player-id>
-FL_PLAYER_NAME=<formatlibrary-player-name>
+FL_TOKEN=<formatlibrary-auth-token>
 CAPSOLVER_API_KEY=<your-key>
 SITE_KEY=<duelingbook-site-key>
 DB_USERNAME=<duelingbook-username>

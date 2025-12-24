@@ -12,9 +12,7 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = Field(...)
 
-    FL_ACCESS: str = Field(...)
-    FL_PLAYER_ID: str = Field(...)
-    FL_PLAYER_NAME: str = Field(...)
+    FL_TOKEN: str = Field(...)
 
     SYNC_CONCURRENCY: int = Field(default=20)
 
@@ -24,14 +22,6 @@ class Settings(BaseSettings):
         if url.startswith("postgresql://"):
             return url.replace("postgresql://", "postgresql+asyncpg://", 1)
         return url
-
-    @property
-    def fl_cookies(self) -> dict[str, str]:
-        return {
-            "access": self.FL_ACCESS,
-            "playerId": self.FL_PLAYER_ID,
-            "playerName": self.FL_PLAYER_NAME,
-        }
 
 
 settings = Settings()
