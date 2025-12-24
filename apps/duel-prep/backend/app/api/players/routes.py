@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from logger import get_logger
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import aliased
 
 from app.api.deps import get_db
 from app.api.players.models import (
@@ -78,48 +78,50 @@ async def get_player(
         logger.warning("player_not_found", player_id=str(player_id))
         raise HTTPException(status_code=404, detail="Player not found")
 
-    result = await db.execute(
-        select(ReplayPlayer)
-        .where(ReplayPlayer.player_id == player_id)
-        .options(
-            selectinload(ReplayPlayer.replay)
-            .selectinload(Replay.replay_players)
-            .selectinload(ReplayPlayer.player)
+    OpponentRP = aliased(ReplayPlayer)
+    OpponentPlayer = aliased(Player)
+
+    stmt = (
+        select(
+            Replay.id,
+            Replay.duelingbook_id,
+            Replay.url,
+            Replay.played_at,
+            Replay.match_result,
+            Replay.format,
+            Replay.raw_json["player1"]["username"].astext.label("player1_username"),
+            OpponentPlayer.username.label("opponent_username"),
         )
+        .join(ReplayPlayer, Replay.id == ReplayPlayer.replay_id)
+        .outerjoin(
+            OpponentRP,
+            (Replay.id == OpponentRP.replay_id) & (OpponentRP.player_id != player_id),
+        )
+        .outerjoin(OpponentPlayer, OpponentRP.player_id == OpponentPlayer.id)
+        .where(ReplayPlayer.player_id == player_id)
+        .where(Replay.played_at.isnot(None))
+        .where(Replay.match_result.isnot(None))
     )
-    replay_players = list(result.scalars().all())
+
+    result = await db.execute(stmt)
+    rows = result.all()
 
     replays: list[ReplayMetadata] = []
-    for rp in replay_players:
-        replay = rp.replay
-
-        if not replay.played_at or not replay.match_result:
-            continue
-
-        opponent_rp = next(
-            (p for p in replay.replay_players if p.player_id != player_id),
-            None,
-        )
-        opponent = opponent_rp.player.username if opponent_rp else "Unknown"
-
-        raw = replay.raw_json or {}
-        p1 = raw.get("player1", {})
-        player1_username = p1.get("username") if isinstance(p1, dict) else None
-        is_player1 = player.username == player1_username
-
-        match_result = replay.match_result
+    for row in rows:
+        is_player1 = player.username == row.player1_username
+        match_result = row.match_result
         if not is_player1 and match_result:
             match_result = flip_match_result(match_result)
 
         replays.append(
             ReplayMetadata(
-                id=replay.id,
-                duelingbook_id=replay.duelingbook_id,
-                url=replay.url,
-                opponent=opponent,
-                played_at=replay.played_at,
+                id=row.id,
+                duelingbook_id=row.duelingbook_id,
+                url=row.url,
+                opponent=row.opponent_username or "Unknown",
+                played_at=row.played_at,
                 match_result=match_result,
-                format=replay.format,
+                format=row.format,
             )
         )
 
