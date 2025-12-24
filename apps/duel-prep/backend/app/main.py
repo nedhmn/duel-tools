@@ -10,7 +10,13 @@ from app.core.logging import setup_logging
 
 setup_logging()
 
-app = FastAPI(title="duel-prep", version="0.1.0")
+app = FastAPI(
+    title="duel-prep",
+    version="0.1.0",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
+)
 
 app.add_middleware(
     CORSMiddleware,  # type: ignore[arg-type]
