@@ -17,11 +17,20 @@ export const fetchJson = async <T>(
 
   if (response.status === 401) {
     useAuthStore.getState().logout();
-    throw new Error("Unauthorized");
+    throw new Error("Session expired. Please log in again.");
   }
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
+    let message = `Error: ${response.status}`;
+    try {
+      const error = await response.json();
+      if (error.detail) {
+        message = error.detail;
+      }
+    } catch {
+      // Response body is not JSON, use default message
+    }
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;
