@@ -29,7 +29,7 @@ class Settings(BaseSettings):
 
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
 
-    AUTH_PASSWORD: str = Field(default="changeme")
+    AUTH_PASSWORD: str = Field(...)
 
 
 settings = Settings()

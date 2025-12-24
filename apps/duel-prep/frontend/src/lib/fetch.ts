@@ -27,9 +27,7 @@ export const fetchJson = async <T>(
       if (error.detail) {
         message = error.detail;
       }
-    } catch {
-      // Response body is not JSON, use default message
-    }
+    } catch {}
     throw new Error(message);
   }
 
