@@ -198,9 +198,9 @@
 - [x] `src/cron/pipeline.py` - process_replay (scrape→parse→seed with asyncio.to_thread)
 - [x] `scripts/sync_formatlibrary.py` - Main entrypoint with `--all` flag
 - [x] `packages/cron/Dockerfile` - Standalone container (no CMD, specify at runtime)
-- [x] `.github/workflows/deploy.yml` - Add `deploy-cron` job for `duel-prep-fl-cron`
+- [x] `.github/workflows/deploy.yml` - Add `deploy-fl-cron` job for `duel-prep-fl-cron`
+- [x] Update `docs/services/railway.md` - Document cron service
 - [ ] Railway: Create `duel-prep-fl-cron` service with cron schedule `0 0 * * *`
-- [ ] Update `docs/services/railway.md` - Document cron service
 
 ## Future Work
 - [ ] `packages/seeder/` - XLSX parser for Excel replay links
