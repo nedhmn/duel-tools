@@ -27,7 +27,7 @@ async def main(fetch_all: bool = False) -> None:
     existing_ids = await get_existing_ids(session_factory)
     logger.info("existing_replays", count=len(existing_ids))
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         if fetch_all:
             logger.info("mode", mode="backfill (all pages)")
             events = await fetch_all_events(client)
@@ -56,9 +56,15 @@ async def main(fetch_all: bool = False) -> None:
             max_at_once=settings.SYNC_CONCURRENCY,
         )
 
-    new_urls = [
-        url for url in all_urls if str(extract_replay_id(url)) not in existing_ids
-    ]
+    new_urls = []
+    for url in all_urls:
+        try:
+            replay_id = extract_replay_id(url)
+            if str(replay_id) not in existing_ids:
+                new_urls.append(url)
+        except Exception:
+            logger.warning("skipping_invalid_url", url=url)
+            continue
     logger.info("new_replays", total=len(all_urls), new=len(new_urls))
 
     if not new_urls:
