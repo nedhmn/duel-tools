@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { useAuthStore } from "./store";
 
 type LoginModalProps = {
@@ -17,6 +23,7 @@ type LoginModalProps = {
 
 export const LoginModal = ({ open }: LoginModalProps) => {
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const setStoredPassword = useAuthStore((s) => s.setPassword);
@@ -59,14 +66,25 @@ export const LoginModal = ({ open }: LoginModalProps) => {
           </DialogDescription>
         </DialogHeader>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          <Input
-            autoFocus
-            disabled={loading}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            type="password"
-            value={password}
-          />
+          <InputGroup>
+            <InputGroupInput
+              autoFocus
+              disabled={loading}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+            />
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword(!showPassword)}
+                size="icon-xs"
+              >
+                {showPassword ? <EyeOff /> : <Eye />}
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
           {error ? <p className="text-destructive text-sm">{error}</p> : null}
           <Button disabled={loading || !password} type="submit">
             {loading ? "Verifying..." : "Login"}
