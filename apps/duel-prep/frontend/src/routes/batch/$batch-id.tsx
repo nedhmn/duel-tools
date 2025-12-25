@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { JobResponse } from "@/features/api/types";
+import type { JobResponse, ParsedReplay } from "@/features/api/types";
 import { useBatchStatus } from "@/features/batch/api";
 import { BatchProcessing } from "@/features/batch/batch-processing";
 import { SiteHeader } from "@/features/layout/site-header";
@@ -33,6 +33,9 @@ type ReplayViewerProps = {
   formatValue: string | null;
   formatOptions: FormatOption[];
   onFormatChange: (format: string | null) => void;
+  replay: ParsedReplay | undefined;
+  isReplayLoading: boolean;
+  isReplayFetching: boolean;
 };
 
 const ReplayViewer = ({
@@ -44,16 +47,10 @@ const ReplayViewer = ({
   formatValue,
   formatOptions,
   onFormatChange,
+  replay,
+  isReplayLoading,
+  isReplayFetching,
 }: ReplayViewerProps) => {
-  const currentJob = completedJobs[currentIndex];
-  const currentDuelingbookId = currentJob?.duelingbook_id ?? "";
-
-  const {
-    data: replay,
-    isLoading,
-    isFetching,
-  } = useReplay(currentDuelingbookId);
-
   const navigationItems = completedJobs.map((job) => {
     const hasMetadata = job.player1 && job.player2;
     if (hasMetadata) {
@@ -69,7 +66,7 @@ const ReplayViewer = ({
     };
   });
 
-  if (isLoading && !replay) {
+  if (isReplayLoading && !replay) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-64" />
@@ -85,7 +82,9 @@ const ReplayViewer = ({
   return (
     <div
       className={
-        isFetching ? "pointer-events-none opacity-60 transition-opacity" : ""
+        isReplayFetching
+          ? "pointer-events-none opacity-60 transition-opacity"
+          : ""
       }
     >
       <ReplayView
@@ -115,11 +114,12 @@ const ReplayViewer = ({
 
 const BatchPage = () => {
   const { "batch-id": batchId } = Route.useParams();
-  const { replay, pov, format } = Route.useSearch();
+  const { replay: replayParam, pov, format } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const hasHandledComplete = useRef(false);
 
+  // These run in PARALLEL when replayParam exists
   const { data: batch, isLoading: batchLoading } = useBatchStatus(batchId);
 
   useEffect(() => {
@@ -177,12 +177,24 @@ const BatchPage = () => {
     ? allCompletedJobs.filter((j) => j.format === currentFormat)
     : allCompletedJobs;
 
-  const currentIndex = replay
+  const currentIndex = replayParam
     ? Math.max(
         0,
-        completedJobs.findIndex((j) => Number(j.duelingbook_id) === replay)
+        completedJobs.findIndex((j) => Number(j.duelingbook_id) === replayParam)
       )
     : 0;
+
+  // Determine duelingbook ID: use URL param if available, otherwise first completed job
+  const currentDuelingbookId = replayParam
+    ? String(replayParam)
+    : (completedJobs[0]?.duelingbook_id ?? "");
+
+  // Runs in PARALLEL with useBatchStatus when replayParam exists in URL
+  const {
+    data: replayData,
+    isLoading: isReplayLoading,
+    isFetching: isReplayFetching,
+  } = useReplay(currentDuelingbookId);
 
   const currentPov: BatchFilter =
     pov === "player1" || pov === "player2" ? pov : "both";
@@ -207,7 +219,7 @@ const BatchPage = () => {
       to: "/batch/$batch-id",
       params: { "batch-id": batchId },
       search: {
-        replay,
+        replay: replayParam,
         pov: newPov === "both" ? undefined : newPov,
         format: currentFormat ?? undefined,
       },
@@ -286,10 +298,13 @@ const BatchPage = () => {
             currentIndex={currentIndex}
             formatOptions={formatOptions}
             formatValue={currentFormat}
+            isReplayFetching={isReplayFetching}
+            isReplayLoading={isReplayLoading}
             onFormatChange={handleFormatChange}
             onNavigate={handleNavigate}
             onPovChange={handlePovChange}
             pov={currentPov}
+            replay={replayData}
           />
         ) : (
           <BatchProcessing jobs={batch.jobs} />

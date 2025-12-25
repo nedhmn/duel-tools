@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { ParsedReplay } from "@/features/api/types";
 import { SiteHeader } from "@/features/layout/site-header";
 import { usePlayerDetail } from "@/features/players/api";
 import { useReplay } from "@/features/replay/api";
@@ -48,6 +49,9 @@ type ReplayViewerProps = {
   formatValue: string | null;
   formatOptions: FormatOption[];
   onFormatChange: (format: string | null) => void;
+  replay: ParsedReplay | undefined;
+  isReplayLoading: boolean;
+  isReplayFetching: boolean;
 };
 
 const ReplayViewer = ({
@@ -60,21 +64,16 @@ const ReplayViewer = ({
   formatValue,
   formatOptions,
   onFormatChange,
+  replay,
+  isReplayLoading,
+  isReplayFetching,
 }: ReplayViewerProps) => {
-  const currentDuelingbookId = replays[currentIndex]?.duelingbook_id ?? "";
-
-  const {
-    data: replay,
-    isLoading,
-    isFetching,
-  } = useReplay(currentDuelingbookId);
-
   const navigationItems = replays.map((r) => ({
     label: `vs ${r.opponent} · ${r.match_result}`,
     sublabel: new Date(r.played_at).toLocaleDateString(),
   }));
 
-  if (isLoading && !replay) {
+  if (isReplayLoading && !replay) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-64" />
@@ -90,7 +89,9 @@ const ReplayViewer = ({
   return (
     <div
       className={
-        isFetching ? "pointer-events-none opacity-60 transition-opacity" : ""
+        isReplayFetching
+          ? "pointer-events-none opacity-60 transition-opacity"
+          : ""
       }
     >
       <ReplayView
@@ -121,9 +122,10 @@ const ReplayViewer = ({
 
 const PlayerPage = () => {
   const { "player-id": playerId } = Route.useParams();
-  const { replay, pov, format } = Route.useSearch();
+  const { replay: replayParam, pov, format } = Route.useSearch();
   const navigate = useNavigate();
 
+  // These run in PARALLEL when replayParam exists
   const { data: player, isLoading } = usePlayerDetail(playerId);
 
   const allReplays = [...(player?.replays ?? [])].sort(
@@ -148,12 +150,24 @@ const PlayerPage = () => {
     ? allReplays.filter((r) => r.format === currentFormat)
     : allReplays;
 
-  const currentIndex = replay
+  const currentIndex = replayParam
     ? Math.max(
         0,
-        replays.findIndex((r) => Number(r.duelingbook_id) === replay)
+        replays.findIndex((r) => Number(r.duelingbook_id) === replayParam)
       )
     : 0;
+
+  // Determine duelingbook ID: use URL param if available, otherwise first replay
+  const currentDuelingbookId = replayParam
+    ? String(replayParam)
+    : (replays[0]?.duelingbook_id ?? "");
+
+  // Runs in PARALLEL with usePlayerDetail when replayParam exists in URL
+  const {
+    data: replayData,
+    isLoading: isReplayLoading,
+    isFetching: isReplayFetching,
+  } = useReplay(currentDuelingbookId);
 
   const currentPov: PlayerFilter =
     pov === "player" || pov === "opponent" ? pov : "both";
@@ -178,7 +192,7 @@ const PlayerPage = () => {
       to: "/players/$player-id",
       params: { "player-id": playerId },
       search: {
-        replay,
+        replay: replayParam,
         pov: newPov === "both" ? undefined : newPov,
         format: currentFormat ?? undefined,
       },
@@ -284,10 +298,13 @@ const PlayerPage = () => {
             focusedPlayerName={player.username}
             formatOptions={formatOptions}
             formatValue={currentFormat}
+            isReplayFetching={isReplayFetching}
+            isReplayLoading={isReplayLoading}
             onFormatChange={handleFormatChange}
             onNavigate={handleNavigate}
             onPovChange={handlePovChange}
             pov={currentPov}
+            replay={replayData}
             replays={replays}
           />
         ) : (
