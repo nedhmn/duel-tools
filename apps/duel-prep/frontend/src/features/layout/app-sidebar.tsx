@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Layers, Loader2, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,14 +14,18 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useBatches } from "@/features/batch/api";
-import { usePlayerList } from "@/features/players/api";
+import { batchStatusQueryOptions, useBatches } from "@/features/batch/api";
+import {
+  playerDetailQueryOptions,
+  usePlayerList,
+} from "@/features/players/api";
 import { ScrapeSheet } from "@/features/scrape/scrape-sheet";
 
 const SIDEBAR_LIMIT = 5;
 
 export const AppSidebar = () => {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const { data: batchData } = useBatches();
   const { data: playerData } = usePlayerList();
 
@@ -67,6 +72,11 @@ export const AppSidebar = () => {
                     tooltip={`${batch.name} (${batch.replay_count})`}
                   >
                     <Link
+                      onMouseEnter={() =>
+                        queryClient.prefetchQuery(
+                          batchStatusQueryOptions(batch.id)
+                        )
+                      }
                       params={{ "batch-id": batch.id }}
                       to="/batch/$batch-id"
                     >
@@ -105,6 +115,11 @@ export const AppSidebar = () => {
                     tooltip={`${player.username} (${player.replay_count})`}
                   >
                     <Link
+                      onMouseEnter={() =>
+                        queryClient.prefetchQuery(
+                          playerDetailQueryOptions(player.id)
+                        )
+                      }
                       params={{ "player-id": player.id }}
                       to="/players/$player-id"
                     >
