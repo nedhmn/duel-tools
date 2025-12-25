@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import type {
   PlayerDetailResponse,
   PlayerListResponse,
@@ -11,10 +11,13 @@ export const usePlayerList = () =>
     queryFn: () => fetchJson<PlayerListResponse>("/api/v1/players"),
   });
 
-export const usePlayerDetail = (playerId: string) =>
-  useQuery({
+export const playerDetailQueryOptions = (playerId: string) =>
+  queryOptions({
     queryKey: ["player", playerId],
     queryFn: () =>
       fetchJson<PlayerDetailResponse>(`/api/v1/players/${playerId}`),
     enabled: !!playerId,
   });
+
+export const usePlayerDetail = (playerId: string) =>
+  useQuery(playerDetailQueryOptions(playerId));
