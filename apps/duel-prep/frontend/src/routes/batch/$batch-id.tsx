@@ -7,7 +7,7 @@ import type { JobResponse, ParsedReplay } from "@/features/api/types";
 import { useBatchStatus } from "@/features/batch/api";
 import { BatchProcessing } from "@/features/batch/batch-processing";
 import { SiteHeader } from "@/features/layout/site-header";
-import { useReplay } from "@/features/replay/api";
+import { replayQueryOptions, useReplay } from "@/features/replay/api";
 import { type BatchFilter, ReplayView } from "@/features/replay/replay-view";
 
 type BatchSearch = {
@@ -195,6 +195,19 @@ const BatchPage = () => {
     isLoading: isReplayLoading,
     isFetching: isReplayFetching,
   } = useReplay(currentDuelingbookId);
+
+  // Prefetch adjacent replays for instant navigation
+  useEffect(() => {
+    const prevJob = completedJobs[currentIndex - 1];
+    if (prevJob?.duelingbook_id) {
+      queryClient.prefetchQuery(replayQueryOptions(prevJob.duelingbook_id));
+    }
+
+    const nextJob = completedJobs[currentIndex + 1];
+    if (nextJob?.duelingbook_id) {
+      queryClient.prefetchQuery(replayQueryOptions(nextJob.duelingbook_id));
+    }
+  }, [currentIndex, completedJobs, queryClient]);
 
   const currentPov: BatchFilter =
     pov === "player1" || pov === "player2" ? pov : "both";

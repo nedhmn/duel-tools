@@ -1,9 +1,11 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ParsedReplay } from "@/features/api/types";
 import { SiteHeader } from "@/features/layout/site-header";
 import { usePlayerDetail } from "@/features/players/api";
-import { useReplay } from "@/features/replay/api";
+import { replayQueryOptions, useReplay } from "@/features/replay/api";
 import { type PlayerFilter, ReplayView } from "@/features/replay/replay-view";
 
 type PlayerSearch = {
@@ -124,6 +126,7 @@ const PlayerPage = () => {
   const { "player-id": playerId } = Route.useParams();
   const { replay: replayParam, pov, format } = Route.useSearch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // These run in PARALLEL when replayParam exists
   const { data: player, isLoading } = usePlayerDetail(playerId);
@@ -168,6 +171,19 @@ const PlayerPage = () => {
     isLoading: isReplayLoading,
     isFetching: isReplayFetching,
   } = useReplay(currentDuelingbookId);
+
+  // Prefetch adjacent replays for instant navigation
+  useEffect(() => {
+    const prevReplay = replays[currentIndex - 1];
+    if (prevReplay?.duelingbook_id) {
+      queryClient.prefetchQuery(replayQueryOptions(prevReplay.duelingbook_id));
+    }
+
+    const nextReplay = replays[currentIndex + 1];
+    if (nextReplay?.duelingbook_id) {
+      queryClient.prefetchQuery(replayQueryOptions(nextReplay.duelingbook_id));
+    }
+  }, [currentIndex, replays, queryClient]);
 
   const currentPov: PlayerFilter =
     pov === "player" || pov === "opponent" ? pov : "both";
