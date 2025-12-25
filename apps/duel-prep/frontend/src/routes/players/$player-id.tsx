@@ -128,7 +128,6 @@ const PlayerPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // These run in PARALLEL when replayParam exists
   const { data: player, isLoading } = usePlayerDetail(playerId);
 
   const allReplays = [...(player?.replays ?? [])].sort(
@@ -160,19 +159,16 @@ const PlayerPage = () => {
       )
     : 0;
 
-  // Determine duelingbook ID: use URL param if available, otherwise first replay
   const currentDuelingbookId = replayParam
     ? String(replayParam)
     : (replays[0]?.duelingbook_id ?? "");
 
-  // Runs in PARALLEL with usePlayerDetail when replayParam exists in URL
   const {
     data: replayData,
     isLoading: isReplayLoading,
     isFetching: isReplayFetching,
   } = useReplay(currentDuelingbookId);
 
-  // Prefetch adjacent replays for instant navigation
   useEffect(() => {
     const prevReplay = replays[currentIndex - 1];
     if (prevReplay?.duelingbook_id) {

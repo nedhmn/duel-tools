@@ -119,7 +119,6 @@ const BatchPage = () => {
   const queryClient = useQueryClient();
   const hasHandledComplete = useRef(false);
 
-  // These run in PARALLEL when replayParam exists
   const { data: batch, isLoading: batchLoading } = useBatchStatus(batchId);
 
   useEffect(() => {
@@ -184,19 +183,16 @@ const BatchPage = () => {
       )
     : 0;
 
-  // Determine duelingbook ID: use URL param if available, otherwise first completed job
   const currentDuelingbookId = replayParam
     ? String(replayParam)
     : (completedJobs[0]?.duelingbook_id ?? "");
 
-  // Runs in PARALLEL with useBatchStatus when replayParam exists in URL
   const {
     data: replayData,
     isLoading: isReplayLoading,
     isFetching: isReplayFetching,
   } = useReplay(currentDuelingbookId);
 
-  // Prefetch adjacent replays for instant navigation
   useEffect(() => {
     const prevJob = completedJobs[currentIndex - 1];
     if (prevJob?.duelingbook_id) {

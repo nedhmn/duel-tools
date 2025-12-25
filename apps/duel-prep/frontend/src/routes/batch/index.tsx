@@ -8,6 +8,7 @@ import {
   Loader2,
   XCircle,
 } from "lucide-react";
+import { useMemo } from "react";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnFilter } from "@/components/data-table-column-filter";
 import { Button } from "@/components/ui/button";
@@ -178,7 +179,7 @@ const BatchIndexPage = () => {
   const queryClient = useQueryClient();
   const { data, isLoading } = useBatches();
   const batches = data?.batches ?? [];
-  const columns = getColumns(queryClient);
+  const columns = useMemo(() => getColumns(queryClient), [queryClient]);
 
   if (isLoading) {
     return (

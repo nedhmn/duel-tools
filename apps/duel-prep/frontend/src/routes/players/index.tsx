@@ -2,6 +2,7 @@ import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
+import { useMemo } from "react";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnFilter } from "@/components/data-table-column-filter";
 import { Button } from "@/components/ui/button";
@@ -97,7 +98,7 @@ const PlayersIndexPage = () => {
   const queryClient = useQueryClient();
   const { data, isLoading } = usePlayerList();
   const players = data?.players ?? [];
-  const columns = getColumns(queryClient);
+  const columns = useMemo(() => getColumns(queryClient), [queryClient]);
 
   if (isLoading) {
     return (
