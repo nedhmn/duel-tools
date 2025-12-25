@@ -71,19 +71,14 @@ async def get_player(
 ) -> PlayerDetailResponse:
     logger.info("player_detail_requested", player_id=str(player_id))
 
-    result = await db.execute(select(Player).where(Player.id == player_id))
-    player = result.scalar_one_or_none()
-
-    if not player:
-        logger.warning("player_not_found", player_id=str(player_id))
-        raise HTTPException(status_code=404, detail="Player not found")
-
     OpponentRP = aliased(ReplayPlayer)
     OpponentPlayer = aliased(Player)
 
     stmt = (
         select(
-            Replay.id,
+            Player.id.label("player_id"),
+            Player.username.label("player_username"),
+            Replay.id.label("replay_id"),
             Replay.duelingbook_id,
             Replay.url,
             Replay.played_at,
@@ -92,30 +87,45 @@ async def get_player(
             Replay.raw_json["player1"]["username"].astext.label("player1_username"),
             OpponentPlayer.username.label("opponent_username"),
         )
-        .join(ReplayPlayer, Replay.id == ReplayPlayer.replay_id)
+        .select_from(Player)
+        .join(ReplayPlayer, Player.id == ReplayPlayer.player_id)
+        .join(Replay, ReplayPlayer.replay_id == Replay.id)
         .outerjoin(
             OpponentRP,
             (Replay.id == OpponentRP.replay_id) & (OpponentRP.player_id != player_id),
         )
         .outerjoin(OpponentPlayer, OpponentRP.player_id == OpponentPlayer.id)
-        .where(ReplayPlayer.player_id == player_id)
+        .where(Player.id == player_id)
         .where(Replay.played_at.isnot(None))
         .where(Replay.match_result.isnot(None))
+        .order_by(Replay.played_at.desc())
     )
 
     result = await db.execute(stmt)
     rows = result.all()
 
+    if not rows:
+        player_check = await db.execute(
+            select(Player.id, Player.username).where(Player.id == player_id)
+        )
+        player = player_check.one_or_none()
+        if not player:
+            logger.warning("player_not_found", player_id=str(player_id))
+            raise HTTPException(status_code=404, detail="Player not found")
+        return PlayerDetailResponse(id=player.id, username=player.username, replays=[])
+
+    player_username = rows[0].player_username
+
     replays: list[ReplayMetadata] = []
     for row in rows:
-        is_player1 = player.username == row.player1_username
+        is_player1 = player_username == row.player1_username
         match_result = row.match_result
         if not is_player1 and match_result:
             match_result = flip_match_result(match_result)
 
         replays.append(
             ReplayMetadata(
-                id=row.id,
+                id=row.replay_id,
                 duelingbook_id=row.duelingbook_id,
                 url=row.url,
                 opponent=row.opponent_username or "Unknown",
@@ -132,7 +142,7 @@ async def get_player(
     )
 
     return PlayerDetailResponse(
-        id=player.id,
-        username=player.username,
+        id=rows[0].player_id,
+        username=player_username,
         replays=replays,
     )

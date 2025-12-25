@@ -1,3 +1,4 @@
+import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -7,13 +8,19 @@ import {
   Loader2,
   XCircle,
 } from "lucide-react";
+import { useMemo } from "react";
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnFilter } from "@/components/data-table-column-filter";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { BatchStatus, BatchSummary } from "@/features/api/types";
-import { useBatches } from "@/features/batch/api";
+import type {
+  BatchStatus,
+  BatchStatusResponse,
+  BatchSummary,
+} from "@/features/api/types";
+import { batchStatusQueryOptions, useBatches } from "@/features/batch/api";
 import { SiteHeader } from "@/features/layout/site-header";
+import { replayQueryOptions } from "@/features/replay/api";
 
 const statusConfig: Record<
   BatchStatus,
@@ -37,7 +44,7 @@ const statusConfig: Record<
   failed: { icon: XCircle, className: "text-destructive", label: "Failed" },
 };
 
-const columns: ColumnDef<BatchSummary>[] = [
+const getColumns = (queryClient: QueryClient): ColumnDef<BatchSummary>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -138,7 +145,27 @@ const columns: ColumnDef<BatchSummary>[] = [
   {
     id: "actions",
     cell: ({ row }) => (
-      <Link params={{ "batch-id": row.original.id }} to="/batch/$batch-id">
+      <Link
+        onMouseEnter={async () => {
+          await queryClient.prefetchQuery(
+            batchStatusQueryOptions(row.original.id)
+          );
+          const batchData = queryClient.getQueryData<BatchStatusResponse>([
+            "batch",
+            row.original.id,
+          ]);
+          const firstCompletedJob = batchData?.jobs.find(
+            (job) => job.status === "completed" && job.duelingbook_id
+          );
+          if (firstCompletedJob?.duelingbook_id) {
+            queryClient.prefetchQuery(
+              replayQueryOptions(firstCompletedJob.duelingbook_id)
+            );
+          }
+        }}
+        params={{ "batch-id": row.original.id }}
+        to="/batch/$batch-id"
+      >
         <Button size="sm" variant="outline">
           Link
         </Button>
@@ -149,8 +176,10 @@ const columns: ColumnDef<BatchSummary>[] = [
 ];
 
 const BatchIndexPage = () => {
+  const queryClient = useQueryClient();
   const { data, isLoading } = useBatches();
   const batches = data?.batches ?? [];
+  const columns = useMemo(() => getColumns(queryClient), [queryClient]);
 
   if (isLoading) {
     return (
