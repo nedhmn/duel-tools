@@ -1,3 +1,4 @@
+import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
@@ -5,11 +6,18 @@ import { DataTable } from "@/components/data-table";
 import { DataTableColumnFilter } from "@/components/data-table-column-filter";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { PlayerResponse } from "@/features/api/types";
+import type {
+  PlayerDetailResponse,
+  PlayerResponse,
+} from "@/features/api/types";
 import { SiteHeader } from "@/features/layout/site-header";
-import { usePlayerList } from "@/features/players/api";
+import {
+  playerDetailQueryOptions,
+  usePlayerList,
+} from "@/features/players/api";
+import { replayQueryOptions } from "@/features/replay/api";
 
-const columns: ColumnDef<PlayerResponse>[] = [
+const getColumns = (queryClient: QueryClient): ColumnDef<PlayerResponse>[] => [
   {
     accessorKey: "username",
     header: ({ column }) => (
@@ -59,7 +67,23 @@ const columns: ColumnDef<PlayerResponse>[] = [
   {
     id: "actions",
     cell: ({ row }) => (
-      <Link params={{ "player-id": row.original.id }} to="/players/$player-id">
+      <Link
+        onMouseEnter={async () => {
+          await queryClient.prefetchQuery(
+            playerDetailQueryOptions(row.original.id)
+          );
+          const playerData = queryClient.getQueryData<PlayerDetailResponse>([
+            "player",
+            row.original.id,
+          ]);
+          const firstReplayId = playerData?.replays[0]?.duelingbook_id;
+          if (firstReplayId) {
+            queryClient.prefetchQuery(replayQueryOptions(firstReplayId));
+          }
+        }}
+        params={{ "player-id": row.original.id }}
+        to="/players/$player-id"
+      >
         <Button size="sm" variant="outline">
           Link
         </Button>
@@ -70,8 +94,10 @@ const columns: ColumnDef<PlayerResponse>[] = [
 ];
 
 const PlayersIndexPage = () => {
+  const queryClient = useQueryClient();
   const { data, isLoading } = usePlayerList();
   const players = data?.players ?? [];
+  const columns = getColumns(queryClient);
 
   if (isLoading) {
     return (

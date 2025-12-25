@@ -14,11 +14,16 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import type {
+  BatchStatusResponse,
+  PlayerDetailResponse,
+} from "@/features/api/types";
 import { batchStatusQueryOptions, useBatches } from "@/features/batch/api";
 import {
   playerDetailQueryOptions,
   usePlayerList,
 } from "@/features/players/api";
+import { replayQueryOptions } from "@/features/replay/api";
 import { ScrapeSheet } from "@/features/scrape/scrape-sheet";
 
 const SIDEBAR_LIMIT = 5;
@@ -72,11 +77,25 @@ export const AppSidebar = () => {
                     tooltip={`${batch.name} (${batch.replay_count})`}
                   >
                     <Link
-                      onMouseEnter={() =>
-                        queryClient.prefetchQuery(
+                      onMouseEnter={async () => {
+                        await queryClient.prefetchQuery(
                           batchStatusQueryOptions(batch.id)
-                        )
-                      }
+                        );
+                        const batchDetail =
+                          queryClient.getQueryData<BatchStatusResponse>([
+                            "batch",
+                            batch.id,
+                          ]);
+                        const firstCompletedJob = batchDetail?.jobs.find(
+                          (job) =>
+                            job.status === "completed" && job.duelingbook_id
+                        );
+                        if (firstCompletedJob?.duelingbook_id) {
+                          queryClient.prefetchQuery(
+                            replayQueryOptions(firstCompletedJob.duelingbook_id)
+                          );
+                        }
+                      }}
                       params={{ "batch-id": batch.id }}
                       to="/batch/$batch-id"
                     >
@@ -115,11 +134,23 @@ export const AppSidebar = () => {
                     tooltip={`${player.username} (${player.replay_count})`}
                   >
                     <Link
-                      onMouseEnter={() =>
-                        queryClient.prefetchQuery(
+                      onMouseEnter={async () => {
+                        await queryClient.prefetchQuery(
                           playerDetailQueryOptions(player.id)
-                        )
-                      }
+                        );
+                        const playerDetail =
+                          queryClient.getQueryData<PlayerDetailResponse>([
+                            "player",
+                            player.id,
+                          ]);
+                        const firstReplayId =
+                          playerDetail?.replays[0]?.duelingbook_id;
+                        if (firstReplayId) {
+                          queryClient.prefetchQuery(
+                            replayQueryOptions(firstReplayId)
+                          );
+                        }
+                      }}
                       params={{ "player-id": player.id }}
                       to="/players/$player-id"
                     >

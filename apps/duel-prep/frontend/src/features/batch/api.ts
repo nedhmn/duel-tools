@@ -9,6 +9,7 @@ export const batchStatusQueryOptions = (batchId: string) =>
   queryOptions({
     queryKey: ["batch", batchId],
     queryFn: () => fetchJson<BatchStatusResponse>(`/api/v1/scrape/${batchId}`),
+    staleTime: 30 * 1000,
   });
 
 export const useBatchStatus = (batchId: string) =>
@@ -27,4 +28,5 @@ export const useBatches = () =>
   useQuery({
     queryKey: ["batches"],
     queryFn: () => fetchJson<BatchListResponse>("/api/v1/batches"),
+    staleTime: 30 * 1000,
   });

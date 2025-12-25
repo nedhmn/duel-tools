@@ -9,6 +9,7 @@ export const usePlayerList = () =>
   useQuery({
     queryKey: ["players"],
     queryFn: () => fetchJson<PlayerListResponse>("/api/v1/players"),
+    staleTime: 30 * 1000,
   });
 
 export const playerDetailQueryOptions = (playerId: string) =>
@@ -17,6 +18,7 @@ export const playerDetailQueryOptions = (playerId: string) =>
     queryFn: () =>
       fetchJson<PlayerDetailResponse>(`/api/v1/players/${playerId}`),
     enabled: !!playerId,
+    staleTime: 30 * 1000,
   });
 
 export const usePlayerDetail = (playerId: string) =>
