@@ -72,8 +72,6 @@ async def create_scrape_batch(
 
     for job in jobs:
         await db.refresh(job)
-
-    for job in jobs:
         scrape_replay_task.delay(str(job.id), job.url)
 
     logger.info(
@@ -95,30 +93,29 @@ async def get_batch_status(
 ) -> BatchStatusResponse:
     logger.info("batch_status_requested", batch_id=str(batch_id))
 
-    result = await db.execute(select(Batch).where(Batch.id == batch_id))
+    result = await db.execute(
+        select(Batch)
+        .where(Batch.id == batch_id)
+        .options(selectinload(Batch.jobs).selectinload(Job.replay))
+    )
     batch = result.scalar_one_or_none()
 
     if not batch:
         logger.warning("batch_not_found", batch_id=str(batch_id))
         raise HTTPException(status_code=404, detail="Batch not found")
 
-    result = await db.execute(
-        select(Job).where(Job.batch_id == batch_id).options(selectinload(Job.replay))
-    )
-    jobs = list(result.scalars().all())
-
-    status = compute_batch_status(jobs)
+    status = compute_batch_status(batch.jobs)
 
     logger.info(
         "batch_status_retrieved",
         batch_id=str(batch_id),
         status=status,
-        job_count=len(jobs),
+        job_count=len(batch.jobs),
     )
 
     return BatchStatusResponse(
         batch_id=batch.id,
         name=batch.name,
         status=status,
-        jobs=[job_to_response(job) for job in jobs],
+        jobs=[job_to_response(job) for job in batch.jobs],
     )
