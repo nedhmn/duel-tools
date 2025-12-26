@@ -91,7 +91,7 @@ export const CardGrid = ({
   const gridClass =
     columns === 12
       ? "grid grid-cols-6 gap-[3px] sm:grid-cols-9 md:grid-cols-12"
-      : "grid grid-cols-4 gap-[3px] sm:grid-cols-6 md:grid-cols-8";
+      : "grid grid-cols-6 gap-[3px] sm:grid-cols-6 md:grid-cols-8";
 
   return (
     <div className={gridClass}>
