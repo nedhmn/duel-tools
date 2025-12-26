@@ -148,6 +148,7 @@ export const DataTable = <TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
+    autoResetPageIndex: false,
     state: {
       sorting,
       columnFilters,
