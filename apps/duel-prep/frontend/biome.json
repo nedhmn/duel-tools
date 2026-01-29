@@ -8,5 +8,29 @@
       "!src/routeTree.gen.ts",
       "!src/hooks"
     ]
-  }
+  },
+  "linter": {
+    "rules": {
+      "style": {
+        "useConsistentTypeDefinitions": {
+          "level": "error",
+          "options": {
+            "style": "type"
+          }
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["src/routes/**/$*.tsx", "src/routes/**/$*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
+          }
+        }
+      }
+    }
+  ]
 }
