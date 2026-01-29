@@ -17,3 +17,7 @@ clean:
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name "*.pyo" -delete
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
+
+parse:
+	@if [ -z "$(FILE)" ]; then echo "Usage: make parse FILE=<path-to-json>"; exit 1; fi
+	uv run python scripts/parse_replay.py $(FILE)
