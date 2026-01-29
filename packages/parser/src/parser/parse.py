@@ -130,9 +130,7 @@ def _create_plays_df(plays: list[dict[str, Any]]) -> pd.DataFrame:
     return df
 
 
-def _add_derived_columns(
-    df: pd.DataFrame, card_names: set[str]
-) -> pd.DataFrame:
+def _add_derived_columns(df: pd.DataFrame, card_names: set[str]) -> pd.DataFrame:
     df = df.copy()
     df["card_name"] = df.apply(lambda row: _extract_card_name(row, card_names), axis=1)
     df["deck_change"] = df.apply(_calculate_deck_change, axis=1)
@@ -166,6 +164,9 @@ def _extract_card_name(row: pd.Series, card_names: set[str]) -> str | None:
 
 def _calculate_deck_change(row: pd.Series) -> int:
     logs = [str(row.get("private_log", "")), str(row.get("public_log", ""))]
+
+    if any("Revealed" in log and "from Deck" in log for log in logs):
+        return 0
 
     if any(
         phrase in log
@@ -239,7 +240,9 @@ def _create_cards_df(
 
     result = result[result["card_amount"] > 0]
     result["card_id"] = (
-        result["card_name"].map(lambda n: card_id_map.get(n, (0, "", ""))[0]).astype(int)
+        result["card_name"]
+        .map(lambda n: card_id_map.get(n, (0, "", ""))[0])
+        .astype(int)
     )
     result["card_type"] = result["card_name"].map(
         lambda n: card_id_map.get(n, (0, "", ""))[1]
