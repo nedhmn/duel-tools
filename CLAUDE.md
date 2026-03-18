@@ -1,24 +1,57 @@
-# duel-tools
+# Project-Wide Preferences
 
-Monorepo for Yu-Gi-Oh DuelingBook replay analysis tools.
+## Code Style
 
-## Documentation
+- No comments, no docstrings, no module docstrings
+- Code should be self-documenting through clear naming
 
-Read these docs before starting work:
+## Dependencies
 
-| Doc                                                                                        | Description                   |
-| ------------------------------------------------------------------------------------------ | ----------------------------- |
-| [docs/README.md](./docs/README.md)                                                         | Documentation hub             |
-| [docs/guides/development.md](./docs/guides/development.md)                                 | Local setup + commands        |
-| [docs/guides/deploy.md](./docs/guides/deploy.md)                                           | Deployment + CI/CD            |
-| [docs/services/railway.md](./docs/services/railway.md)                                     | Railway configuration         |
-| [docs/architecture/duel-prep-backend.md](./docs/architecture/duel-prep-backend.md)         | Backend API, database, Celery |
-| [docs/architecture/duel-prep-frontend.md](./docs/architecture/duel-prep-frontend.md)       | Frontend routes, components   |
-| [docs/phases/](./docs/phases/)                                                             | Development roadmap           |
+- Python: `uv add` / `uv remove`, never edit pyproject.toml directly
+- Frontend: `pnpm install` / `pnpm add`, never edit package.json directly
 
-## App-Specific Guidelines
+## Validation
 
-| Doc                                                                      | Description         |
-| ------------------------------------------------------------------------ | ------------------- |
-| [apps/duel-prep/backend/CLAUDE.md](./apps/duel-prep/backend/CLAUDE.md)   | Backend code style  |
-| [apps/duel-prep/frontend/CLAUDE.md](./apps/duel-prep/frontend/CLAUDE.md) | Frontend code style |
+### Python (backend, packages)
+
+```bash
+cd apps/duel-prep/backend && make check   # ruff + ty
+```
+
+### Frontend
+
+```bash
+cd apps/duel-prep/frontend && pnpm fix && pnpm check
+```
+
+## Logging (structlog)
+
+Structured logging via `packages/logger`. First positional arg is event name, kwargs for context.
+
+### Event Naming
+
+```
+{resource}_{action}           # scrape_started, job_completed
+{resource}_{action}_failed    # scrape_failed (error)
+```
+
+### Log Levels
+
+| Level     | Use Case                                           |
+| --------- | -------------------------------------------------- |
+| `info`    | Normal operations (batch_created, replay_cached)   |
+| `warning` | Expected failures with recovery (captcha_retry)    |
+| `error`   | Final failures requiring attention (scrape_failed) |
+
+### Required Context
+
+Always include structured key-value pairs, not f-strings:
+
+```python
+logger.info("scrape_started", batch_id=batch_id, url_count=len(urls))
+logger.error("scrape_failed", job_id=job_id, error=str(e))
+```
+
+## Phase Documentation
+
+Phases live in `docs/phases/` (active) and `docs/phases/completed/` (done) with YAML frontmatter. Use `/docs-go` to manage phases.
