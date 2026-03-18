@@ -5,7 +5,7 @@ status: completed
 created: 2026-03-18
 completed: 2026-03-18
 context_doc: null
-description: "Seeder Package"
+description: "Bulk S3 replay import with async concurrency and duplicate filtering"
 ---
 
 ## Tasks
@@ -22,5 +22,6 @@ description: "Seeder Package"
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                                             | Description                     |
+| ---------------------------------------------------- | ------------------------------- |
+| [Initial Product Spec](../../context/init-prompt.md) | Original S3 seeding requirement |

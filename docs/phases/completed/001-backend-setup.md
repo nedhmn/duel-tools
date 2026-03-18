@@ -5,7 +5,7 @@ status: completed
 created: 2026-03-18
 completed: 2026-03-18
 context_doc: null
-description: "Backend Setup"
+description: "FastAPI scaffold with pydantic-settings config, health endpoint, CORS, and logging middleware"
 ---
 
 ## Tasks
@@ -21,5 +21,6 @@ description: "Backend Setup"
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                                      | Description                   |
+| --------------------------------------------- | ----------------------------- |
+| [API architecture](../../architecture/api.md) | Backend architecture overview |

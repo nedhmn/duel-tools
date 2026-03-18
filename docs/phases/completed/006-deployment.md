@@ -46,5 +46,7 @@ description: "Deployment (6a–6d: Dockerfile, CI/CD, Railway, fixes)"
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                               | Description                               |
+| -------------------------------------- | ----------------------------------------- |
+| [Deploy guide](../../guides/deploy.md) | CI/CD workflows and environment variables |
+| [Railway](../../services/railway.md)   | Railway service configuration             |

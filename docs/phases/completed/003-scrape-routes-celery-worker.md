@@ -5,7 +5,7 @@ status: completed
 created: 2026-03-18
 completed: 2026-03-18
 context_doc: null
-description: "Scrape Routes + Celery Worker"
+description: "Scrape endpoints, Celery task pipeline with retry logic, and async job processing"
 ---
 
 ## Tasks
@@ -24,5 +24,6 @@ description: "Scrape Routes + Celery Worker"
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                                      | Description                      |
+| --------------------------------------------- | -------------------------------- |
+| [API architecture](../../architecture/api.md) | Worker pipeline and request flow |

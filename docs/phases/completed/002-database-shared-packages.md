@@ -5,7 +5,7 @@ status: completed
 created: 2026-03-18
 completed: 2026-03-18
 context_doc: null
-description: "Database + Shared Packages"
+description: "SQLAlchemy models, structlog config, replay parser, and DuelingBook scraper packages"
 ---
 
 ## Tasks
@@ -28,5 +28,7 @@ description: "Database + Shared Packages"
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                                             | Description                                |
+| ---------------------------------------------------- | ------------------------------------------ |
+| [API architecture](../../architecture/api.md)        | Database schema and worker pipeline        |
+| [Initial Product Spec](../../context/init-prompt.md) | Original scraping and parsing requirements |

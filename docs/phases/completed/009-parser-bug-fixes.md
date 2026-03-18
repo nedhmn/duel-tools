@@ -5,7 +5,7 @@ status: completed
 created: 2026-03-18
 completed: 2026-03-18
 context_doc: null
-description: "Parser Bug Fixes"
+description: "Fix 'Revealed from Deck' double counting and add parser CLI command"
 ---
 
 ## Tasks
@@ -18,5 +18,6 @@ description: "Parser Bug Fixes"
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                                      | Description                                                            |
+| --------------------------------------------- | ---------------------------------------------------------------------- |
+| [API architecture](../../architecture/api.md) | Raw JSON storage decision that enables parser fixes without migrations |
