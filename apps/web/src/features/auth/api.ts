@@ -11,6 +11,9 @@ export const useAuthStatus = () =>
     queryKey: ["auth-status"],
     queryFn: async () => {
       const response = await fetch("/api/v1/health");
+      if (!response.ok) {
+        throw new Error(`Health check failed: ${response.status}`);
+      }
       const data = (await response.json()) as HealthResponse;
       useAuthStore.getState().setAuthRequired(data.auth_required);
       return data;
