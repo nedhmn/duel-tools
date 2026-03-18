@@ -1,151 +1,49 @@
-# Frontend Development Guidelines
-
-## Project Structure
-
-```
-src/
-├── routes/              # TanStack Router file-based routes
-│   ├── __root.tsx       # Root layout + Outlet
-│   └── index.tsx        # Home page (/)
-├── features/            # Feature-based modules
-│   ├── api/
-│   │   ├── client.ts    # Fetch wrapper
-│   │   └── types.ts     # API types
-│   ├── theme/
-│   │   ├── store.ts     # Zustand theme store
-│   │   └── theme-toggle.tsx
-│   ├── layout/
-│   │   ├── app-sidebar.tsx
-│   │   └── site-header.tsx
-│   ├── scrape/
-│   │   ├── url-extractor.tsx
-│   │   └── api.ts
-│   ├── batch/
-│   │   ├── batch-progress.tsx
-│   │   └── api.ts
-│   ├── replay/
-│   │   ├── replay-view.tsx
-│   │   └── api.ts
-│   └── players/
-│       ├── player-search.tsx
-│       └── api.ts
-├── components/
-│   └── ui/              # shadcn/ui (auto-generated, linter-ignored)
-├── lib/
-│   └── utils.ts         # shadcn utilities (linter-ignored)
-├── env.ts               # t3-env configuration
-├── main.tsx             # Entry point, providers
-├── index.css            # Tailwind v4 + shadcn theme
-└── routeTree.gen.ts     # Auto-generated (linter-ignored)
-```
-
-## Stack
-
-- React 19 + TypeScript
-- Vite 7 with `@tailwindcss/vite` and `@tanstack/router-plugin`
-- TanStack Router (file-based routing)
-- TanStack Query
-- Zustand (client state, theme persistence)
-- Tailwind CSS v4 (`@import "tailwindcss"` syntax)
-- shadcn/ui components
-- t3-env for environment variables
-- Ultracite (Biome) for linting/formatting
+# Frontend Rules & Preferences
 
 ## Code Style
 
-- No comments, no docstrings
-- Self-documenting code through clear naming
-- Kebab-case filenames (`auth-form.tsx`, not `AuthForm.tsx`)
-- Use `@/` path alias for imports
-- Arrow functions for components and handlers
+- Kebab-case filenames (`batch-processing.tsx`, not `BatchProcessing.tsx`)
+- `@/` path alias for all imports, never relative
+- Arrow functions for components and handlers, no `React.FC`, no class components
+- Named exports only, never default exports
 
-```tsx
-const LoginForm = () => {
-  return <form>...</form>;
-};
+## Project Structure
 
-const handleSubmit = (e: FormEvent) => {
-  e.preventDefault();
-};
-```
+- Routes: `src/routes/` (file-based, TanStack Router)
+- Features: `src/features/{feature}/` — `api.ts` (query hooks), `types.ts`, components
+- Shared components: `src/components/`
+- Linter-ignored: `src/components/ui/`, `src/lib/`, `src/routeTree.gen.ts`
 
-## Feature Folders
+## Components
 
-Each feature is self-contained:
+- Loading states: `isLoading` → skeleton loaders, `isFetching` → opacity transitions
+- Error states: graceful degradation with error message, never crash
+- No boolean prop proliferation — create explicit variants instead
+- Derive values during render — don't `useState` + `useEffect` to compute derived state
 
-```
-features/scrape/
-├── url-extractor.tsx
-├── api.ts               # TanStack Query functions
-└── types.ts             # Feature-specific types (if needed)
-```
+## Data Fetching (TanStack Query)
 
-Import from features:
-```tsx
-import { UrlExtractor } from "@/features/scrape/url-extractor";
-import { useSubmitScrape } from "@/features/scrape/api";
-```
+- All API hooks in `features/{feature}/api.ts`
+- Query keys: hierarchical arrays — `["resource", "sub", filters]`
+- Paginated queries: always use `placeholderData: keepPreviousData`
+- Conditional queries: `enabled: !!id`
 
-## Linting
+## Mutations & Error Handling
 
-Ultracite (Biome) ignores in `biome.json`:
-- `src/components/ui` - shadcn generated
-- `src/lib` - shadcn utilities
-- `src/routeTree.gen.ts` - router generated
-- `src/hooks` - generated hooks
+- Always `try/catch` at the call site, never in mutation config
+- Success: `toast.success("Message")` — Error: `toast.error(error instanceof Error ? error.message : "Fallback")`
+- Use `isPending` to disable submit buttons during submission
 
-```bash
-pnpm check    # Lint check
-pnpm fix      # Auto-fix
-```
+## State Management (Zustand)
 
-## TanStack Router
+- UI state only (auth, sidebar), never server/app state
+- Always wrap with `persist` middleware
 
-File-based routing in `src/routes/`. Route files export `Route`:
+## Environment Variables
 
-```tsx
-import { createFileRoute } from "@tanstack/react-router";
+- Always access via `env.VITE_*` from `@/env` (t3-env), never `import.meta.env` directly
 
-export const Route = createFileRoute("/")({
-  component: HomePage,
-});
-```
+## Commands
 
-## TanStack Query
-
-QueryClient in `main.tsx`. Use in features:
-
-```tsx
-// features/scrape/api.ts
-export const useBatchStatus = (batchId: string) =>
-  useQuery({
-    queryKey: ["batch", batchId],
-    queryFn: () => fetch(`/api/v1/scrape/${batchId}`).then((r) => r.json()),
-    refetchInterval: 2000,
-  });
-```
-
-## API Client
-
-Vite proxies `/api/*` to `http://localhost:8000`. Use relative paths:
-
-```tsx
-fetch("/api/v1/scrape", { method: "POST", body: JSON.stringify(data) });
-```
-
-## Adding shadcn Components
-
-```bash
-pnpm dlx shadcn@latest add button card input
-```
-
-## Development
-
-```bash
-pnpm dev  # Starts at :3000, proxies /api/* to :8000
-```
-
-Backend must run at `:8000`:
-```bash
-cd ../backend && make dev
-```
+- `pnpm dlx shadcn@latest add <component>` — add shadcn components
+- `pnpm dlx @tanstack/router-cli generate` — regenerate route tree after adding/removing/renaming routes

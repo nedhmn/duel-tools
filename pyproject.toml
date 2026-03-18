@@ -22,7 +22,7 @@ members = [
     "packages/parser",
     "packages/scraper",
     "packages/seeder",
-    "packages/cron",
+    "apps/cron",
 ]
 
 [tool.uv.sources]
@@ -34,5 +34,14 @@ scraper = { workspace = true }
 seeder = { workspace = true }
 cron = { workspace = true }
 
+[dependency-groups]
+dev = [
+    "ruff>=0.14.10",
+    "ty>=0.0.4",
+]
+
 [tool.uv]
 cache-dir = ".cache"
+
+[tool.ty.src]
+exclude = [".cache", "**/tests"]

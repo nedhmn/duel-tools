@@ -24,11 +24,6 @@ logger = { workspace = true }
 db = { workspace = true }
 scraper = { workspace = true }
 
-[dependency-groups]
-dev = [
-    "ruff>=0.14.10",
-    "ty>=0.0.4",
-]
 
 [tool.ty.environment]
 python-version = "3.13"

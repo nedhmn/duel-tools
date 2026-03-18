@@ -1,0 +1,60 @@
+name: App CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/duel-prep/**"
+      - "packages/**"
+      - ".github/workflows/app-ci.yml"
+  pull_request:
+    paths:
+      - "apps/duel-prep/**"
+      - "packages/**"
+      - ".github/workflows/app-ci.yml"
+
+concurrency:
+  group: app-deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/duel-prep/backend/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-api:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy API
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service=duel-prep-api
+
+  deploy-worker:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Worker
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service=duel-prep-worker

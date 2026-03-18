@@ -41,7 +41,7 @@ duel-prep is deployed on Railway with the following services:
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │                  duel-prep-fl-cron                     │  │
 │  │  - FormLibrary sync (daily)                            │  │
-│  │  - Dockerfile: packages/cron/Dockerfile                │  │
+│  │  - Dockerfile: apps/cron/Dockerfile                     │  │
 │  │  - CMD: python scripts/sync_formatlibrary.py          │  │
 │  │  - Cron: 0 0 * * * (midnight UTC)                     │  │
 │  └───────────────────────────────────────────────────────┘  │
@@ -111,7 +111,7 @@ Same as API, except:
 
 **Variables:**
 ```
-RAILWAY_DOCKERFILE_PATH=packages/cron/Dockerfile
+RAILWAY_DOCKERFILE_PATH=apps/cron/Dockerfile
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 FL_TOKEN=<formatlibrary-auth-token>
 CAPSOLVER_API_KEY=<your-key>
@@ -124,17 +124,13 @@ DB_REGULAR=not
 
 ## GitHub Actions CI/CD
 
-Workflow: `.github/workflows/deploy.yml`
+Three workflows in `.github/workflows/`:
 
-**Triggers:**
-- Push to `main` branch (paths: `apps/duel-prep/**`, `packages/**`)
-- Manual dispatch
+- **`ci.yml`** — Lint/type checks on all PRs and pushes
+- **`app-ci.yml`** — Docker build + deploy for API and Worker
+- **`cron-ci.yml`** — Docker build + deploy for FL Cron
 
-**Jobs:**
-1. `lint` - Backend (`make check`) + Frontend (`pnpm check`)
-2. `deploy-api` - Deploy to `duel-prep-api` service
-3. `deploy-worker` - Deploy to `duel-prep-worker` service
-4. `deploy-fl-cron` - Deploy to `duel-prep-fl-cron` service
+See [deploy guide](../guides/deploy.md) for details.
 
 **Required secret:** `RAILWAY_TOKEN`
 
