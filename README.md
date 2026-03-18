@@ -60,9 +60,8 @@ cd packages/db && make migrate          # init database
 
 ## Docs
 
-| Guide                                         | Description            |
-| --------------------------------------------- | ---------------------- |
-| [Development](./docs/guides/development.md)   | Full local setup       |
-| [Self-Hosting](./docs/guides/self-hosting.md) | Docker Compose deploy  |
-| [Deployment](./docs/guides/deploy.md)         | CI/CD + Railway        |
-| [Railway](./docs/services/railway.md)         | Railway service config |
+| Guide                                         | Description           |
+| --------------------------------------------- | --------------------- |
+| [Development](./docs/guides/development.md)   | Full local setup      |
+| [Self-Hosting](./docs/guides/self-hosting.md) | Docker Compose deploy |
+| [Deployment](./docs/guides/deploy.md)         | CI/CD + Railway       |
