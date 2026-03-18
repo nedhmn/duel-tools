@@ -39,3 +39,6 @@ jobs:
 
       - name: Run all checks
         run: make check
+
+      - name: Run parser tests
+        run: uv run pytest packages/parser/tests/ -v
