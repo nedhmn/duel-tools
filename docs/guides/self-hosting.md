@@ -26,6 +26,8 @@ Run duel-tools on your own server with Docker Compose.
 | Docker    | Container runtime | [docker.com](https://www.docker.com)       |
 | CapSolver | reCAPTCHA solving | [capsolver.com](https://www.capsolver.com) |
 
+> **Note:** CapSolver costs roughly **~$1 per 1,000 replays** scraped. Start with a small top-up (e.g. $2–5) to test, and keep that rate in mind when adding funds.
+
 ## Environment Variables
 
 | Variable            | Description                    | Required | Source                                                                                                            |
