@@ -68,7 +68,7 @@ Three GitHub Actions workflows in `.github/workflows/`:
 ### `cron-ci.yml` — Cron service
 
 **Triggers:** push to main + PRs
-**Paths:** `packages/**`
+**Paths:** `apps/cron/**`, `packages/**`, `.github/workflows/cron-ci.yml`
 
 **Jobs:**
 - `build` — Docker build validation with BuildKit + GHA cache
