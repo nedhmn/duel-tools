@@ -18,11 +18,13 @@ ENV UV_LINK_MODE=copy
 
 # Copy pyproject.toml files first (layer caching)
 COPY pyproject.toml uv.lock ./
+COPY apps/cron/pyproject.toml apps/cron/pyproject.toml
+COPY apps/duel-prep/backend/pyproject.toml apps/duel-prep/backend/pyproject.toml
 COPY packages/db/pyproject.toml packages/db/pyproject.toml
 COPY packages/logger/pyproject.toml packages/logger/pyproject.toml
 COPY packages/parser/pyproject.toml packages/parser/pyproject.toml
 COPY packages/scraper/pyproject.toml packages/scraper/pyproject.toml
-COPY apps/duel-prep/backend/pyproject.toml apps/duel-prep/backend/pyproject.toml
+COPY packages/seeder/pyproject.toml packages/seeder/pyproject.toml
 
 # Install deps without workspace packages (faster layer caching)
 RUN uv sync --frozen --no-install-workspace --no-dev
