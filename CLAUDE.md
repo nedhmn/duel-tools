@@ -27,7 +27,7 @@ Structured logging via `packages/logger`. First positional arg is event name, kw
 
 ```
 {resource}_{action}           # scrape_started, job_completed
-{resource}_{action}_completed # scrape_completed (end of operation)
+{resource}_{action}_completed # external_fetch_completed (end of operation)
 {resource}_{action}_failed    # scrape_failed (error)
 ```
 

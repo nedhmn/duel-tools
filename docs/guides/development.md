@@ -101,7 +101,7 @@ Edit `apps/api/.env`:
 
 ### Running
 
-You need two processes (three if you need the worker):
+You need two processes:
 
 ```bash
 # Terminal 1: Backend API
