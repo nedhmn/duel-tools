@@ -46,19 +46,36 @@ The Dockerfile:
 
 ## CI/CD
 
-GitHub Actions workflow at `.github/workflows/deploy.yml`:
+Three GitHub Actions workflows in `.github/workflows/`:
 
-**Triggers:**
-- Push to `main` (paths: `apps/duel-prep/**`, `packages/**`)
-- Manual dispatch
+### `ci.yml` — Generic checks (all changes)
+
+**Triggers:** push to main + PRs (paths-ignore: `docs/**`)
 
 **Jobs:**
-1. `lint` - Backend (`make check`) + Frontend (`pnpm check`)
-2. `deploy-api` - Deploy API service
-3. `deploy-worker` - Deploy Celery worker
+- `check` — `uv sync --locked` → `make check` (ruff + ty + frontend lint)
+
+### `app-ci.yml` — App services (API + Worker)
+
+**Triggers:** push to main + PRs
+**Paths:** `apps/duel-prep/**`, `packages/**`
+
+**Jobs:**
+- `build` — Docker build validation with BuildKit + GHA cache
+- `deploy-api` — Railway deploy `duel-prep-api` (main only)
+- `deploy-worker` — Railway deploy `duel-prep-worker` (main only)
+
+### `cron-ci.yml` — Cron service
+
+**Triggers:** push to main + PRs
+**Paths:** `packages/**`
+
+**Jobs:**
+- `build` — Docker build validation with BuildKit + GHA cache
+- `deploy-cron` — Railway deploy `duel-prep-fl-cron` (main only, currently commented out)
 
 **Required Secrets:**
-- `RAILWAY_TOKEN` - Railway API token
+- `RAILWAY_TOKEN` — Railway API token
 
 ## Railway Deployment
 
