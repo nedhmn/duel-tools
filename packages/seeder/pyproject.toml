@@ -8,7 +8,6 @@ dependencies = [
     "aioboto3>=15.5.0",
     "aiometer>=1.0.0",
     "pydantic>=2.12.5",
-    "pydantic-settings>=2.12.0",
     "db",
     "parser",
     "logger",
