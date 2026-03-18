@@ -6,7 +6,7 @@ FastAPI + Celery backend for DuelingBook replay scraping and analysis.
 
 ```bash
 cp .env.example .env  # Configure environment
-make init-db          # Create database tables
+cd ../../packages/db && make migrate  # Run database migrations
 ```
 
 ## Development
@@ -30,12 +30,10 @@ make worker  # Celery worker (separate terminal)
 
 ## Commands
 
-| Command         | Description            |
-| --------------- | ---------------------- |
-| `make dev`      | Run FastAPI dev server |
-| `make worker`   | Run Celery worker      |
-| `make init-db`  | Create database tables |
-| `make clear-db` | Delete all data        |
+| Command       | Description            |
+| ------------- | ---------------------- |
+| `make dev`    | Run FastAPI dev server |
+| `make worker` | Run Celery worker      |
 
 ## Architecture
 

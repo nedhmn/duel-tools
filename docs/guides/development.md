@@ -65,7 +65,7 @@ Local development setup for duel-tools.
 
 5. Initialize the database:
    ```bash
-   cd apps/api && make init-db
+   cd packages/db && make migrate
    ```
 
 ## Monorepo Commands
@@ -118,12 +118,10 @@ cd apps/api && make worker
 
 ### API Commands
 
-| Command         | Description            |
-| --------------- | ---------------------- |
-| `make dev`      | Run FastAPI dev server |
-| `make worker`   | Run Celery worker      |
-| `make init-db`  | Create database tables |
-| `make clear-db` | Delete all data        |
+| Command       | Description            |
+| ------------- | ---------------------- |
+| `make dev`    | Run FastAPI dev server |
+| `make worker` | Run Celery worker      |
 
 ## Web Development
 
@@ -178,13 +176,10 @@ make sync-all   # Backfill all events
 ### Reset Database
 
 ```bash
-cd apps/api
+cd packages/db
 
-# Clear all data (keeps tables)
-make clear-db
-
-# Or recreate tables
-make init-db
+# Downgrade and re-migrate
+make migrate-down && make migrate
 ```
 
 ### Connect to Local Database

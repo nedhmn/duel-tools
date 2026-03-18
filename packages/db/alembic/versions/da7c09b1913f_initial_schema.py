@@ -177,4 +177,5 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_players_username"), table_name="players")
     op.drop_table("players")
     op.drop_table("batches")
+    op.execute("DROP TYPE IF EXISTS jobstatus")
     # ### end Alembic commands ###
