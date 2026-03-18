@@ -21,27 +21,25 @@ Run duel-tools on your own server with Docker Compose.
 
 ## Prerequisites
 
-| Tool        | Purpose              | Sign Up                                    |
-| ----------- | -------------------- | ------------------------------------------ |
-| Docker      | Container runtime    | [docker.com](https://www.docker.com)       |
-| DuelingBook | Scraping credentials | [duelingbook.com](https://duelingbook.com) |
-| CapSolver   | reCAPTCHA solving    | [capsolver.com](https://www.capsolver.com) |
+| Tool      | Purpose           | Sign Up                                    |
+| --------- | ----------------- | ------------------------------------------ |
+| Docker    | Container runtime | [docker.com](https://www.docker.com)       |
+| CapSolver | reCAPTCHA solving | [capsolver.com](https://www.capsolver.com) |
 
 ## Environment Variables
 
-| Variable            | Description                    | Required | Source                                                 |
-| ------------------- | ------------------------------ | -------- | ------------------------------------------------------ |
-| `POSTGRES_PASSWORD` | PostgreSQL password            | Yes      | Choose a secure password                               |
-| `AUTH_PASSWORD`     | App access password            | Yes      | Choose a secure password                               |
-| `CAPSOLVER_API_KEY` | CapSolver API key              | Yes      | [CapSolver dashboard](https://dashboard.capsolver.com) |
-| `SITE_KEY`          | DuelingBook reCAPTCHA site key | Yes      | [DuelingBook service docs](../services/duelingbook.md) |
-| `DB_USERNAME`       | DuelingBook account username   | Yes      | Your DuelingBook account                               |
-| `DB_PASSWORD`       | DuelingBook account password   | Yes      | Your DuelingBook account                               |
-| `DB_ID`             | DuelingBook account ID         | Yes      | Your DuelingBook account                               |
-| `DB_REGULAR`        | DuelingBook account type       | No       | Your DuelingBook account                               |
-| `PORT`              | API port (default: 8000)       | No       | —                                                      |
-| `DOZZLE_PORT`       | Dozzle port (default: 9999)    | No       | —                                                      |
-| `LOG_LEVEL`         | Log level (default: INFO)      | No       | —                                                      |
+| Variable            | Description                    | Required | Source                                                                                                            |
+| ------------------- | ------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `POSTGRES_PASSWORD` | PostgreSQL password            | Yes      | Choose a secure password                                                                                          |
+| `CAPSOLVER_API_KEY` | CapSolver API key              | Yes      | [CapSolver dashboard](https://dashboard.capsolver.com)                                                            |
+| `SITE_KEY`          | DuelingBook reCAPTCHA site key | Yes      | Default in `.env.example` as of Mar 2026; may change — see [DuelingBook service docs](../services/duelingbook.md) |
+| `DB_USERNAME`       | DuelingBook account username   | No       | Your DuelingBook account                                                                                          |
+| `DB_PASSWORD`       | DuelingBook account password   | No       | Your DuelingBook account                                                                                          |
+| `DB_ID`             | DuelingBook account ID         | No       | Your DuelingBook account                                                                                          |
+| `DB_REGULAR`        | DuelingBook account type       | No       | Your DuelingBook account                                                                                          |
+| `PORT`              | API port (default: 8000)       | No       | —                                                                                                                 |
+| `DOZZLE_PORT`       | Dozzle port (default: 9999)    | No       | —                                                                                                                 |
+| `LOG_LEVEL`         | Log level (default: INFO)      | No       | —                                                                                                                 |
 
 ## Quick Start
 
