@@ -9,8 +9,12 @@ from db.session import create_async_session_factory
 from app.core.config import settings
 
 
-def verify_auth(x_auth_password: str = Header(...)) -> None:
-    if not secrets.compare_digest(x_auth_password, settings.AUTH_PASSWORD):
+def verify_auth(x_auth_password: str | None = Header(default=None)) -> None:
+    if not settings.AUTH_PASSWORD:
+        return
+    if not x_auth_password or not secrets.compare_digest(
+        x_auth_password, settings.AUTH_PASSWORD
+    ):
         raise HTTPException(status_code=401, detail="Invalid password")
 
 

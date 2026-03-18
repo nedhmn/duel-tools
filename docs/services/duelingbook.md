@@ -15,6 +15,7 @@ Replay data source for Yu-Gi-Oh duels. Replays are scraped via HTTP POST with a 
   - [Scraping Flow](#scraping-flow)
   - [CapSolver Integration](#capsolver-integration)
   - [Authentication](#authentication)
+    - [Finding Your Cookie Values](#finding-your-cookie-values)
   - [Environment Variables](#environment-variables)
   - [References](#references)
 
@@ -37,7 +38,7 @@ reCAPTCHA v2 is solved via [CapSolver](./capsolver.md) before each scrape reques
 
 ## Authentication
 
-DuelingBook requires account cookies for authenticated access. These are sent as HTTP cookies on every scrape request.
+DuelingBook account cookies are optional but improve scrape success rate. When provided, they are sent as HTTP cookies on every scrape request.
 
 | Cookie     | Source env var |
 | ---------- | -------------- |
@@ -46,16 +47,28 @@ DuelingBook requires account cookies for authenticated access. These are sent as
 | `db_id`    | `DB_ID`        |
 | `regular`  | `DB_REGULAR`   |
 
+### Finding Your Cookie Values
+
+1. Log in to [duelingbook.com](https://duelingbook.com)
+2. Open any replay link on DuelingBook
+3. Open browser DevTools → Network tab
+4. Find the request to `https://www.duelingbook.com/view-replay?id=<replay_id>`
+5. In the request headers, copy the values for `username`, `password`, `db_id`, and `regular`
+
+> **Note:** The `password` value is **not** your plain-text password — it is an encrypted value that DuelingBook sends in the request.
+
+> **IMPORTANT:** Do not use a DuelingBook account you care about. Excessive automated use can result in the account being tracked and potentially banned. Create a throwaway account for scraping. If you're self-hosting locally, the scraping traffic comes from your own IP, so there's no fingerprint separation needed — just don't use your main account. If you're running on a remote server or want extra isolation, consider a tool like MultiLogin to create the account with separate fingerprints and proxies. Use at your own risk, and reach out if you have questions.
+
 ## Environment Variables
 
-| Variable            | Description                    | Required |
-| ------------------- | ------------------------------ | -------- |
-| `CAPSOLVER_API_KEY` | CapSolver API key              | Yes      |
-| `SITE_KEY`          | DuelingBook reCAPTCHA site key | Yes      |
-| `DB_USERNAME`       | DuelingBook account username   | Yes      |
-| `DB_PASSWORD`       | DuelingBook account password   | Yes      |
-| `DB_ID`             | DuelingBook account ID         | Yes      |
-| `DB_REGULAR`        | DuelingBook account type       | No       |
+| Variable            | Description                                               | Required |
+| ------------------- | --------------------------------------------------------- | -------- |
+| `CAPSOLVER_API_KEY` | CapSolver API key                                         | Yes      |
+| `SITE_KEY`          | DuelingBook reCAPTCHA site key                            | Yes      |
+| `DB_USERNAME`       | DuelingBook `username` cookie                             | No       |
+| `DB_PASSWORD`       | DuelingBook `password` cookie (encrypted, not plain text) | No       |
+| `DB_ID`             | DuelingBook `db_id` cookie                                | No       |
+| `DB_REGULAR`        | DuelingBook `regular` cookie                              | No       |
 
 ## References
 
