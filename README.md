@@ -1,6 +1,6 @@
 # Duel Tools
 
-Monorepo for Yu-Gi-Oh DuelingBook replay analysis. Scrape replays, parse game data, and analyze results.
+Yu-Gi-Oh replay scraping and analysis tool for DuelingBook. Scrape replays, parse duel logs, and analyze player performance across games.
 
 ## Quick Start (Self-Hosting)
 
