@@ -28,7 +28,7 @@ duel-tools/
 | [Deployment](./docs/guides/deploy.md)       | Pre-reqs + CI/CD       |
 | [Railway](./docs/services/railway.md)       | Railway configuration  |
 
-| App Reference                                 | Description            |
-| --------------------------------------------- | ---------------------- |
-| [Backend](./docs/apps/duel-prep-backend.md)   | API, database, Celery  |
-| [Frontend](./docs/apps/duel-prep-frontend.md) | Routes, components, UI |
+| App Reference                                                | Description            |
+| ------------------------------------------------------------ | ---------------------- |
+| [Backend](./docs/architecture/duel-prep-backend.md)          | API, database, Celery  |
+| [Frontend](./docs/architecture/duel-prep-frontend.md)        | Routes, components, UI |
