@@ -7,8 +7,9 @@
 
 ## Dependencies
 
-- Python: `uv add` / `uv remove`, never edit pyproject.toml directly
-- Frontend: `pnpm install` / `pnpm add`, never edit package.json directly
+- **NEVER** edit `pyproject.toml` or `package.json` dependency sections directly
+- Python: always use `uv add` / `uv remove` (use `--dev` for dev dependencies)
+- Frontend: always use `pnpm add` / `pnpm remove`
 
 ## Validation
 
