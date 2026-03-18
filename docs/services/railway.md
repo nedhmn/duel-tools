@@ -1,194 +1,93 @@
-# Railway Deployment
+---
+title: "Railway"
+description: "Hosting platform for API, Worker, and Cron services with managed PostgreSQL and Redis"
+created: 2026-03-18
+---
 
-## Overview
+# Railway
 
-duel-prep is deployed on Railway with the following services:
+Hosting platform for the API, Worker, and Cron services with managed PostgreSQL and Redis plugins.
 
-- **duel-prep-api** - FastAPI backend serving static frontend
-- **duel-prep-worker** - Celery worker for background scraping tasks
-- **duel-prep-fl-cron** - FormLibrary sync cron job
-- **PostgreSQL** - Database (Railway plugin)
-- **Redis** - Celery broker (Railway plugin)
+## Table of Contents
 
-## Architecture
+- [Railway](#railway)
+  - [Table of Contents](#table-of-contents)
+  - [Services](#services)
+    - [duel-prep-api](#duel-prep-api)
+    - [duel-prep-worker](#duel-prep-worker)
+    - [duel-prep-fl-cron](#duel-prep-fl-cron)
+  - [Environment Variables](#environment-variables)
+  - [GitHub Secrets](#github-secrets)
+  - [References](#references)
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Railway                               │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │ PostgreSQL   │    │    Redis     │    │   GitHub     │  │
-│  │   plugin     │    │   plugin     │    │    repo      │  │
-│  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘  │
-│         │                   │                   │          │
-│         │ DATABASE_URL      │ REDIS_URL         │          │
-│         │                   │                   │          │
-│  ┌──────▼───────────────────▼───────────────────▼───────┐  │
-│  │                  duel-prep-api                        │  │
-│  │  - FastAPI + static frontend                          │  │
-│  │  - Dockerfile: apps/api/Dockerfile      │  │
-│  │  - CMD: fastapi run ...                               │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                                                              │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │                  duel-prep-worker                      │  │
-│  │  - Celery worker                                       │  │
-│  │  - Same Dockerfile                                     │  │
-│  │  - CMD: celery -A app.worker.celery_app worker ...    │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                                                              │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │                  duel-prep-fl-cron                     │  │
-│  │  - FormLibrary sync (daily)                            │  │
-│  │  - Dockerfile: apps/cron/Dockerfile                     │  │
-│  │  - CMD: python scripts/sync_formatlibrary.py          │  │
-│  │  - Cron: 0 0 * * * (midnight UTC)                     │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+## Services
 
-## Dockerfile
-
-The Dockerfile is at `apps/api/Dockerfile` but uses the repo root as build context (Turborepo pattern).
-
-**Key features:**
-- Multi-stage build: Node frontend → Python backend
-- Uses `uv` for Python dependency management
-- `UV_COMPILE_BYTECODE=1` for faster startup
-- `--no-install-workspace` for layer caching
-- Non-root user (`appuser`) for security
-- `fastapi run` (modern CLI)
-
-**Build locally:**
-```bash
-docker build -f apps/api/Dockerfile -t duel-prep .
-```
-
-## Service Configuration
+API and Worker share `apps/api/Dockerfile`. Cron uses `apps/cron/Dockerfile`. All services use the repo root as build context.
 
 ### duel-prep-api
 
-| Setting         | Value                             |
-| --------------- | --------------------------------- |
-| Source          | GitHub repo                       |
-| Root Directory  | (empty - repo root)               |
-| Dockerfile Path | Set via `RAILWAY_DOCKERFILE_PATH` |
-| Start Command   | (use Dockerfile default)          |
-
-**Variables:**
-```
-RAILWAY_DOCKERFILE_PATH=apps/api/Dockerfile
-DATABASE_URL=${{Postgres.DATABASE_URL}}
-REDIS_URL=${{Redis.REDIS_URL}}
-AUTH_PASSWORD=<app-access-password>
-CAPSOLVER_API_KEY=<your-key>
-SITE_KEY=<duelingbook-site-key>
-DB_USERNAME=<duelingbook-username>
-DB_PASSWORD=<duelingbook-password>
-DB_ID=<duelingbook-id>
-DB_REGULAR=not
-```
+| Setting       | Value                                                 |
+| ------------- | ----------------------------------------------------- |
+| Dockerfile    | `apps/api/Dockerfile`                                 |
+| Start Command | `fastapi run --host 0.0.0.0 --port $PORT app/main.py` |
 
 ### duel-prep-worker
 
-Same as API, except:
-
 | Setting       | Value                                                    |
 | ------------- | -------------------------------------------------------- |
+| Dockerfile    | `apps/api/Dockerfile`                                    |
 | Start Command | `celery -A app.worker.celery_app worker --loglevel=info` |
 
 ### duel-prep-fl-cron
 
-| Setting         | Value                                  |
-| --------------- | -------------------------------------- |
-| Source          | GitHub repo                            |
-| Root Directory  | (empty - repo root)                    |
-| Dockerfile Path | Set via `RAILWAY_DOCKERFILE_PATH`      |
-| Start Command   | `python scripts/sync_formatlibrary.py` |
-| Cron Schedule   | `0 0 * * *` (daily at midnight UTC)    |
+| Setting       | Value                                  |
+| ------------- | -------------------------------------- |
+| Dockerfile    | `apps/cron/Dockerfile`                 |
+| Start Command | `python scripts/sync_formatlibrary.py` |
+| Cron Schedule | `0 0 * * *` (daily at midnight UTC)    |
 
-**Variables:**
-```
-RAILWAY_DOCKERFILE_PATH=apps/cron/Dockerfile
-DATABASE_URL=${{Postgres.DATABASE_URL}}
-FL_TOKEN=<formatlibrary-auth-token>
-CAPSOLVER_API_KEY=<your-key>
-SITE_KEY=<duelingbook-site-key>
-DB_USERNAME=<duelingbook-username>
-DB_PASSWORD=<duelingbook-password>
-DB_ID=<duelingbook-id>
-DB_REGULAR=not
-```
+## Environment Variables
 
-## GitHub Actions CI/CD
-
-Three workflows in `.github/workflows/`:
-
-- **`ci.yml`** — Lint/type checks on all PRs and pushes
-- **`app-ci.yml`** — Docker build + deploy for API and Worker
-- **`cron-ci.yml`** — Docker build + deploy for FL Cron
-
-See [deploy guide](../guides/deploy.md) for details.
-
-**Required secret:** `RAILWAY_TOKEN`
-
-## Database Management
-
-**Initialize tables (first deploy):**
-```bash
-# Railway shell
-python scripts/init_db.py
-```
-
-**Clear all data:**
-```bash
-# Railway shell
-python scripts/clear_db.py
-```
-
-## Environment Variables Reference
+Shared by API and Worker:
 
 | Variable            | Source            | Description                               |
 | ------------------- | ----------------- | ----------------------------------------- |
-| `DATABASE_URL`      | PostgreSQL plugin | Auto-provided by Railway                  |
-| `REDIS_URL`         | Redis plugin      | Auto-provided by Railway                  |
+| `DATABASE_URL`      | PostgreSQL plugin | Auto-provided connection string           |
+| `REDIS_URL`         | Redis plugin      | Auto-provided connection string           |
 | `PORT`              | Railway           | Auto-injected, used by `fastapi run`      |
-| `AUTH_PASSWORD`     | Manual            | App access password (required)            |
+| `AUTH_PASSWORD`     | Manual            | App access password                       |
 | `CAPSOLVER_API_KEY` | Manual            | CapSolver API key for captcha solving     |
 | `SITE_KEY`          | Manual            | DuelingBook reCAPTCHA site key            |
 | `DB_USERNAME`       | Manual            | DuelingBook account username              |
 | `DB_PASSWORD`       | Manual            | DuelingBook account password              |
 | `DB_ID`             | Manual            | DuelingBook account ID                    |
 | `DB_REGULAR`        | Manual            | DuelingBook account type (default: "not") |
-| `FL_TOKEN`          | Manual            | FormLibrary auth token (cron only)        |
 
-## Troubleshooting
+Cron-only:
 
-### Celery "running as root" warning
-Fixed by adding non-root user in Dockerfile:
-```dockerfile
-RUN useradd --create-home appuser
-USER appuser
-```
+| Variable            | Source            | Description                               |
+| ------------------- | ----------------- | ----------------------------------------- |
+| `DATABASE_URL`      | PostgreSQL plugin | Auto-provided connection string           |
+| `FL_TOKEN`          | Manual            | FormLibrary API bearer token              |
+| `CAPSOLVER_API_KEY` | Manual            | CapSolver API key for captcha solving     |
+| `SITE_KEY`          | Manual            | DuelingBook reCAPTCHA site key            |
+| `DB_USERNAME`       | Manual            | DuelingBook account username              |
+| `DB_PASSWORD`       | Manual            | DuelingBook account password              |
+| `DB_ID`             | Manual            | DuelingBook account ID                    |
+| `DB_REGULAR`        | Manual            | DuelingBook account type (default: "not") |
 
-### Missing capsolver_task.json
-Fixed by adding to `packages/scraper/pyproject.toml`:
-```toml
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+## GitHub Secrets
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/scraper"]
-artifacts = ["*.json"]
-```
+| Secret          | Description                                                         |
+| --------------- | ------------------------------------------------------------------- |
+| `RAILWAY_TOKEN` | Railway token for deployment (Railway dashboard → Account → Tokens) |
 
-### Static files not serving
-Ensure the Dockerfile copies frontend build:
-```dockerfile
-COPY --from=frontend /app/dist apps/api/static
-```
+## References
 
-And `main.py` checks for static dir existence before mounting.
+| Resource                                                           | Description            |
+| ------------------------------------------------------------------ | ---------------------- |
+| [Railway CLI](https://docs.railway.com/develop/cli)                | Deploy from CI         |
+| [PostgreSQL Plugin](https://docs.railway.com/databases/postgresql) | Database setup         |
+| [Redis Plugin](https://docs.railway.com/databases/redis)           | Redis setup            |
+| [Railway Dashboard](https://railway.com/dashboard)                 | Manage services        |
+| [Deploy guide](../guides/deploy.md)                                | CI/CD workflow details |
