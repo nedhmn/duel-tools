@@ -1,4 +1,4 @@
-.PHONY: help check fix fix-and-check clean
+.PHONY: help check fix fix-and-check clean migrate migrate-check
 
 help:
 	@echo "Usage: make [target]"
@@ -8,6 +8,8 @@ help:
 	@echo "  fix            Auto-fix lint issues and format"
 	@echo "  fix-and-check  Fix then run checks"
 	@echo "  clean          Remove build artifacts"
+	@echo "  migrate        Run database migrations"
+	@echo "  migrate-check  Check for pending migrations"
 
 check:
 	uv run ruff check .
@@ -21,6 +23,12 @@ fix:
 	cd apps/web && pnpm fix
 
 fix-and-check: fix check
+
+migrate:
+	cd packages/db && make migrate
+
+migrate-check:
+	cd packages/db && make migrate-check
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
