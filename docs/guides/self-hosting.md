@@ -33,10 +33,10 @@ Run duel-tools on your own server with Docker Compose.
 | `POSTGRES_PASSWORD` | PostgreSQL password            | Yes      | Choose a secure password                                                                                          |
 | `CAPSOLVER_API_KEY` | CapSolver API key              | Yes      | [CapSolver dashboard](https://dashboard.capsolver.com)                                                            |
 | `SITE_KEY`          | DuelingBook reCAPTCHA site key | Yes      | Default in `.env.example` as of Mar 2026; may change — see [DuelingBook service docs](../services/duelingbook.md) |
-| `DB_USERNAME`       | DuelingBook account username   | No       | Your DuelingBook account                                                                                          |
-| `DB_PASSWORD`       | DuelingBook account password   | No       | Your DuelingBook account                                                                                          |
-| `DB_ID`             | DuelingBook account ID         | No       | Your DuelingBook account                                                                                          |
-| `DB_REGULAR`        | DuelingBook account type       | No       | Your DuelingBook account                                                                                          |
+| `DB_USERNAME`       | DuelingBook `username` cookie  | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
+| `DB_PASSWORD`       | DuelingBook `password` cookie  | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
+| `DB_ID`             | DuelingBook `db_id` cookie     | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
+| `DB_REGULAR`        | DuelingBook `regular` cookie   | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
 | `PORT`              | API port (default: 8000)       | No       | —                                                                                                                 |
 | `DOZZLE_PORT`       | Dozzle port (default: 9999)    | No       | —                                                                                                                 |
 | `LOG_LEVEL`         | Log level (default: INFO)      | No       | —                                                                                                                 |

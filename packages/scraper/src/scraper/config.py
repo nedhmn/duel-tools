@@ -16,7 +16,7 @@ class ScraperSettings(BaseSettings):
     DB_USERNAME: str | None = Field(default=None)
     DB_PASSWORD: str | None = Field(default=None)
     DB_ID: str | None = Field(default=None)
-    DB_REGULAR: str = Field(default="not")
+    DB_REGULAR: str = Field(default="is")
 
     @property
     def auth_cookies(self) -> dict[str, str] | None:
