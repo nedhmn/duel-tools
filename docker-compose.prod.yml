@@ -1,0 +1,83 @@
+name: duel-tools
+
+x-app: &app
+  build:
+    context: .
+    dockerfile: apps/api/Dockerfile
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql://duel_tools:${POSTGRES_PASSWORD}@postgres:5432/duel_tools
+    REDIS_URL: redis://redis:6379/0
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: duel_tools
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: duel_tools
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U duel_tools"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  migrate:
+    <<: *app
+    command: alembic -c /app/packages/db/alembic.ini upgrade head
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    <<: *app
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    <<: *app
+    command: celery -A app.worker.celery_app worker --loglevel=info
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  dozzle:
+    image: amir20/dozzle:latest
+    ports:
+      - "${DOZZLE_PORT:-9999}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      DOZZLE_FILTER: "label=com.docker.compose.project=${COMPOSE_PROJECT_NAME}"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
