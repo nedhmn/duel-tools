@@ -473,7 +473,7 @@ wheels = [
 [[package]]
 name = "cron"
 version = "0.1.0"
-source = { editable = "packages/cron" }
+source = { editable = "apps/cron" }
 dependencies = [
     { name = "aiometer" },
     { name = "db" },
@@ -558,7 +558,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "backend", editable = "apps/duel-prep/backend" },
-    { name = "cron", editable = "packages/cron" },
+    { name = "cron", editable = "apps/cron" },
     { name = "db", editable = "packages/db" },
     { name = "logger", editable = "packages/logger" },
     { name = "parser", editable = "packages/parser" },

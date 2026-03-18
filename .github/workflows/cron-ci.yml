@@ -4,10 +4,12 @@ on:
   push:
     branches: [main]
     paths:
+      - "apps/cron/**"
       - "packages/**"
       - ".github/workflows/cron-ci.yml"
   pull_request:
     paths:
+      - "apps/cron/**"
       - "packages/**"
       - ".github/workflows/cron-ci.yml"
 
@@ -28,7 +30,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: packages/cron/Dockerfile
+          file: apps/cron/Dockerfile
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max

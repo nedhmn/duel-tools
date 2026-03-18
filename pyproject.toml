@@ -22,7 +22,7 @@ members = [
     "packages/parser",
     "packages/scraper",
     "packages/seeder",
-    "packages/cron",
+    "apps/cron",
 ]
 
 [tool.uv.sources]
@@ -42,3 +42,6 @@ dev = [
 
 [tool.uv]
 cache-dir = ".cache"
+
+[tool.ty.src]
+exclude = [".cache", "**/tests"]

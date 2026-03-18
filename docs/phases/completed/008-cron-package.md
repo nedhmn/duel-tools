@@ -10,7 +10,7 @@ description: "Cron Package"
 
 ## Tasks
 
-- [x] Package scaffold (`packages/cron/pyproject.toml`, `Makefile`)
+- [x] Package scaffold (`apps/cron/pyproject.toml`, `Makefile`)
 - [x] Add workspace deps: `db`, `parser`, `scraper`, `logger`
 - [x] Update Makefile: add `sync` and `sync-all` commands
 - [x] `src/cron/__init__.py`
@@ -20,7 +20,7 @@ description: "Cron Package"
 - [x] `src/cron/db.py` - get_existing_ids, get_or_create_player, seed_replay (copy from seeder)
 - [x] `src/cron/pipeline.py` - process_replay (scrape→parse→seed with asyncio.to_thread)
 - [x] `scripts/sync_formatlibrary.py` - Main entrypoint with `--all` flag, aiometer concurrency (20)
-- [x] `packages/cron/Dockerfile` - Standalone container (no CMD, specify at runtime)
+- [x] `apps/cron/Dockerfile` - Standalone container (no CMD, specify at runtime)
 - [x] `.github/workflows/deploy.yml` - Add `deploy-fl-cron` job for `duel-prep-fl-cron`
 - [x] Update `docs/services/railway.md` - Document cron service
 
