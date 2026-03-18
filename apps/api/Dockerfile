@@ -2,9 +2,9 @@
 FROM node:22-slim AS frontend
 WORKDIR /app
 RUN corepack enable
-COPY apps/duel-prep/frontend/package.json apps/duel-prep/frontend/pnpm-lock.yaml ./
+COPY apps/web/package.json apps/web/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
-COPY apps/duel-prep/frontend/ ./
+COPY apps/web/ ./
 RUN pnpm build
 
 # Stage 2: Backend
@@ -19,7 +19,7 @@ ENV UV_LINK_MODE=copy
 # Copy pyproject.toml files first (layer caching)
 COPY pyproject.toml uv.lock ./
 COPY apps/cron/pyproject.toml apps/cron/pyproject.toml
-COPY apps/duel-prep/backend/pyproject.toml apps/duel-prep/backend/pyproject.toml
+COPY apps/api/pyproject.toml apps/api/pyproject.toml
 COPY packages/db/pyproject.toml packages/db/pyproject.toml
 COPY packages/logger/pyproject.toml packages/logger/pyproject.toml
 COPY packages/parser/pyproject.toml packages/parser/pyproject.toml
@@ -31,18 +31,18 @@ RUN uv sync --frozen --no-install-workspace --no-dev
 
 # Copy source code
 COPY packages/ packages/
-COPY apps/duel-prep/backend/ apps/duel-prep/backend/
+COPY apps/api/ apps/api/
 
 # Sync with workspace packages
 RUN uv sync --frozen --no-dev
 
 # Copy frontend build to static dir
-COPY --from=frontend /app/dist apps/duel-prep/backend/static
+COPY --from=frontend /app/dist apps/api/static
 
 # Runtime config
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
-WORKDIR /app/apps/duel-prep/backend
+WORKDIR /app/apps/api
 
 # Run as non-root user
 RUN useradd --create-home appuser

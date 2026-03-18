@@ -1,4 +1,4 @@
-# duel-prep backend
+# API
 
 FastAPI + Celery backend for DuelingBook replay scraping and analysis.
 
@@ -36,7 +36,6 @@ make worker  # Celery worker (separate terminal)
 | `make worker`   | Run Celery worker           |
 | `make init-db`  | Create database tables      |
 | `make clear-db` | Delete all data             |
-| `make check`    | Run linting + type checking |
 
 ## Architecture
 

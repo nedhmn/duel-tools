@@ -4,12 +4,14 @@ on:
   push:
     branches: [main]
     paths:
-      - "apps/duel-prep/**"
+      - "apps/api/**"
+      - "apps/web/**"
       - "packages/**"
       - ".github/workflows/app-ci.yml"
   pull_request:
     paths:
-      - "apps/duel-prep/**"
+      - "apps/api/**"
+      - "apps/web/**"
       - "packages/**"
       - ".github/workflows/app-ci.yml"
 
@@ -30,7 +32,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: apps/duel-prep/backend/Dockerfile
+          file: apps/api/Dockerfile
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max

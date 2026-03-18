@@ -1,4 +1,4 @@
-# duel-prep Frontend
+# Web
 
 React SPA for DuelingBook replay analysis with card grids and YDK export.
 

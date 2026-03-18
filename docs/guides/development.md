@@ -27,13 +27,13 @@ This starts PostgreSQL and Redis locally.
 uv sync
 
 # Frontend dependencies
-cd apps/duel-prep/frontend && pnpm install
+cd apps/web && pnpm install
 ```
 
 ### 3. Initialize Database
 
 ```bash
-cd apps/duel-prep/backend && make init-db
+cd apps/api && make init-db
 ```
 
 ## Running Locally
@@ -42,13 +42,13 @@ You need three processes running:
 
 ```bash
 # Terminal 1: Backend API
-cd apps/duel-prep/backend && make dev
+cd apps/api && make dev
 
 # Terminal 2: Frontend dev server
-cd apps/duel-prep/frontend && pnpm dev
+cd apps/web && pnpm dev
 
 # Terminal 3: Celery worker
-cd apps/duel-prep/backend && make worker
+cd apps/api && make worker
 ```
 
 | Service  | URL                        |
@@ -61,17 +61,16 @@ The frontend proxies `/api/*` requests to the backend.
 
 ## Commands
 
-### Backend (from `apps/duel-prep/backend/`)
+### Backend (from `apps/api/`)
 
 | Command         | Description                 |
 | --------------- | --------------------------- |
 | `make dev`      | Run FastAPI dev server      |
 | `make worker`   | Run Celery worker           |
-| `make check`    | Run linting + type checking |
 | `make init-db`  | Create database tables      |
 | `make clear-db` | Delete all data from tables |
 
-### Frontend (from `apps/duel-prep/frontend/`)
+### Frontend (from `apps/web/`)
 
 | Command      | Description             |
 | ------------ | ----------------------- |
@@ -85,7 +84,7 @@ The frontend proxies `/api/*` requests to the backend.
 ### Reset Database
 
 ```bash
-cd apps/duel-prep/backend
+cd apps/api
 
 # Clear all data (keeps tables)
 make clear-db
@@ -105,7 +104,7 @@ docker exec -it duel-tools-postgres-1 psql -U duel_tools -d duel_tools
 Local development uses defaults from `app/core/config.py`. For scraping to work, create `.env` in the backend directory:
 
 ```bash
-# apps/duel-prep/backend/.env
+# apps/api/.env
 CAPSOLVER_API_KEY=your-key
 SITE_KEY=duelingbook-recaptcha-site-key
 DB_USERNAME=your-duelingbook-username

@@ -29,7 +29,7 @@ Test the production build locally:
 
 ```bash
 # From repo root
-docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
+docker build -f apps/api/Dockerfile -t duel-prep .
 
 # Run it
 docker run -p 8000:8000 \
@@ -58,7 +58,7 @@ Three GitHub Actions workflows in `.github/workflows/`:
 ### `app-ci.yml` — App services (API + Worker)
 
 **Triggers:** push to main + PRs
-**Paths:** `apps/duel-prep/**`, `packages/**`
+**Paths:** `apps/api/**`, `apps/web/**`, `packages/**`
 
 **Jobs:**
 - `build` — Docker build validation with BuildKit + GHA cache

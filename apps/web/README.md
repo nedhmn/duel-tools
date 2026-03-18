@@ -1,4 +1,4 @@
-# duel-prep frontend
+# Web
 
 React SPA for DuelingBook replay analysis.
 
@@ -14,7 +14,7 @@ pnpm install
 pnpm dev  # Starts on :3000, proxies /api to :8000
 ```
 
-Backend must be running (`cd ../backend && make dev`).
+Backend must be running (`cd ../api && make dev`).
 
 ## Commands
 

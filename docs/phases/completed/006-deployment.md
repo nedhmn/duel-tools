@@ -12,14 +12,14 @@ description: "Deployment (6a–6d: Dockerfile, CI/CD, Railway, fixes)"
 
 ### 6a: Dockerfile + Static Serving
 
-- [x] `apps/duel-prep/backend/Dockerfile` - Multi-stage: Node frontend build → Python backend with uv
+- [x] `apps/api/Dockerfile` - Multi-stage: Node frontend build → Python backend with uv
 - [x] `.dockerignore` - Create (repo root)
-- [x] `apps/duel-prep/backend/app/main.py` - Add static file serving, catch-all route for SPA
+- [x] `apps/api/app/main.py` - Add static file serving, catch-all route for SPA
 
 ### 6b: GitHub Actions CI/CD
 
 - [x] `.github/workflows/deploy.yml` - Create
-  - [x] Trigger: push to main (paths: `apps/duel-prep/**`, `packages/**`) + manual dispatch
+  - [x] Trigger: push to main (paths: `apps/api/**, apps/web/**`, `packages/**`) + manual dispatch
   - [x] Job 1: `lint` - Backend (`make check`) + Frontend (`pnpm check`)
   - [x] Job 2: `deploy-api` - Railway CLI deploy to `duel-prep-api` service
   - [x] Job 3: `deploy-worker` - Railway CLI deploy to `duel-prep-worker` service

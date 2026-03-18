@@ -27,7 +27,7 @@ duel-prep is deployed on Railway with the following services:
 │  ┌──────▼───────────────────▼───────────────────▼───────┐  │
 │  │                  duel-prep-api                        │  │
 │  │  - FastAPI + static frontend                          │  │
-│  │  - Dockerfile: apps/duel-prep/backend/Dockerfile      │  │
+│  │  - Dockerfile: apps/api/Dockerfile      │  │
 │  │  - CMD: fastapi run ...                               │  │
 │  └───────────────────────────────────────────────────────┘  │
 │                                                              │
@@ -51,7 +51,7 @@ duel-prep is deployed on Railway with the following services:
 
 ## Dockerfile
 
-The Dockerfile is at `apps/duel-prep/backend/Dockerfile` but uses the repo root as build context (Turborepo pattern).
+The Dockerfile is at `apps/api/Dockerfile` but uses the repo root as build context (Turborepo pattern).
 
 **Key features:**
 - Multi-stage build: Node frontend → Python backend
@@ -63,7 +63,7 @@ The Dockerfile is at `apps/duel-prep/backend/Dockerfile` but uses the repo root 
 
 **Build locally:**
 ```bash
-docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
+docker build -f apps/api/Dockerfile -t duel-prep .
 ```
 
 ## Service Configuration
@@ -79,7 +79,7 @@ docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
 
 **Variables:**
 ```
-RAILWAY_DOCKERFILE_PATH=apps/duel-prep/backend/Dockerfile
+RAILWAY_DOCKERFILE_PATH=apps/api/Dockerfile
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 REDIS_URL=${{Redis.REDIS_URL}}
 AUTH_PASSWORD=<app-access-password>
@@ -188,7 +188,7 @@ artifacts = ["*.json"]
 ### Static files not serving
 Ensure the Dockerfile copies frontend build:
 ```dockerfile
-COPY --from=frontend /app/dist apps/duel-prep/backend/static
+COPY --from=frontend /app/dist apps/api/static
 ```
 
 And `main.py` checks for static dir existence before mounting.

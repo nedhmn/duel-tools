@@ -1,4 +1,4 @@
-# duel-prep Backend
+# API
 
 FastAPI + Celery backend for DuelingBook replay scraping and analysis.
 
@@ -29,7 +29,7 @@ FastAPI + Celery backend for DuelingBook replay scraping and analysis.
 ## Directory Structure
 
 ```
-backend/
+api/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                  # FastAPI app, static serving, CORS
@@ -343,7 +343,6 @@ class Settings(BaseSettings):
 docker-compose up -d          # PostgreSQL + Redis
 make dev                      # FastAPI dev server (:8000)
 make worker                   # Celery worker
-make check                    # ruff + ty (mypy)
 make init-db                  # Create tables
 make clear-db                 # Delete all data
 ```
