@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     )
 
     DATABASE_URL: str = Field(
-        default="postgresql://duel_tools:duel_tools@localhost:5432/duel_tools"
+        default="postgresql://duel_tools:duel_tools@localhost:5437/duel_tools"
     )
     S3_BUCKET: str = Field(default="gfwl")
     S3_PREFIX: str = Field(default="replays/")

@@ -13,12 +13,12 @@ check:
 	uv run ruff check .
 	uv run ruff format --check .
 	uv run ty check
-	cd apps/duel-prep/frontend && pnpm check
+	cd apps/web && pnpm check
 
 fix:
 	uv run ruff check --fix .
 	uv run ruff format .
-	cd apps/duel-prep/frontend && pnpm fix
+	cd apps/web && pnpm fix
 
 fix-and-check: fix check
 

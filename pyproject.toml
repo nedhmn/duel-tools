@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "backend",
+    "api",
     "cron",
     "db",
     "logger",
@@ -16,7 +16,7 @@ dependencies = [
 
 [tool.uv.workspace]
 members = [
-    "apps/duel-prep/backend",
+    "apps/api",
     "packages/db",
     "packages/logger",
     "packages/parser",
@@ -26,7 +26,7 @@ members = [
 ]
 
 [tool.uv.sources]
-backend = { workspace = true }
+api = { workspace = true }
 db = { workspace = true }
 logger = { workspace = true }
 parser = { workspace = true }

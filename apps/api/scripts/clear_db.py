@@ -1,6 +1,10 @@
 from sqlalchemy import create_engine, text
 
 from app.core.config import settings
+from logger import get_logger, setup_logging
+
+setup_logging()
+logger = get_logger(__name__)
 
 engine = create_engine(settings.DATABASE_URL, echo=True)
 
@@ -17,4 +21,4 @@ with engine.connect() as conn:
         conn.execute(text(f"DELETE FROM {table}"))
     conn.commit()
 
-print("All tables cleared!")
+logger.info("tables_cleared", tables=tables)

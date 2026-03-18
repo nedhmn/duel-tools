@@ -5,7 +5,7 @@ status: completed
 created: 2026-03-18
 completed: 2026-03-18
 context_doc: null
-description: "Cron Package"
+description: "Scheduled FormLibrary replay sync with scrape pipeline and Railway cron deployment"
 ---
 
 ## Tasks
@@ -26,5 +26,6 @@ description: "Cron Package"
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                             | Description                |
+| ------------------------------------ | -------------------------- |
+| [Railway](../../services/railway.md) | Cron service configuration |

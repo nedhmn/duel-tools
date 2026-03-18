@@ -22,7 +22,9 @@ async def fetch_events(
     }
     response = await client.get(url, params=params)
     response.raise_for_status()
-    return response.json()
+    events = response.json()
+    logger.info("events_fetched", page=page, count=len(events))
+    return events
 
 
 async def fetch_all_events(client: httpx.AsyncClient) -> list[dict]:
@@ -48,4 +50,6 @@ async def fetch_event_replays(
     response = await client.get(url, headers=headers)
     response.raise_for_status()
     data = response.json()
-    return data.get("replays", [])
+    replays = data.get("replays", [])
+    logger.info("event_replays_fetched", abbreviation=abbreviation, count=len(replays))
+    return replays

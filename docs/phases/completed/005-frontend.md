@@ -110,5 +110,6 @@ description: "Frontend (5a–5i: scaffold, infrastructure, batch, replay, sideba
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                                      | Description                                  |
+| --------------------------------------------- | -------------------------------------------- |
+| [Web architecture](../../architecture/web.md) | Frontend architecture and component patterns |

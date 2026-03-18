@@ -1,91 +1,184 @@
-# Development Guide
+---
+title: "Development Guide"
+description: "Local development setup for the duel-tools monorepo"
+created: 2026-03-18
+---
+
+# Development
 
 Local development setup for duel-tools.
 
+## Table of Contents
+
+- [Development](#development)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
+  - [Monorepo Commands](#monorepo-commands)
+  - [API Development](#api-development)
+    - [Environment](#environment)
+    - [Running](#running)
+    - [API Commands](#api-commands)
+  - [Web Development](#web-development)
+    - [Running](#running-1)
+    - [Web Commands](#web-commands)
+  - [Cron Development](#cron-development)
+    - [Environment](#environment-1)
+    - [Running](#running-2)
+  - [Database Management](#database-management)
+    - [Reset Database](#reset-database)
+    - [Connect to Local Database](#connect-to-local-database)
+  - [References](#references)
+
 ## Prerequisites
 
-- Python 3.13+
-- Node.js 22+
-- Docker
-- [uv](https://docs.astral.sh/uv/) (Python package manager)
-- [pnpm](https://pnpm.io/) (Node package manager)
+| Tool   | Version | Install                                                      |
+| ------ | ------- | ------------------------------------------------------------ |
+| Python | 3.13+   | [python.org](https://www.python.org)                         |
+| uv     | Latest  | [docs.astral.sh/uv](https://docs.astral.sh/uv/)              |
+| Node   | 22+     | [nodejs.org](https://nodejs.org)                             |
+| pnpm   | Latest  | [pnpm.io](https://pnpm.io/)                                  |
+| Docker | Latest  | [docker.com](https://www.docker.com/products/docker-desktop) |
 
 ## Setup
 
-### 1. Start Services
+1. Start PostgreSQL and Redis:
+   ```bash
+   docker compose up -d
+   ```
 
-```bash
-docker compose up -d
-```
+2. Install Python dependencies:
+   ```bash
+   uv sync
+   ```
 
-This starts PostgreSQL and Redis locally.
+3. Install frontend dependencies:
+   ```bash
+   cd apps/web && pnpm install
+   ```
 
-### 2. Install Dependencies
+4. Create `.env` files from examples:
+   ```bash
+   cp apps/api/.env.example apps/api/.env
+   cp apps/cron/.env.example apps/cron/.env
+   ```
 
-```bash
-# Python dependencies (from repo root)
-uv sync
+5. Initialize the database:
+   ```bash
+   cd apps/api && make init-db
+   ```
 
-# Frontend dependencies
-cd apps/duel-prep/frontend && pnpm install
-```
+## Monorepo Commands
 
-### 3. Initialize Database
+Run from the repo root:
 
-```bash
-cd apps/duel-prep/backend && make init-db
-```
+| Command              | Description                                |
+| -------------------- | ------------------------------------------ |
+| `make check`         | Run all checks (ruff + ty + frontend lint) |
+| `make fix`           | Auto-fix lint issues and format            |
+| `make fix-and-check` | Fix then run checks                        |
+| `make clean`         | Remove build artifacts                     |
 
-## Running Locally
+## API Development
 
-You need three processes running:
+### Environment
+
+Edit `apps/api/.env`:
+
+| Variable            | Description                    | Required |
+| ------------------- | ------------------------------ | -------- |
+| `DATABASE_URL`      | PostgreSQL connection string   | No       |
+| `REDIS_URL`         | Redis connection string        | No       |
+| `AUTH_PASSWORD`     | App access password            | Yes      |
+| `CAPSOLVER_API_KEY` | CapSolver API key              | Yes      |
+| `SITE_KEY`          | DuelingBook reCAPTCHA site key | Yes      |
+| `DB_USERNAME`       | DuelingBook account username   | Yes      |
+| `DB_PASSWORD`       | DuelingBook account password   | Yes      |
+| `DB_ID`             | DuelingBook account ID         | Yes      |
+| `DB_REGULAR`        | DuelingBook account type       | No       |
+
+`DATABASE_URL` and `REDIS_URL` have defaults pointing to local Docker services.
+
+### Running
+
+You need two processes:
 
 ```bash
 # Terminal 1: Backend API
-cd apps/duel-prep/backend && make dev
+cd apps/api && make dev
 
-# Terminal 2: Frontend dev server
-cd apps/duel-prep/frontend && pnpm dev
-
-# Terminal 3: Celery worker
-cd apps/duel-prep/backend && make worker
+# Terminal 2: Celery worker
+cd apps/api && make worker
 ```
 
 | Service  | URL                        |
 | -------- | -------------------------- |
-| Frontend | http://localhost:3000      |
 | Backend  | http://localhost:8000      |
 | API Docs | http://localhost:8000/docs |
 
-The frontend proxies `/api/*` requests to the backend.
+### API Commands
 
-## Commands
+| Command         | Description            |
+| --------------- | ---------------------- |
+| `make dev`      | Run FastAPI dev server |
+| `make worker`   | Run Celery worker      |
+| `make init-db`  | Create database tables |
+| `make clear-db` | Delete all data        |
 
-### Backend (from `apps/duel-prep/backend/`)
+## Web Development
 
-| Command         | Description                 |
-| --------------- | --------------------------- |
-| `make dev`      | Run FastAPI dev server      |
-| `make worker`   | Run Celery worker           |
-| `make check`    | Run linting + type checking |
-| `make init-db`  | Create database tables      |
-| `make clear-db` | Delete all data from tables |
+### Running
 
-### Frontend (from `apps/duel-prep/frontend/`)
+```bash
+cd apps/web && pnpm dev
+```
 
-| Command      | Description             |
-| ------------ | ----------------------- |
-| `pnpm dev`   | Run dev server          |
-| `pnpm build` | Build for production    |
-| `pnpm check` | Run linting             |
-| `pnpm fix`   | Auto-fix linting issues |
+Opens at http://localhost:3000. Proxies `/api/*` requests to the backend on `:8000`.
+
+The backend must be running first.
+
+### Web Commands
+
+| Command      | Description          |
+| ------------ | -------------------- |
+| `pnpm dev`   | Development server   |
+| `pnpm build` | Production build     |
+| `pnpm check` | Lint check (Biome)   |
+| `pnpm fix`   | Auto-fix lint issues |
+
+## Cron Development
+
+### Environment
+
+Edit `apps/cron/.env`:
+
+| Variable            | Description                               | Required |
+| ------------------- | ----------------------------------------- | -------- |
+| `DATABASE_URL`      | PostgreSQL connection string              | Yes      |
+| `FL_TOKEN`          | FormLibrary API bearer token              | Yes      |
+| `CAPSOLVER_API_KEY` | CapSolver API key                         | Yes      |
+| `SITE_KEY`          | DuelingBook reCAPTCHA site key            | Yes      |
+| `DB_USERNAME`       | DuelingBook account username              | Yes      |
+| `DB_PASSWORD`       | DuelingBook account password              | Yes      |
+| `DB_ID`             | DuelingBook account ID                    | Yes      |
+| `DB_REGULAR`        | DuelingBook account type                  | No       |
+| `SYNC_CONCURRENCY`  | Max concurrent scrape tasks (default: 20) | No       |
+
+### Running
+
+```bash
+cd apps/cron
+
+make sync       # Sync latest events (page 1)
+make sync-all   # Backfill all events
+```
 
 ## Database Management
 
 ### Reset Database
 
 ```bash
-cd apps/duel-prep/backend
+cd apps/api
 
 # Clear all data (keeps tables)
 make clear-db
@@ -97,21 +190,15 @@ make init-db
 ### Connect to Local Database
 
 ```bash
-docker exec -it duel-tools-postgres-1 psql -U duel_tools -d duel_tools
+docker exec -it duel-tools-postgres psql -U duel_tools -d duel_tools
 ```
 
-## Environment Variables
+## References
 
-Local development uses defaults from `app/core/config.py`. For scraping to work, create `.env` in the backend directory:
-
-```bash
-# apps/duel-prep/backend/.env
-CAPSOLVER_API_KEY=your-key
-SITE_KEY=duelingbook-recaptcha-site-key
-DB_USERNAME=your-duelingbook-username
-DB_PASSWORD=your-duelingbook-password
-DB_ID=your-duelingbook-id
-DB_REGULAR=not
-```
-
-See [deploy.md](./deploy.md) for production environment setup.
+| Resource                                          | Description                |
+| ------------------------------------------------- | -------------------------- |
+| [API architecture](../architecture/api.md)        | Backend architecture       |
+| [Web architecture](../architecture/web.md)        | Frontend architecture      |
+| [Deploy guide](./deploy.md)                       | Production deployment      |
+| [DuelingBook service](../services/duelingbook.md) | Scraping credentials setup |
+| [CapSolver service](../services/capsolver.md)     | Captcha API key setup      |

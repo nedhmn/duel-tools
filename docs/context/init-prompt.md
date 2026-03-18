@@ -1,49 +1,80 @@
-hey. i have an empty repo. i need to map out maybe 2 web apps. but let's focus on the first one, 'duel prep'.
-
+---
+title: "Initial Product Spec"
+description: "Original requirements for the duel-prep replay scraping and analysis app"
+created: 2026-03-18
 ---
 
-1. duel prep app
+# Initial Product Spec
 
-so for the 'duel prep' app, let's do frontend nextjs and backend python fastapi. i want the frontend hosted in vercel, backend hosted in railway. we'll also need a postgres database, also hosted in railway. we'll have a local docker postgres instance for development.
+Original product requirements that kicked off the duel-prep app. Captures the initial vision for replay scraping, parsing, and analysis.
 
-the way this app works is that the user inputs duelingbook replay urls, we support 3 different format of inputs, or modes:
-1. 'regular' mode
-2. 'tournament' mode
-3. 'gfwl' mode
+## Table of Contents
 
-'regular' mode, users input a list of duelingbook replays. maybe 50 maximum. each replay is a match with multiple games. can be 1 to inf number of games per replay. what the app would do is:
-1. it'll take list of duelingbook replay urls
-2. send it to python backend to scrape/parse each url
-3. return parsed, url-by-url, replay data to frontend
-4. frontend has a view where it'll show 1 url at a time, all gsmes from that url. and users can toggle between url.
+- [Initial Product Spec](#initial-product-spec)
+  - [Table of Contents](#table-of-contents)
+  - [Product Overview](#product-overview)
+  - [Input Modes](#input-modes)
+  - [Replay View](#replay-view)
+  - [Data Storage](#data-storage)
+  - [Scraping Strategy](#scraping-strategy)
+  - [References](#references)
 
-the view of each url is that in one replay/match, there are multiple games. these games have player1 and player2. the parsed data of the url will show the cards that each player seen, along with who went first, game number, and game winner. i want the view of one replay to be split into rows per games. eg. first row shows game 1 of the url. where each row has 2 columns where the left column is playerA's cards, and right column is playerB's cards. 
+## Product Overview
 
-for more context, here's the scraper for the duelingbook urls: https://github.com/nedhmn/replay-scraper-api/blob/main/app/api/replays/scrape/services.py
+A web app for analyzing DuelingBook replay URLs. Users submit replay URLs, the backend scrapes and parses the duel logs, and the frontend displays card-by-card breakdowns per game.
 
-it uses anti-captcha to get json of dueling logs.
+| Component | Original Choice       | Final Choice                 |
+| --------- | --------------------- | ---------------------------- |
+| Frontend  | Next.js on Vercel     | React + Vite (served by API) |
+| Backend   | FastAPI on Railway    | FastAPI on Railway           |
+| Database  | PostgreSQL on Railway | PostgreSQL on Railway        |
+| Local DB  | Docker PostgreSQL     | Docker PostgreSQL            |
 
-here's the parser for the dueling logs: https://github.com/nedhmn/gfwl-data/blob/main/gfwldata/transformers/replay_parser.py
+## Input Modes
 
-where the duelingbook log json is replay_data to the parse_replay method.
+Three modes were planned, each with different input formats and views:
 
-there's some irrelevant stuff in these examples that we wont need, eg. league_match_id, etc.
+| Mode       | Description                                             | Status          |
+| ---------- | ------------------------------------------------------- | --------------- |
+| Regular    | User submits a list of replay URLs (max 50)             | Implemented     |
+| Tournament | Same scraping/parsing, different input format and views | Not implemented |
+| GFWL       | Same scraping/parsing, different input format and views | Not implemented |
 
-let's only focus on the 'regular' mode. the other modes, they do the same scraping/parsing but the format the users input the data and the views are different. 
+Only Regular mode was built. All modes share the same scraping and parsing pipeline.
 
----
+## Replay View
 
-2. saving/caching logs
+Each replay is a match containing 1+ games. The view shows one replay at a time with navigation between replays.
 
-after each scrape of replays, i want to store that in the postgres db so i wont have to scrape it again. ofc, this implies before scraping for each replay it'll check the db if i already have it.
+| Element      | Description                                                   |
+| ------------ | ------------------------------------------------------------- |
+| Layout       | One row per game, two columns (player 1 left, player 2 right) |
+| Card display | Cards seen by each player per game                            |
+| Metadata     | Who went first, game number, game winner                      |
 
-i also want to ingest some initial data in the db. i have a list of replay urls i want scraped and sent to this db, although most of it is in an aws s3 bucket. we'll need separate scripts for this. it's a one-time script.
+## Data Storage
 
-but the concept of saving/caching log is going to be across all replays scraped.
+Two requirements drove the storage design:
 
----
+1. **Cache scraped replays** — scraping is slow and has an error rate. Store raw JSON in PostgreSQL so replays are only scraped once. Before scraping, check DB for existing data.
+2. **Seed initial data** — one-time ingestion of existing replay data from an S3 bucket into the database. Handled by a separate script (became the `seeder` package).
 
-3. scraping db logs
+## Scraping Strategy
 
-i posted already the scraper from earlier, we'll use anti-captcha. but something else, it's actually very slow to scrape 1 url. i'd like to do this asynchronously. i need a good, scalable solution for this. and it has an error rate.
+DuelingBook replays are protected by reCAPTCHA. Scraping a single URL is slow due to captcha solving. Requirements:
 
+| Concern         | Requirement                                                             |
+| --------------- | ----------------------------------------------------------------------- |
+| Captcha solving | Use anti-captcha service (became CapSolver)                             |
+| Performance     | Asynchronous processing — scraping is too slow for synchronous requests |
+| Error handling  | Scraping has a non-trivial error rate, needs retry logic                |
+| Scalability     | Must handle batches of up to 50 URLs concurrently                       |
+
+These requirements led to the Celery worker architecture with Redis as the message broker.
+
+## References
+
+| Resource                                   | Description                   |
+| ------------------------------------------ | ----------------------------- |
+| [API architecture](../architecture/api.md) | Current backend architecture  |
+| [Web architecture](../architecture/web.md) | Current frontend architecture |

@@ -72,7 +72,7 @@ async def main(fetch_all: bool = False) -> None:
     logger.info("new_replays", total=len(all_urls), new=len(new_urls))
 
     if not new_urls:
-        print("No new replays to process")
+        logger.info("no_new_replays")
         return
 
     success = 0
@@ -91,7 +91,7 @@ async def main(fetch_all: bool = False) -> None:
         max_at_once=settings.SYNC_CONCURRENCY,
     )
 
-    print(f"Processed {success} replays, {failed} failed")
+    logger.info("sync_completed", success=success, failed=failed)
 
 
 if __name__ == "__main__":

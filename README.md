@@ -7,10 +7,9 @@ Monorepo for Yu-Gi-Oh DuelingBook replay analysis.
 ```
 duel-tools/
 ├── apps/
+│   ├── api/                # FastAPI + Celery
 │   ├── cron/               # Scheduled sync jobs
-│   └── duel-prep/          # Replay scraping + analysis app
-│       ├── backend/        # FastAPI + Celery
-│       └── frontend/       # React + Vite
+│   └── web/                # React + Vite
 ├── packages/
 │   ├── db/                 # SQLAlchemy models
 │   ├── logger/             # structlog config

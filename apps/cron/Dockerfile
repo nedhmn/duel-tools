@@ -7,7 +7,7 @@ ENV UV_LINK_MODE=copy
 
 COPY pyproject.toml uv.lock ./
 COPY apps/cron/pyproject.toml apps/cron/pyproject.toml
-COPY apps/duel-prep/backend/pyproject.toml apps/duel-prep/backend/pyproject.toml
+COPY apps/api/pyproject.toml apps/api/pyproject.toml
 COPY packages/db/pyproject.toml packages/db/pyproject.toml
 COPY packages/logger/pyproject.toml packages/logger/pyproject.toml
 COPY packages/parser/pyproject.toml packages/parser/pyproject.toml

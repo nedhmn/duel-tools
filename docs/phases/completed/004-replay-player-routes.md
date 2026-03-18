@@ -5,7 +5,7 @@ status: completed
 created: 2026-03-18
 completed: 2026-03-18
 context_doc: null
-description: "Replay + Player Routes"
+description: "Replay viewer and player detail endpoints with match metadata extraction in worker"
 ---
 
 ## Tasks
@@ -27,5 +27,6 @@ description: "Replay + Player Routes"
 
 ## References
 
-| Resource | Description |
-| -------- | ----------- |
+| Resource                                      | Description                      |
+| --------------------------------------------- | -------------------------------- |
+| [API architecture](../../architecture/api.md) | Database schema and request flow |

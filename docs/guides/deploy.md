@@ -1,119 +1,134 @@
-# Deployment Guide
+---
+title: "Deployment Guide"
+description: "CI/CD workflows and production deployment for duel-tools"
+created: 2026-03-18
+---
 
-How to deploy duel-tools to production.
+# Deployment
+
+CI/CD configuration and production deployment.
+
+## Table of Contents
+
+- [Deployment](#deployment)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [First Deployment](#first-deployment)
+    - [1. Railway Setup](#1-railway-setup)
+    - [2. GitHub Secrets](#2-github-secrets)
+    - [3. Push to Main](#3-push-to-main)
+    - [4. Initialize Database](#4-initialize-database)
+  - [GitHub Secrets](#github-secrets)
+  - [Database Initialization](#database-initialization)
+  - [CI/CD Workflows](#cicd-workflows)
+    - [ci.yml — Code Quality](#ciyml--code-quality)
+    - [app-ci.yml — API + Worker](#app-ciyml--api--worker)
+    - [cron-ci.yml — Cron Service](#cron-ciyml--cron-service)
+  - [Ongoing Deploys](#ongoing-deploys)
+  - [Verify](#verify)
+  - [References](#references)
 
 ## Prerequisites
 
-Before deploying, you need:
+| Service   | Purpose                   | Sign Up                                    |
+| --------- | ------------------------- | ------------------------------------------ |
+| GitHub    | Repository + CI/CD        | [github.com](https://github.com)           |
+| Railway   | API, Worker, Cron hosting | [railway.app](https://railway.app)         |
+| CapSolver | reCAPTCHA solving         | [capsolver.com](https://www.capsolver.com) |
 
-### API Keys & Credentials
+A DuelingBook account is also required for scraping credentials.
 
-| Credential        | Where to get it                         |
-| ----------------- | --------------------------------------- |
-| CAPSOLVER_API_KEY | [CapSolver](https://www.capsolver.com/) |
-| SITE_KEY          | DuelingBook reCAPTCHA site key          |
-| DB_USERNAME       | Your DuelingBook account username       |
-| DB_PASSWORD       | Your DuelingBook account password       |
-| DB_ID             | Your DuelingBook account ID             |
+## First Deployment
 
-### Infrastructure
+### 1. Railway Setup
 
-- GitHub repository (for CI/CD)
-- Railway account (or other hosting)
-- PostgreSQL database
-- Redis instance
+Create a Railway project with PostgreSQL and Redis plugins, then configure three services. See [Railway service docs](../services/railway.md) for service configuration and environment variables.
 
-## Docker Build
+### 2. GitHub Secrets
 
-Test the production build locally:
+Add the Railway token to GitHub before the first push to `main`.
 
-```bash
-# From repo root
-docker build -f apps/duel-prep/backend/Dockerfile -t duel-prep .
+### 3. Push to Main
 
-# Run it
-docker run -p 8000:8000 \
-  -e DATABASE_URL=postgresql://... \
-  -e REDIS_URL=redis://... \
-  duel-prep
-```
+The first push triggers CI/CD workflows which build and deploy all services.
 
-The Dockerfile:
-- Multi-stage build (Node frontend → Python backend)
-- Bundles frontend static files into backend
-- Uses `uv` for fast Python installs
-- Runs as non-root user
+### 4. Initialize Database
 
-## CI/CD
-
-Three GitHub Actions workflows in `.github/workflows/`:
-
-### `ci.yml` — Generic checks (all changes)
-
-**Triggers:** push to main + PRs (paths-ignore: `docs/**`)
-
-**Jobs:**
-- `check` — `uv sync --locked` → `make check` (ruff + ty + frontend lint)
-
-### `app-ci.yml` — App services (API + Worker)
-
-**Triggers:** push to main + PRs
-**Paths:** `apps/duel-prep/**`, `packages/**`
-
-**Jobs:**
-- `build` — Docker build validation with BuildKit + GHA cache
-- `deploy-api` — Railway deploy `duel-prep-api` (main only)
-- `deploy-worker` — Railway deploy `duel-prep-worker` (main only)
-
-### `cron-ci.yml` — Cron service
-
-**Triggers:** push to main + PRs
-**Paths:** `apps/cron/**`, `packages/**`, `.github/workflows/cron-ci.yml`
-
-**Jobs:**
-- `build` — Docker build validation with BuildKit + GHA cache
-- `deploy-cron` — Railway deploy `duel-prep-fl-cron` (main only, currently commented out)
-
-**Required Secrets:**
-- `RAILWAY_TOKEN` — Railway API token
-
-## Railway Deployment
-
-See [services/railway.md](../services/railway.md) for Railway-specific setup:
-
-- Project & service configuration
-- Environment variables
-- Database initialization
-- Troubleshooting
-
-## Environment Variables
-
-| Variable          | Description                       | Required |
-| ----------------- | --------------------------------- | -------- |
-| DATABASE_URL      | PostgreSQL connection string      | Yes      |
-| REDIS_URL         | Redis connection string           | Yes      |
-| AUTH_PASSWORD     | App access password               | Yes      |
-| CAPSOLVER_API_KEY | CapSolver API key                 | Yes      |
-| SITE_KEY          | DuelingBook reCAPTCHA site key    | Yes      |
-| DB_USERNAME       | DuelingBook account username      | Yes      |
-| DB_PASSWORD       | DuelingBook account password      | Yes      |
-| DB_ID             | DuelingBook account ID            | Yes      |
-| DB_REGULAR        | DuelingBook account type          | No       |
-| PORT              | Server port (auto-set by Railway) | No       |
-
-## Post-Deployment
-
-### Initialize Database
-
-First deployment only:
+Run once after the first deployment via Railway shell:
 
 ```bash
-# Railway shell
 python scripts/init_db.py
 ```
 
-### Verify Deployment
+## GitHub Secrets
+
+| Secret          | Source                               |
+| --------------- | ------------------------------------ |
+| `RAILWAY_TOKEN` | Railway Dashboard → Account → Tokens |
+
+## Database Initialization
+
+First deployment only. Run via Railway shell on the API service:
+
+```bash
+python scripts/init_db.py
+```
+
+To clear all data (keeps tables):
+
+```bash
+python scripts/clear_db.py
+```
+
+## CI/CD Workflows
+
+### ci.yml — Code Quality
+
+| Setting | Value                                                         |
+| ------- | ------------------------------------------------------------- |
+| Trigger | Push to main + PRs (paths-ignore: `docs/**`)                  |
+| Jobs    | `uv sync --locked` → `make check` (ruff + ty + frontend lint) |
+
+### app-ci.yml — API + Worker
+
+| Setting       | Value                                             |
+| ------------- | ------------------------------------------------- |
+| Trigger       | Push to main + PRs                                |
+| Paths         | `apps/api/**`, `apps/web/**`, `packages/**`       |
+| Build Job     | Docker build validation with BuildKit + GHA cache |
+| Deploy API    | Railway deploy `duel-prep-api` (main only)        |
+| Deploy Worker | Railway deploy `duel-prep-worker` (main only)     |
+
+### cron-ci.yml — Cron Service
+
+| Setting     | Value                                                              |
+| ----------- | ------------------------------------------------------------------ |
+| Trigger     | Push to main + PRs                                                 |
+| Paths       | `apps/cron/**`, `packages/**`                                      |
+| Build Job   | Docker build validation with BuildKit + GHA cache                  |
+| Deploy Cron | Railway deploy `duel-prep-fl-cron` (main only, currently disabled) |
+
+## Ongoing Deploys
+
+Push to `main` triggers CI automatically:
+
+| Workflow      | Purpose                       | Deploy Targets                      |
+| ------------- | ----------------------------- | ----------------------------------- |
+| `ci.yml`      | Lint, type check, format      | —                                   |
+| `app-ci.yml`  | Build + deploy API and Worker | `duel-prep-api`, `duel-prep-worker` |
+| `cron-ci.yml` | Build + deploy Cron           | `duel-prep-fl-cron` (disabled)      |
+
+## Verify
 
 1. Check health endpoint: `GET /api/v1/health`
-2. Try creating a batch with a test URL
-3. Verify worker is processing jobs (check logs)
+2. Create a batch with a test URL
+3. Verify worker is processing jobs (check Railway logs)
+
+## References
+
+| Resource                                               | Description               |
+| ------------------------------------------------------ | ------------------------- |
+| [Railway service docs](../services/railway.md)         | Service config + env vars |
+| [CapSolver service docs](../services/capsolver.md)     | Captcha API setup         |
+| [DuelingBook service docs](../services/duelingbook.md) | Scraping credentials      |
+| [Development guide](./development.md)                  | Local development setup   |
