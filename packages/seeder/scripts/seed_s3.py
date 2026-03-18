@@ -35,7 +35,7 @@ async def main() -> None:
         logger.info("new_replays", count=len(new_keys))
 
         if not new_keys:
-            print("No new replays to seed")
+            logger.info("no_new_replays")
             return
 
         seeded = 0
@@ -59,7 +59,7 @@ async def main() -> None:
             max_at_once=settings.S3_CONCURRENCY,
         )
 
-        print(f"Seeded {seeded} replays, {failed} failed")
+        logger.info("seed_completed", seeded=seeded, failed=failed)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from db.models import Player, Replay, ReplayPlayer
+from logger import get_logger
 from parser import parse_replay
+
+logger = get_logger(__name__)
 
 
 def get_or_create_player(session: Session, username: str) -> Player:
@@ -12,6 +15,7 @@ def get_or_create_player(session: Session, username: str) -> Player:
         player = Player(username=username)
         session.add(player)
         session.flush()
+        logger.info("player_created", player_id=str(player.id), username=username)
     return player
 
 
@@ -24,6 +28,12 @@ def extract_players(
     session.add(ReplayPlayer(replay_id=replay.id, player_id=p1.id))
     session.add(ReplayPlayer(replay_id=replay.id, player_id=p2.id))
     session.flush()
+    logger.info(
+        "players_extracted",
+        replay_id=str(replay.id),
+        player1=player1,
+        player2=player2,
+    )
 
 
 def ensure_replay_parsed(session: Session, replay: Replay) -> bool:
@@ -38,4 +48,9 @@ def ensure_replay_parsed(session: Session, replay: Replay) -> bool:
     replay.match_result = parsed.match_result
     replay.played_at = parsed.played_at
     extract_players(session, replay, parsed.player1, parsed.player2)
+    logger.info(
+        "replay_parsed",
+        replay_id=str(replay.id),
+        duelingbook_id=replay.duelingbook_id,
+    )
     return True
