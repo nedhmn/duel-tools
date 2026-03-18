@@ -271,12 +271,6 @@ dependencies = [
     { name = "structlog" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "ruff" },
-    { name = "ty" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "asyncpg", specifier = ">=0.31.0" },
@@ -291,12 +285,6 @@ requires-dist = [
     { name = "slowapi", specifier = ">=0.1.9" },
     { name = "sqlalchemy", specifier = ">=2.0.45" },
     { name = "structlog", specifier = ">=25.5.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ruff", specifier = ">=0.14.10" },
-    { name = "ty", specifier = ">=0.0.4" },
 ]
 
 [[package]]
@@ -497,12 +485,6 @@ dependencies = [
     { name = "scraper" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "ruff" },
-    { name = "ty" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "aiometer", specifier = ">=1.0.0" },
@@ -515,12 +497,6 @@ requires-dist = [
     { name = "scraper", editable = "packages/scraper" },
 ]
 
-[package.metadata.requires-dev]
-dev = [
-    { name = "ruff", specifier = ">=0.14.10" },
-    { name = "ty", specifier = ">=0.0.4" },
-]
-
 [[package]]
 name = "db"
 version = "0.1.0"
@@ -531,23 +507,11 @@ dependencies = [
     { name = "sqlalchemy", extra = ["asyncio"] },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "ruff" },
-    { name = "ty" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.11" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.45" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ruff", specifier = ">=0.14.10" },
-    { name = "ty", specifier = ">=0.0.4" },
 ]
 
 [[package]]
@@ -585,6 +549,13 @@ dependencies = [
     { name = "seeder" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "ruff" },
+    { name = "ty" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "backend", editable = "apps/duel-prep/backend" },
@@ -594,6 +565,13 @@ requires-dist = [
     { name = "parser", editable = "packages/parser" },
     { name = "scraper", editable = "packages/scraper" },
     { name = "seeder", editable = "packages/seeder" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "ruff", specifier = ">=0.14.10" },
+    { name = "ty", specifier = ">=0.0.4" },
 ]
 
 [[package]]
@@ -981,20 +959,8 @@ dependencies = [
     { name = "structlog" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "ruff" },
-    { name = "ty" },
-]
-
 [package.metadata]
 requires-dist = [{ name = "structlog", specifier = ">=25.5.0" }]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ruff", specifier = ">=0.14.10" },
-    { name = "ty", specifier = ">=0.0.4" },
-]
 
 [[package]]
 name = "markdown-it-py"
@@ -1259,25 +1225,11 @@ dependencies = [
     { name = "pydantic" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "ruff" },
-    { name = "ty" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "logger", editable = "packages/logger" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pydantic", specifier = ">=2.12.5" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "ruff", specifier = ">=0.14.10" },
-    { name = "ty", specifier = ">=0.0.4" },
 ]
 
 [[package]]
@@ -1754,12 +1706,6 @@ dependencies = [
     { name = "pydantic-settings" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "ruff" },
-    { name = "ty" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "capsolver", specifier = ">=1.0.7" },
@@ -1767,12 +1713,6 @@ requires-dist = [
     { name = "logger", editable = "packages/logger" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ruff", specifier = ">=0.14.10" },
-    { name = "ty", specifier = ">=0.0.4" },
 ]
 
 [[package]]
@@ -1789,12 +1729,6 @@ dependencies = [
     { name = "pydantic-settings" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "ruff" },
-    { name = "ty" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "aioboto3", specifier = ">=15.5.0" },
@@ -1804,12 +1738,6 @@ requires-dist = [
     { name = "parser", editable = "packages/parser" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ruff", specifier = ">=0.14.10" },
-    { name = "ty", specifier = ">=0.0.4" },
 ]
 
 [[package]]

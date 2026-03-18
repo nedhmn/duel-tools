@@ -12,16 +12,10 @@
 
 ## Validation
 
-### Python (backend, packages)
+Run `make fix-and-check` from the repo root after making code changes.
 
 ```bash
-cd apps/duel-prep/backend && make check   # ruff + ty
-```
-
-### Frontend
-
-```bash
-cd apps/duel-prep/frontend && pnpm fix && pnpm check
+make fix-and-check
 ```
 
 ## Logging (structlog)

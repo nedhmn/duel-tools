@@ -10,12 +10,6 @@ dependencies = [
     "pydantic>=2.12.5",
 ]
 
-[dependency-groups]
-dev = [
-    "pytest>=9.0.2",
-    "ruff>=0.14.10",
-    "ty>=0.0.4",
-]
 
 [tool.uv.sources]
 logger = { workspace = true }

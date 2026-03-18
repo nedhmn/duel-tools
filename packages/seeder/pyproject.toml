@@ -14,11 +14,6 @@ dependencies = [
     "logger",
 ]
 
-[dependency-groups]
-dev = [
-    "ruff>=0.14.10",
-    "ty>=0.0.4",
-]
 
 [tool.uv.sources]
 db = { workspace = true }
