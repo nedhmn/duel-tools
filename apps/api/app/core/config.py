@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     )
 
     DATABASE_URL: str = Field(
-        default="postgresql://duel_tools:duel_tools@localhost:5432/duel_tools"
+        default="postgresql://duel_tools:duel_tools@localhost:5437/duel_tools"
     )
 
     @property
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
             return url.replace("postgresql://", "postgresql+asyncpg://", 1)
         return url
 
-    REDIS_URL: str = Field(default="redis://localhost:6379/0")
+    REDIS_URL: str = Field(default="redis://localhost:6380/0")
 
     AUTH_PASSWORD: str = Field(...)
 

@@ -30,12 +30,12 @@ make worker  # Celery worker (separate terminal)
 
 ## Commands
 
-| Command         | Description                 |
-| --------------- | --------------------------- |
-| `make dev`      | Run FastAPI dev server      |
-| `make worker`   | Run Celery worker           |
-| `make init-db`  | Create database tables      |
-| `make clear-db` | Delete all data             |
+| Command         | Description            |
+| --------------- | ---------------------- |
+| `make dev`      | Run FastAPI dev server |
+| `make worker`   | Run Celery worker      |
+| `make init-db`  | Create database tables |
+| `make clear-db` | Delete all data        |
 
 ## Architecture
 

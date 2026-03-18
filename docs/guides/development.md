@@ -96,7 +96,7 @@ make init-db
 ### Connect to Local Database
 
 ```bash
-docker exec -it duel-tools-postgres-1 psql -U duel_tools -d duel_tools
+docker exec -it duel-tools-postgres psql -U duel_tools -d duel_tools
 ```
 
 ## Environment Variables
