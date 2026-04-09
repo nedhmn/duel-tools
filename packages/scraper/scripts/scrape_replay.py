@@ -30,7 +30,7 @@ def main() -> None:
             url,
             replay_id,
             api_key=settings.CAPSOLVER_API_KEY,
-            site_key=settings.SITE_KEY,
+            site_key=settings.TURNSTILE_SITE_KEY,
             auth_cookies=settings.auth_cookies,
         )
         print(json.dumps(result, indent=2))

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     FL_TOKEN: str = Field(...)
 
     CAPSOLVER_API_KEY: str = Field(...)
-    SITE_KEY: str = Field(...)
+    TURNSTILE_SITE_KEY: str = Field(...)
 
     DB_USERNAME: str | None = Field(default=None)
     DB_PASSWORD: str | None = Field(default=None)

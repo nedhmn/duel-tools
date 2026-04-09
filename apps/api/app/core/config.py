@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = Field(default="redis://localhost:6380/0")
 
     CAPSOLVER_API_KEY: str = Field(...)
-    SITE_KEY: str = Field(...)
+    TURNSTILE_SITE_KEY: str = Field(...)
 
     DB_USERNAME: str | None = Field(default=None)
     DB_PASSWORD: str | None = Field(default=None)

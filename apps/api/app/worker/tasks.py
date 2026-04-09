@@ -74,7 +74,7 @@ def scrape_replay_task(self, job_id_str: str, url: str) -> None:
                 url=url,
                 replay_id=replay_id_int,
                 api_key=settings.CAPSOLVER_API_KEY,
-                site_key=settings.SITE_KEY,
+                site_key=settings.TURNSTILE_SITE_KEY,
                 timeout=30.0,
                 auth_cookies=settings.auth_cookies,
             )

@@ -28,7 +28,7 @@ async def process_replay(
             url,
             replay_id,
             api_key=settings.CAPSOLVER_API_KEY,
-            site_key=settings.SITE_KEY,
+            site_key=settings.TURNSTILE_SITE_KEY,
             timeout=30.0,
             auth_cookies=settings.auth_cookies,
         )
