@@ -1,10 +1,10 @@
 ---
 title: "Capsolver Extraction & Turnstile Support"
 phase: 10
-status: active
+status: completed
 created: 2026-04-08
-completed: null
-context_doc: "../context/capsolver-extraction-turnstile.md"
+completed: 2026-04-09
+context_doc: "../../context/capsolver-extraction-turnstile.md"
 description: "Extract capsolver logic into a standalone package and migrate from reCAPTCHA v2 to Cloudflare Turnstile."
 ---
 
@@ -17,13 +17,13 @@ description: "Extract capsolver logic into a standalone package and migrate from
 - [x] Swap scraper dep: `capsolver` pip → `dt-capsolver` workspace
 - [x] Rewrite `scraper/client.py` to use `solve_turnstile()`, update form data (`turnstile: True`)
 - [x] Remove `CAPSOLVER_API_KEY` from scraper config
-- [x] Remove `CaptchaError` from scraper exceptions and exports
+- [x] Rewire scraper `CaptchaError` to wrap `dt_capsolver.CaptchaError`
 - [x] Update `apps/api` worker task imports (`CaptchaError` from `dt_capsolver`)
 - [x] Update `apps/cron` pipeline to use new `scrape_replay()` signature
 - [x] Update scraper script imports and call signature
 
 ## References
 
-| Resource                                                    | Description      |
-| ----------------------------------------------------------- | ---------------- |
-| [Context Doc](../context/capsolver-extraction-turnstile.md) | Full design spec |
+| Resource                                                       | Description      |
+| -------------------------------------------------------------- | ---------------- |
+| [Context Doc](../../context/capsolver-extraction-turnstile.md) | Full design spec |
