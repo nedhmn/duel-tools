@@ -4,7 +4,9 @@ Project phases track incremental work from initial setup through current feature
 
 ## Active Phases
 
-No active phases.
+| Phase | Title                                                                                     | Context Doc                                          |
+| ----- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 10    | [Capsolver Extraction & Turnstile Support](010-capsolver-extraction-turnstile-support.md) | [spec](../context/capsolver-extraction-turnstile.md) |
 
 ## Completed Phases
 

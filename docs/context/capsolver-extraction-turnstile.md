@@ -18,7 +18,7 @@ created: 2026-04-08
     - [Solution Object](#solution-object)
     - [Differences from reCAPTCHA v2](#differences-from-recaptcha-v2)
   - [New Package Scaffold](#new-package-scaffold)
-    - [packages/capsolver\_client](#packagescapsolver_client)
+    - [packages/dt\_capsolver](#packagesdt_capsolver)
     - [packages/scraper (updated)](#packagesscraper-updated)
   - [Dependency Flow](#dependency-flow)
   - [Open Items](#open-items)
@@ -127,13 +127,13 @@ token = solution["token"]
 
 ## New Package Scaffold
 
-### packages/capsolver_client
+### packages/dt_capsolver
 
 ```
-packages/capsolver_client/
+packages/dt_capsolver/
 ├── pyproject.toml
 ├── .env.example                     # CAPSOLVER_API_KEY
-├── src/capsolver_client/
+├── src/dt_capsolver/
 │   ├── __init__.py                  # exports from both engines + CaptchaError + settings
 │   ├── config.py                    # CapsolverSettings (API key only)
 │   ├── exceptions.py                # CaptchaError
@@ -146,7 +146,7 @@ packages/capsolver_client/
 │       └── client.py                # solve_turnstile(url, site_key, metadata?) -> CaptchaSolution
 ```
 
-Named `capsolver_client` to avoid shadowing the `capsolver` pip package.
+Named `dt_capsolver` to avoid shadowing the `capsolver` pip package.
 
 | Component                | Responsibility                                                      |
 | ------------------------ | ------------------------------------------------------------------- |
@@ -161,11 +161,11 @@ Both engines return a consistent shape (token + user_agent).
 
 ```
 packages/scraper/
-├── pyproject.toml                   # capsolver pip dep → capsolver_client workspace dep
+├── pyproject.toml                   # capsolver pip dep → dt_capsolver workspace dep
 ├── .env.example                     # SITE_KEY, DB_* creds (CAPSOLVER_API_KEY removed)
 ├── src/scraper/
 │   ├── __init__.py                  # exports: ScraperError, extract_replay_id, scrape_replay, settings
-│   ├── client.py                    # scrape_replay() calls capsolver_client.solve_turnstile()
+│   ├── client.py                    # scrape_replay() calls dt_capsolver.solve_turnstile()
 │   ├── config.py                    # ScraperSettings — SITE_KEY + DB_* auth (no CAPSOLVER_API_KEY)
 │   └── exceptions.py                # ScraperError only (CaptchaError removed)
 ├── scripts/
@@ -179,19 +179,19 @@ Removed from scraper: `capsolver` pip dep, `capsolver_task.json`, `CaptchaError`
 ## Dependency Flow
 
 ```
-capsolver (pip)  ←  packages/capsolver_client  ←  packages/scraper  ←  apps/api, apps/cron
+capsolver (pip)  ←  packages/dt_capsolver  ←  packages/scraper  ←  apps/api, apps/cron
                           ↑
                     packages/logger
 ```
 
 ## Open Items
 
-| Item                     | Detail                                                                                                   |
-| ------------------------ | -------------------------------------------------------------------------------------------------------- |
-| Turnstile sitekey        | Need to extract from duelingbook page (`0x4...`)                                                         |
-| Turnstile metadata       | Check if `data-action` / `data-cdata` attributes are present on the widget                               |
-| `/view-replay` form data | Confirm what fields the endpoint expects now (token field name, `recaptcha_version` flag)                |
-| Consumer updates         | `apps/api` and `apps/cron` import `CaptchaError` from scraper — update to import from `capsolver_client` |
+| Item                     | Detail                                                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Turnstile sitekey        | Need to extract from duelingbook page (`0x4...`)                                                     |
+| Turnstile metadata       | Check if `data-action` / `data-cdata` attributes are present on the widget                           |
+| `/view-replay` form data | Confirm what fields the endpoint expects now (token field name, `recaptcha_version` flag)            |
+| Consumer updates         | `apps/api` and `apps/cron` import `CaptchaError` from scraper — update to import from `dt_capsolver` |
 
 ## References
 
