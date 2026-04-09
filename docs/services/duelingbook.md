@@ -1,12 +1,12 @@
 ---
 title: "DuelingBook"
-description: "Replay scraping via DuelingBook API with CapSolver reCAPTCHA bypass"
+description: "Replay scraping via DuelingBook API with CapSolver Turnstile bypass"
 created: 2026-03-18
 ---
 
 # DuelingBook
 
-Replay data source for Yu-Gi-Oh duels. Replays are scraped via HTTP POST with a reCAPTCHA token solved by CapSolver.
+Replay data source for Yu-Gi-Oh duels. Replays are scraped via HTTP POST with a Turnstile token solved by CapSolver.
 
 ## Table of Contents
 
@@ -26,7 +26,7 @@ Replays are fetched from `https://www.duelingbook.com/view-replay` via POST with
 | Step | Action                                                              |
 | ---- | ------------------------------------------------------------------- |
 | 1    | Extract replay ID from URL query param (`?id=123` or `?id=456-123`) |
-| 2    | Solve reCAPTCHA v2 via CapSolver                                    |
+| 2    | Solve Cloudflare Turnstile via CapSolver                            |
 | 3    | POST to `/view-replay` with captcha token + auth cookies            |
 | 4    | Parse JSON response (error responses have `"action": "Error"`)      |
 
@@ -34,7 +34,7 @@ The scraper raises `CaptchaError` for token rejection (retryable) and `ScraperEr
 
 ## CapSolver Integration
 
-reCAPTCHA v2 is solved via [CapSolver](./capsolver.md) before each scrape request. The solution provides a captcha token and optional cookies that are forwarded with the POST request.
+Cloudflare Turnstile is solved via [CapSolver](./capsolver.md) before each scrape request. The solution provides a captcha token that is forwarded with the POST request.
 
 ## Authentication
 
@@ -61,14 +61,14 @@ DuelingBook account cookies are optional but improve scrape success rate. When p
 
 ## Environment Variables
 
-| Variable            | Description                                               | Required |
-| ------------------- | --------------------------------------------------------- | -------- |
-| `CAPSOLVER_API_KEY` | CapSolver API key                                         | Yes      |
-| `SITE_KEY`          | DuelingBook reCAPTCHA site key                            | Yes      |
-| `DB_USERNAME`       | DuelingBook `username` cookie                             | No       |
-| `DB_PASSWORD`       | DuelingBook `password` cookie (encrypted, not plain text) | No       |
-| `DB_ID`             | DuelingBook `db_id` cookie                                | No       |
-| `DB_REGULAR`        | DuelingBook `regular` cookie                              | No       |
+| Variable             | Description                                               | Required |
+| -------------------- | --------------------------------------------------------- | -------- |
+| `CAPSOLVER_API_KEY`  | CapSolver API key                                         | Yes      |
+| `TURNSTILE_SITE_KEY` | DuelingBook Turnstile site key                            | Yes      |
+| `DB_USERNAME`        | DuelingBook `username` cookie                             | No       |
+| `DB_PASSWORD`        | DuelingBook `password` cookie (encrypted, not plain text) | No       |
+| `DB_ID`              | DuelingBook `db_id` cookie                                | No       |
+| `DB_REGULAR`         | DuelingBook `regular` cookie                              | No       |
 
 ## References
 

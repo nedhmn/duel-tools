@@ -34,7 +34,7 @@ CI/CD configuration and production deployment.
 | --------- | ------------------------- | ------------------------------------------ |
 | GitHub    | Repository + CI/CD        | [github.com](https://github.com)           |
 | Railway   | API, Worker, Cron hosting | [railway.app](https://railway.app)         |
-| CapSolver | reCAPTCHA solving         | [capsolver.com](https://www.capsolver.com) |
+| CapSolver | Captcha solving           | [capsolver.com](https://www.capsolver.com) |
 
 A DuelingBook account is also required for scraping credentials.
 
