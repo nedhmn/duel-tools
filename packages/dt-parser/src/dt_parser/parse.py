@@ -143,7 +143,7 @@ def _extract_card_name(row: pd.Series, card_names: set[str]) -> str | None:
         return None
 
     card_name_from_play = row.get("card_name_from_play")
-    if card_name_from_play:
+    if pd.notna(card_name_from_play) and card_name_from_play:
         return card_name_from_play
 
     for log in (row.get("private_log"), row.get("public_log")):
