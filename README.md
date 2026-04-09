@@ -24,12 +24,12 @@ duel-tools/
 │   ├── cron/         # Scheduled sync jobs
 │   └── web/          # React + Vite frontend
 ├── packages/
-│   ├── db/           # SQLAlchemy models + Alembic migrations
 │   ├── dt-capsolver/ # Captcha solving (Turnstile, reCAPTCHA v2)
-│   ├── logger/       # structlog config
-│   ├── parser/       # Replay JSON parsing
-│   ├── scraper/      # DuelingBook scraping
-│   └── seeder/       # S3 replay import
+│   ├── dt-db/        # SQLAlchemy models + Alembic migrations
+│   ├── dt-logger/    # structlog config
+│   ├── dt-parser/    # Replay JSON parsing
+│   ├── dt-scraper/   # DuelingBook scraping
+│   └── dt-seeder/    # S3 replay import
 └── docs/             # Guides + architecture docs
 ```
 
@@ -42,7 +42,7 @@ docker compose up -d                    # postgres + redis
 uv sync                                 # python deps
 cd apps/web && pnpm install             # frontend deps
 cp apps/api/.env.example apps/api/.env  # configure env
-cd packages/db && make migrate          # init database
+cd packages/dt-db && make migrate       # init database
 ```
 
 - **API**: `cd apps/api && make dev`
