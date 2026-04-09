@@ -25,6 +25,7 @@ duel-tools/
 │   └── web/          # React + Vite frontend
 ├── packages/
 │   ├── db/           # SQLAlchemy models + Alembic migrations
+│   ├── dt-capsolver/ # Captcha solving (Turnstile, reCAPTCHA v2)
 │   ├── logger/       # structlog config
 │   ├── parser/       # Replay JSON parsing
 │   ├── scraper/      # DuelingBook scraping
