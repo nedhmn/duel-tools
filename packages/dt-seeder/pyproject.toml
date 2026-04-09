@@ -13,14 +13,7 @@ dependencies = [
     "dt-logger",
 ]
 
-
 [tool.uv.sources]
 dt-db = { workspace = true }
 dt-parser = { workspace = true }
 dt-logger = { workspace = true }
-
-[tool.ty.environment]
-python-version = "3.13"
-
-[tool.ty.src]
-include = ["src/dt_seeder"]

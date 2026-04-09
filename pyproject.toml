@@ -50,4 +50,4 @@ cache-dir = ".cache"
 known-first-party = ["dt_db", "dt_logger", "dt_parser", "dt_scraper", "dt_seeder", "dt_capsolver"]
 
 [tool.ty.src]
-exclude = [".cache", "**/tests"]
+exclude = [".cache", "**/tests", "**/alembic/versions"]

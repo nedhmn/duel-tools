@@ -20,10 +20,3 @@ dependencies = [
 dt-logger = { workspace = true }
 dt-db = { workspace = true }
 dt-scraper = { workspace = true }
-
-
-[tool.ty.environment]
-python-version = "3.13"
-
-[tool.ty.src]
-include = ["app"]

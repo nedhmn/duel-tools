@@ -12,7 +12,6 @@ dependencies = [
     "pydantic-settings>=2.12.0",
 ]
 
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -24,9 +23,3 @@ artifacts = ["*.json"]
 [tool.uv.sources]
 dt-logger = { workspace = true }
 dt-capsolver = { workspace = true }
-
-[tool.ty.environment]
-python-version = "3.13"
-
-[tool.ty.src]
-include = ["src/dt_scraper"]

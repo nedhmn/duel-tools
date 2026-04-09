@@ -17,9 +17,3 @@ dev = [
 
 [tool.uv.sources]
 dt-logger = { workspace = true }
-
-[tool.ty.environment]
-python-version = "3.13"
-
-[tool.ty.src]
-include = ["src/dt_parser"]
