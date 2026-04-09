@@ -1,9 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from db.models import Player, Replay, ReplayPlayer
-from logger import get_logger
-from parser import parse_replay
+from dt_db.models import Player, Replay, ReplayPlayer
+from dt_logger import get_logger
+from dt_parser import parse_replay
 
 logger = get_logger(__name__)
 

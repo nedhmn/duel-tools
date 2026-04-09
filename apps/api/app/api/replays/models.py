@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from parser import ParsedReplay
+from dt_parser import ParsedReplay
 
 
 class ParsedReplayResponse(ParsedReplay):

@@ -23,7 +23,7 @@ make fix-and-check
 
 ## Logging (structlog)
 
-Structured logging via `packages/logger`. First positional arg is event name, kwargs for context.
+Structured logging via `packages/dt-logger`. First positional arg is event name, kwargs for context.
 
 ### Event Naming
 

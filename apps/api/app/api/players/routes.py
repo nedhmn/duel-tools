@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from logger import get_logger
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
@@ -13,7 +12,8 @@ from app.api.players.models import (
     PlayerResponse,
     ReplayMetadata,
 )
-from db.models import Player, Replay, ReplayPlayer
+from dt_db.models import Player, Replay, ReplayPlayer
+from dt_logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -1,12 +1,11 @@
 import json
 from pathlib import Path
 
-import capsolver  # type: ignore
-
-from logger import get_logger
+import capsolver
 
 from dt_capsolver.exceptions import CaptchaError
 from dt_capsolver.models import CaptchaSolution, RecaptchaV2Task
+from dt_logger import get_logger
 
 logger = get_logger(__name__)
 

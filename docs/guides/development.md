@@ -65,7 +65,7 @@ Local development setup for duel-tools.
 
 5. Initialize the database:
    ```bash
-   cd packages/db && make migrate
+   cd packages/dt-db && make migrate
    ```
 
 ## Monorepo Commands
@@ -176,7 +176,7 @@ make sync-all   # Backfill all events
 ### Reset Database
 
 ```bash
-cd packages/db
+cd packages/dt-db
 
 # Downgrade and re-migrate
 make migrate-down && make migrate

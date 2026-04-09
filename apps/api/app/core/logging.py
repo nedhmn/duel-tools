@@ -1,6 +1,6 @@
-from logger import get_logger, setup_logging as _setup_logging
-
 from app.core.config import settings
+from dt_logger import get_logger
+from dt_logger import setup_logging as _setup_logging
 
 
 def setup_logging() -> None:

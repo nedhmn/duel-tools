@@ -1,0 +1,19 @@
+[project]
+name = "dt-parser"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dt-logger",
+    "pandas>=2.3.3",
+    "pydantic>=2.12.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
+
+[tool.uv.sources]
+dt-logger = { workspace = true }

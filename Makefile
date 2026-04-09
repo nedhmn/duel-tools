@@ -25,10 +25,10 @@ fix:
 fix-and-check: fix check
 
 migrate:
-	cd packages/db && make migrate
+	cd packages/dt-db && make migrate
 
 migrate-check:
-	cd packages/db && make migrate-check
+	cd packages/dt-db && make migrate-check
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +

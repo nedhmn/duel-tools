@@ -41,5 +41,5 @@ jobs:
         run: make check
 
       - name: Run parser tests
-        working-directory: packages/parser
+        working-directory: packages/dt-parser
         run: uv run pytest tests/ -v

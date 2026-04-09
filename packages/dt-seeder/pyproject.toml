@@ -1,0 +1,19 @@
+[project]
+name = "dt-seeder"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aioboto3>=15.5.0",
+    "aiometer>=1.0.0",
+    "pydantic>=2.12.5",
+    "dt-db",
+    "dt-parser",
+    "dt-logger",
+]
+
+[tool.uv.sources]
+dt-db = { workspace = true }
+dt-parser = { workspace = true }
+dt-logger = { workspace = true }

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
-from logger import get_logger
-from parser import parse_replay
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import get_db
 from app.api.replays.models import ParsedReplayResponse
-from db.models import Replay, ReplayPlayer
+from dt_db.models import Replay, ReplayPlayer
+from dt_logger import get_logger
+from dt_parser import parse_replay
 
 logger = get_logger(__name__)
 
