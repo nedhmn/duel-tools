@@ -29,7 +29,26 @@ class Settings(BaseSettings):
 
     REDIS_URL: str = Field(default="redis://localhost:6380/0")
 
+    CAPSOLVER_API_KEY: str = Field(...)
+    SITE_KEY: str = Field(...)
+
+    DB_USERNAME: str | None = Field(default=None)
+    DB_PASSWORD: str | None = Field(default=None)
+    DB_ID: str | None = Field(default=None)
+    DB_REGULAR: str = Field(default="is")
+
     AUTH_PASSWORD: str | None = Field(default=None)
+
+    @property
+    def auth_cookies(self) -> dict[str, str] | None:
+        if not self.DB_USERNAME or not self.DB_PASSWORD or not self.DB_ID:
+            return None
+        return {
+            "username": self.DB_USERNAME,
+            "password": self.DB_PASSWORD,
+            "db_id": self.DB_ID,
+            "regular": self.DB_REGULAR,
+        }
 
 
 settings = Settings()

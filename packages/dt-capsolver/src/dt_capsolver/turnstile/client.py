@@ -2,7 +2,6 @@ import capsolver  # type: ignore
 
 from logger import get_logger
 
-from dt_capsolver.config import settings
 from dt_capsolver.exceptions import CaptchaError
 from dt_capsolver.models import CaptchaSolution, TurnstileTask
 
@@ -10,13 +9,14 @@ logger = get_logger(__name__)
 
 
 def solve_turnstile(
+    api_key: str,
     url: str,
     site_key: str,
     metadata: dict[str, str] | None = None,
 ) -> CaptchaSolution:
     logger.info("turnstile_solving_started", url=url)
 
-    capsolver.api_key = settings.CAPSOLVER_API_KEY
+    capsolver.api_key = api_key
 
     task = TurnstileTask(websiteURL=url, websiteKey=site_key, metadata=metadata)
 

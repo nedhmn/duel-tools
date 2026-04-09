@@ -3,8 +3,7 @@ from urllib.parse import parse_qs, urlparse
 
 import httpx
 
-from dt_capsolver import CaptchaError as CapsolverError
-from dt_capsolver import solve_turnstile
+from dt_capsolver import CaptchaError as CapsolverError, solve_turnstile
 from logger import get_logger
 from scraper.exceptions import CaptchaError, ScraperError
 
@@ -55,6 +54,7 @@ def extract_replay_id(url: str) -> int:
 def scrape_replay(
     url: str,
     replay_id: int,
+    api_key: str,
     site_key: str,
     timeout: float = 30.0,
     auth_cookies: dict[str, str] | None = None,
@@ -62,7 +62,7 @@ def scrape_replay(
     logger.info("scrape_started", url=url, replay_id=replay_id)
 
     try:
-        result = solve_turnstile(url, site_key)
+        result = solve_turnstile(api_key, url, site_key)
     except CapsolverError as exc:
         raise CaptchaError(str(exc)) from exc
 

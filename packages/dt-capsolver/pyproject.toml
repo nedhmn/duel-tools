@@ -7,7 +7,6 @@ dependencies = [
     "capsolver>=1.0.7",
     "logger",
     "pydantic>=2.12.5",
-    "pydantic-settings>=2.12.0",
 ]
 
 

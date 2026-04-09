@@ -6,7 +6,6 @@ import capsolver  # type: ignore
 
 from logger import get_logger
 
-from dt_capsolver.config import settings
 from dt_capsolver.exceptions import CaptchaError
 from dt_capsolver.models import CaptchaSolution
 
@@ -20,10 +19,10 @@ def _load_task_config() -> dict[str, Any]:
         return json.load(f)
 
 
-def solve_recaptcha_v2(url: str, site_key: str) -> CaptchaSolution:
+def solve_recaptcha_v2(api_key: str, url: str, site_key: str) -> CaptchaSolution:
     logger.info("recaptcha_v2_solving_started", url=url)
 
-    capsolver.api_key = settings.CAPSOLVER_API_KEY
+    capsolver.api_key = api_key
 
     task = _load_task_config()
     task["websiteURL"] = url
