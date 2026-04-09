@@ -4,9 +4,8 @@ from collections.abc import AsyncGenerator
 from fastapi import Header, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.session import create_async_session_factory
-
 from app.core.config import settings
+from dt_db.session import create_async_session_factory
 
 
 def verify_auth(x_auth_password: str | None = Header(default=None)) -> None:

@@ -2,15 +2,14 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from db.models import Job, JobStatus, Replay
-from db.session import create_sync_session_factory
-from logger import get_logger
-from parser import parse_replay
-from scraper import CaptchaError, ScraperError, extract_replay_id, scrape_replay
-
 from app.core.config import settings
 from app.worker.celery_app import celery_app
 from app.worker.services import ensure_replay_parsed, extract_players
+from dt_db.models import Job, JobStatus, Replay
+from dt_db.session import create_sync_session_factory
+from dt_logger import get_logger
+from dt_parser import parse_replay
+from dt_scraper import CaptchaError, ScraperError, extract_replay_id, scrape_replay
 
 logger = get_logger(__name__)
 

@@ -3,12 +3,10 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from logger import get_logger
-from scraper import extract_replay_id, scrape_replay
-
 from cron.config import settings
-
 from cron.db import seed_replay
+from dt_logger import get_logger
+from dt_scraper import extract_replay_id, scrape_replay
 
 logger = get_logger(__name__)
 

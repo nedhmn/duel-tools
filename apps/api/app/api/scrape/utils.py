@@ -1,6 +1,5 @@
-from db.models import Job, JobStatus
-
 from app.api.scrape.models import JobResponse
+from dt_db.models import Job, JobStatus
 
 
 def compute_batch_status(jobs: list[Job]) -> str:

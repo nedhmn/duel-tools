@@ -1,9 +1,6 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from logger import get_logger
-from scraper import extract_replay_id
-from scraper.exceptions import ScraperError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -16,7 +13,10 @@ from app.api.scrape.models import (
 )
 from app.api.scrape.utils import compute_batch_status, job_to_response
 from app.worker.tasks import scrape_replay_task
-from db.models import Batch, Job, JobStatus
+from dt_db.models import Batch, Job, JobStatus
+from dt_logger import get_logger
+from dt_scraper import extract_replay_id
+from dt_scraper.exceptions import ScraperError
 
 logger = get_logger(__name__)
 

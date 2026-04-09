@@ -39,7 +39,7 @@ services:
 
   migrate:
     <<: *app
-    command: alembic -c /app/packages/db/alembic.ini upgrade head
+    command: alembic -c /app/packages/dt-db/alembic.ini upgrade head
     restart: "no"
     depends_on:
       postgres:

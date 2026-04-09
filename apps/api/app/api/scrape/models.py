@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from db.models import JobStatus
+from dt_db.models import JobStatus
 
 
 class ScrapeRequest(BaseModel):

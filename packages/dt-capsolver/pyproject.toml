@@ -5,7 +5,7 @@ description = "Capsolver wrapper for solving CAPTCHAs (Turnstile, reCAPTCHA v2)"
 requires-python = ">=3.13"
 dependencies = [
     "capsolver>=1.0.7",
-    "logger",
+    "dt-logger",
     "pydantic>=2.12.5",
 ]
 
@@ -15,4 +15,4 @@ requires = ["uv_build>=0.9.27,<0.10.0"]
 build-backend = "uv_build"
 
 [tool.uv.sources]
-logger = { workspace = true }
+dt-logger = { workspace = true }

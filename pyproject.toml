@@ -7,33 +7,33 @@ requires-python = ">=3.13"
 dependencies = [
     "api",
     "cron",
-    "db",
+    "dt-db",
     "dt-capsolver",
-    "logger",
-    "parser",
-    "scraper",
-    "seeder",
+    "dt-logger",
+    "dt-parser",
+    "dt-scraper",
+    "dt-seeder",
 ]
 
 [tool.uv.workspace]
 members = [
     "apps/api",
-    "packages/db",
-    "packages/logger",
-    "packages/parser",
-    "packages/scraper",
-    "packages/seeder",
+    "packages/dt-db",
+    "packages/dt-logger",
+    "packages/dt-parser",
+    "packages/dt-scraper",
+    "packages/dt-seeder",
     "apps/cron",
     "packages/dt-capsolver",
 ]
 
 [tool.uv.sources]
 api = { workspace = true }
-db = { workspace = true }
-logger = { workspace = true }
-parser = { workspace = true }
-scraper = { workspace = true }
-seeder = { workspace = true }
+dt-db = { workspace = true }
+dt-logger = { workspace = true }
+dt-parser = { workspace = true }
+dt-scraper = { workspace = true }
+dt-seeder = { workspace = true }
 cron = { workspace = true }
 dt-capsolver = { workspace = true }
 
@@ -45,6 +45,9 @@ dev = [
 
 [tool.uv]
 cache-dir = ".cache"
+
+[tool.ruff.lint.isort]
+known-first-party = ["dt_db", "dt_logger", "dt_parser", "dt_scraper", "dt_seeder", "dt_capsolver"]
 
 [tool.ty.src]
 exclude = [".cache", "**/tests"]
