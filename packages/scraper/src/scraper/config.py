@@ -10,7 +10,6 @@ class ScraperSettings(BaseSettings):
         extra="ignore",
     )
 
-    CAPSOLVER_API_KEY: str = Field(...)
     SITE_KEY: str = Field(...)
 
     DB_USERNAME: str | None = Field(default=None)

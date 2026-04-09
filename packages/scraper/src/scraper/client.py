@@ -1,63 +1,14 @@
-import json
-from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
-import capsolver  # type: ignore
 import httpx
 
+from dt_capsolver import CaptchaError as CapsolverError
+from dt_capsolver import solve_turnstile
 from logger import get_logger
 from scraper.exceptions import CaptchaError, ScraperError
 
 logger = get_logger(__name__)
-
-_TASK_CONFIG_PATH = Path(__file__).parent / "capsolver_task.json"
-
-
-def _load_task_config() -> dict[str, Any]:
-    with open(_TASK_CONFIG_PATH) as f:
-        return json.load(f)
-
-
-def _solve_captcha(url: str, api_key: str, site_key: str) -> dict[str, Any]:
-    logger.info("captcha_solving_started", url=url)
-
-    capsolver.api_key = api_key
-
-    task = _load_task_config()
-    task["websiteURL"] = url
-    task["websiteKey"] = site_key
-
-    try:
-        solution = capsolver.solve(task)
-    except Exception as exc:
-        logger.error("captcha_failed", url=url, error=str(exc))
-        raise CaptchaError(f"Capsolver failed: {exc}") from exc
-
-    token = solution.get("gRecaptchaResponse")
-    if not token:
-        logger.error("captcha_no_token", url=url, solution=solution)
-        raise CaptchaError("Capsolver returned no token")
-
-    cookies = {}
-    if solution.get("recaptcha-ca-t"):
-        cookies["recaptcha-ca-t"] = solution["recaptcha-ca-t"]
-    if solution.get("recaptcha-ca-e"):
-        cookies["recaptcha-ca-e"] = solution["recaptcha-ca-e"]
-
-    logger.info(
-        "captcha_solved",
-        url=url,
-        user_agent=solution.get("userAgent"),
-        sec_ch_ua=solution.get("secChUa"),
-        has_cookies=bool(cookies),
-    )
-    return {
-        "token": token,
-        "user_agent": solution.get("userAgent"),
-        "sec_ch_ua": solution.get("secChUa"),
-        "cookies": cookies or None,
-    }
 
 
 def extract_replay_id(url: str) -> int:
@@ -104,47 +55,38 @@ def extract_replay_id(url: str) -> int:
 def scrape_replay(
     url: str,
     replay_id: int,
-    api_key: str,
     site_key: str,
     timeout: float = 30.0,
     auth_cookies: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     logger.info("scrape_started", url=url, replay_id=replay_id)
 
-    result = _solve_captcha(url, api_key, site_key)
-    token = result["token"]
-    user_agent = result.get("user_agent")
-    sec_ch_ua = result.get("sec_ch_ua")
-    captcha_cookies = result.get("cookies")
-
-    cookies: dict[str, str] = {}
-    if auth_cookies:
-        cookies.update(auth_cookies)
-    if captcha_cookies:
-        cookies.update(captcha_cookies)
+    try:
+        result = solve_turnstile(url, site_key)
+    except CapsolverError as exc:
+        raise CaptchaError(str(exc)) from exc
 
     data_url = f"https://www.duelingbook.com/view-replay?id={replay_id}"
-    form_data = {"token": token, "recaptcha_version": 1, "master": False}
+    form_data: dict[str, Any] = {
+        "token": result.token,
+        "turnstile": True,
+        "master": False,
+    }
 
     headers = {}
-    if user_agent:
-        headers["User-Agent"] = user_agent
-    if sec_ch_ua:
-        headers["Sec-Ch-Ua"] = sec_ch_ua
-
-    if headers:
-        logger.debug("using_solver_headers", user_agent=user_agent, sec_ch_ua=sec_ch_ua)
+    if result.user_agent:
+        headers["User-Agent"] = result.user_agent
 
     logger.debug(
         "posting_to_duelingbook",
         data_url=data_url,
         replay_id=replay_id,
-        has_cookies=bool(cookies),
+        has_cookies=bool(auth_cookies),
     )
 
     try:
         with httpx.Client(
-            timeout=timeout, headers=headers, cookies=cookies or None
+            timeout=timeout, headers=headers, cookies=auth_cookies or None
         ) as client:
             response = client.post(url=data_url, data=form_data)
             response.raise_for_status()

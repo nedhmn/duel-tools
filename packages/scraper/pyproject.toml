@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "capsolver>=1.0.7",
+    "dt-capsolver",
     "httpx>=0.28.1",
     "logger",
     "pydantic>=2.12.5",
@@ -23,6 +23,7 @@ artifacts = ["*.json"]
 
 [tool.uv.sources]
 logger = { workspace = true }
+dt-capsolver = { workspace = true }
 
 [tool.ty.environment]
 python-version = "3.13"

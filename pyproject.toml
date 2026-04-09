@@ -8,6 +8,7 @@ dependencies = [
     "api",
     "cron",
     "db",
+    "dt-capsolver",
     "logger",
     "parser",
     "scraper",
@@ -23,6 +24,7 @@ members = [
     "packages/scraper",
     "packages/seeder",
     "apps/cron",
+    "packages/dt-capsolver",
 ]
 
 [tool.uv.sources]
@@ -33,6 +35,7 @@ parser = { workspace = true }
 scraper = { workspace = true }
 seeder = { workspace = true }
 cron = { workspace = true }
+dt-capsolver = { workspace = true }
 
 [dependency-groups]
 dev = [

@@ -25,10 +25,9 @@ async def process_replay(
             scrape_replay,
             url,
             replay_id,
-            scraper_settings.CAPSOLVER_API_KEY,
-            scraper_settings.SITE_KEY,
-            30.0,
-            scraper_settings.auth_cookies,
+            site_key=scraper_settings.SITE_KEY,
+            timeout=30.0,
+            auth_cookies=scraper_settings.auth_cookies,
         )
 
         await seed_replay(session_factory, duelingbook_id, raw_json)

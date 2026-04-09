@@ -31,8 +31,7 @@ def main() -> None:
         result = scrape_replay(
             url,
             replay_id,
-            settings.CAPSOLVER_API_KEY,
-            settings.SITE_KEY,
+            site_key=settings.SITE_KEY,
             auth_cookies=settings.auth_cookies,
         )
         print(json.dumps(result, indent=2))

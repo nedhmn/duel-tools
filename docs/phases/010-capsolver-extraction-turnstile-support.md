@@ -10,15 +10,17 @@ description: "Extract capsolver logic into a standalone package and migrate from
 
 ## Tasks
 
-> Preliminary — these tasks will be refined during planning and updated to reflect what was actually implemented.
-
-- [ ] Create `packages/dt_capsolver` package scaffold (pyproject.toml, config, exceptions)
-- [ ] Implement turnstile solver (`AntiTurnstileTaskProxyLess` via capsolver SDK)
-- [ ] Move existing reCAPTCHA v2 logic into `dt_capsolver/recaptcha_v2/`
-- [ ] Update `packages/scraper` to depend on `dt_capsolver` and call `solve_turnstile()`
-- [ ] Remove capsolver-specific code from scraper (task JSON, `_solve_captcha()`, `CaptchaError`)
-- [ ] Update `apps/api` and `apps/cron` imports (`CaptchaError` → `dt_capsolver`)
-- [ ] Resolve open items: extract Turnstile sitekey, check metadata, confirm `/view-replay` form data
+- [x] Update CLAUDE.md with `uv init` convention for new packages
+- [x] Scaffold `packages/dt-capsolver` via `uv init --package`
+- [x] Implement `dt_capsolver` config, exceptions, turnstile solver, recaptcha_v2 solver
+- [x] Move `capsolver_task.json` from scraper to `dt_capsolver/recaptcha_v2/task.json`
+- [x] Swap scraper dep: `capsolver` pip → `dt-capsolver` workspace
+- [x] Rewrite `scraper/client.py` to use `solve_turnstile()`, update form data (`turnstile: True`)
+- [x] Remove `CAPSOLVER_API_KEY` from scraper config
+- [x] Remove `CaptchaError` from scraper exceptions and exports
+- [x] Update `apps/api` worker task imports (`CaptchaError` from `dt_capsolver`)
+- [x] Update `apps/cron` pipeline to use new `scrape_replay()` signature
+- [x] Update scraper script imports and call signature
 
 ## References
 
