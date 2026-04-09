@@ -49,16 +49,6 @@ cd packages/dt-db && make migrate       # init database
 - **Worker**: `cd apps/api && make worker`
 - **Frontend**: `cd apps/web && pnpm dev`
 
-### Commands
-
-| Command              | Description                   |
-| -------------------- | ----------------------------- |
-| `make check`         | Lint + type check (ruff + ty) |
-| `make fix`           | Auto-fix + format             |
-| `make fix-and-check` | Fix then check                |
-| `make migrate`       | Run database migrations       |
-| `make clean`         | Remove build artifacts        |
-
 ## Docs
 
 | Guide                                         | Description           |
