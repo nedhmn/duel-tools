@@ -4,11 +4,13 @@
 
 - No comments, no docstrings, no module docstrings
 - Code should be self-documenting through clear naming
+- Pydantic models: every field must use `Field()` — `Field(...)` for required, `Field(default=...)` for optional
 
 ## Dependencies
 
-- **NEVER** edit `pyproject.toml` or `package.json` dependency sections directly
-- Python: always use `uv add` / `uv remove` (use `--dev` for dev dependencies)
+- **NEVER** edit `pyproject.toml` or `package.json` directly for dependencies or package setup
+- New Python packages: always scaffold with `uv init` (use `--package` for library packages)
+- Python deps: always use `uv add` / `uv remove` (use `--dev` for dev dependencies)
 - Frontend: always use `pnpm add` / `pnpm remove`
 
 ## Validation

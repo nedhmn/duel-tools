@@ -7,6 +7,7 @@ members = [
     "api",
     "cron",
     "db",
+    "dt-capsolver",
     "duel-tools",
     "logger",
     "parser",
@@ -548,6 +549,23 @@ wheels = [
 ]
 
 [[package]]
+name = "dt-capsolver"
+version = "0.1.0"
+source = { editable = "packages/dt-capsolver" }
+dependencies = [
+    { name = "capsolver" },
+    { name = "logger" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "capsolver", specifier = ">=1.0.7" },
+    { name = "logger", editable = "packages/logger" },
+    { name = "pydantic", specifier = ">=2.12.5" },
+]
+
+[[package]]
 name = "duel-tools"
 version = "0.1.0"
 source = { virtual = "." }
@@ -555,6 +573,7 @@ dependencies = [
     { name = "api" },
     { name = "cron" },
     { name = "db" },
+    { name = "dt-capsolver" },
     { name = "logger" },
     { name = "parser" },
     { name = "scraper" },
@@ -572,6 +591,7 @@ requires-dist = [
     { name = "api", editable = "apps/api" },
     { name = "cron", editable = "apps/cron" },
     { name = "db", editable = "packages/db" },
+    { name = "dt-capsolver", editable = "packages/dt-capsolver" },
     { name = "logger", editable = "packages/logger" },
     { name = "parser", editable = "packages/parser" },
     { name = "scraper", editable = "packages/scraper" },
@@ -1729,7 +1749,7 @@ name = "scraper"
 version = "0.1.0"
 source = { editable = "packages/scraper" }
 dependencies = [
-    { name = "capsolver" },
+    { name = "dt-capsolver" },
     { name = "httpx" },
     { name = "logger" },
     { name = "pydantic" },
@@ -1738,7 +1758,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "capsolver", specifier = ">=1.0.7" },
+    { name = "dt-capsolver", editable = "packages/dt-capsolver" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "logger", editable = "packages/logger" },
     { name = "pydantic", specifier = ">=2.12.5" },

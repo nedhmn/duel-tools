@@ -50,31 +50,31 @@ API and Worker share `apps/api/Dockerfile`. Cron uses `apps/cron/Dockerfile`. Al
 
 Shared by API and Worker:
 
-| Variable            | Source            | Description                                     |
-| ------------------- | ----------------- | ----------------------------------------------- |
-| `DATABASE_URL`      | PostgreSQL plugin | Auto-provided connection string                 |
-| `REDIS_URL`         | Redis plugin      | Auto-provided connection string                 |
-| `PORT`              | Railway           | Auto-injected, used by API only (`fastapi run`) |
-| `AUTH_PASSWORD`     | Manual            | App access password                             |
-| `CAPSOLVER_API_KEY` | Manual            | CapSolver API key for captcha solving           |
-| `SITE_KEY`          | Manual            | DuelingBook reCAPTCHA site key                  |
-| `DB_USERNAME`       | Manual            | DuelingBook account username                    |
-| `DB_PASSWORD`       | Manual            | DuelingBook account password                    |
-| `DB_ID`             | Manual            | DuelingBook account ID                          |
-| `DB_REGULAR`        | Manual            | DuelingBook account type (default: "not")       |
+| Variable             | Source            | Description                                     |
+| -------------------- | ----------------- | ----------------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL plugin | Auto-provided connection string                 |
+| `REDIS_URL`          | Redis plugin      | Auto-provided connection string                 |
+| `PORT`               | Railway           | Auto-injected, used by API only (`fastapi run`) |
+| `AUTH_PASSWORD`      | Manual            | App access password                             |
+| `CAPSOLVER_API_KEY`  | Manual            | CapSolver API key for captcha solving           |
+| `TURNSTILE_SITE_KEY` | Manual            | DuelingBook Turnstile site key                  |
+| `DB_USERNAME`        | Manual            | DuelingBook account username                    |
+| `DB_PASSWORD`        | Manual            | DuelingBook account password                    |
+| `DB_ID`              | Manual            | DuelingBook account ID                          |
+| `DB_REGULAR`         | Manual            | DuelingBook account type (default: "not")       |
 
 Cron-only:
 
-| Variable            | Source            | Description                               |
-| ------------------- | ----------------- | ----------------------------------------- |
-| `DATABASE_URL`      | PostgreSQL plugin | Auto-provided connection string           |
-| `FL_TOKEN`          | Manual            | FormLibrary API bearer token              |
-| `CAPSOLVER_API_KEY` | Manual            | CapSolver API key for captcha solving     |
-| `SITE_KEY`          | Manual            | DuelingBook reCAPTCHA site key            |
-| `DB_USERNAME`       | Manual            | DuelingBook account username              |
-| `DB_PASSWORD`       | Manual            | DuelingBook account password              |
-| `DB_ID`             | Manual            | DuelingBook account ID                    |
-| `DB_REGULAR`        | Manual            | DuelingBook account type (default: "not") |
+| Variable             | Source            | Description                               |
+| -------------------- | ----------------- | ----------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL plugin | Auto-provided connection string           |
+| `FL_TOKEN`           | Manual            | FormLibrary API bearer token              |
+| `CAPSOLVER_API_KEY`  | Manual            | CapSolver API key for captcha solving     |
+| `TURNSTILE_SITE_KEY` | Manual            | DuelingBook Turnstile site key            |
+| `DB_USERNAME`        | Manual            | DuelingBook account username              |
+| `DB_PASSWORD`        | Manual            | DuelingBook account password              |
+| `DB_ID`              | Manual            | DuelingBook account ID                    |
+| `DB_REGULAR`         | Manual            | DuelingBook account type (default: "not") |
 
 ## GitHub Secrets
 

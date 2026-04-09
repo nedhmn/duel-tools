@@ -85,17 +85,17 @@ Run from the repo root:
 
 Edit `apps/api/.env`:
 
-| Variable            | Description                    | Required |
-| ------------------- | ------------------------------ | -------- |
-| `DATABASE_URL`      | PostgreSQL connection string   | No       |
-| `REDIS_URL`         | Redis connection string        | No       |
-| `AUTH_PASSWORD`     | App access password            | Yes      |
-| `CAPSOLVER_API_KEY` | CapSolver API key              | Yes      |
-| `SITE_KEY`          | DuelingBook reCAPTCHA site key | Yes      |
-| `DB_USERNAME`       | DuelingBook account username   | Yes      |
-| `DB_PASSWORD`       | DuelingBook account password   | Yes      |
-| `DB_ID`             | DuelingBook account ID         | Yes      |
-| `DB_REGULAR`        | DuelingBook account type       | No       |
+| Variable             | Description                    | Required |
+| -------------------- | ------------------------------ | -------- |
+| `DATABASE_URL`       | PostgreSQL connection string   | No       |
+| `REDIS_URL`          | Redis connection string        | No       |
+| `AUTH_PASSWORD`      | App access password            | Yes      |
+| `CAPSOLVER_API_KEY`  | CapSolver API key              | Yes      |
+| `TURNSTILE_SITE_KEY` | DuelingBook Turnstile site key | Yes      |
+| `DB_USERNAME`        | DuelingBook account username   | Yes      |
+| `DB_PASSWORD`        | DuelingBook account password   | Yes      |
+| `DB_ID`              | DuelingBook account ID         | Yes      |
+| `DB_REGULAR`         | DuelingBook account type       | No       |
 
 `DATABASE_URL` and `REDIS_URL` have defaults pointing to local Docker services.
 
@@ -150,17 +150,17 @@ The backend must be running first.
 
 Edit `apps/cron/.env`:
 
-| Variable            | Description                               | Required |
-| ------------------- | ----------------------------------------- | -------- |
-| `DATABASE_URL`      | PostgreSQL connection string              | Yes      |
-| `FL_TOKEN`          | FormLibrary API bearer token              | Yes      |
-| `CAPSOLVER_API_KEY` | CapSolver API key                         | Yes      |
-| `SITE_KEY`          | DuelingBook reCAPTCHA site key            | Yes      |
-| `DB_USERNAME`       | DuelingBook account username              | Yes      |
-| `DB_PASSWORD`       | DuelingBook account password              | Yes      |
-| `DB_ID`             | DuelingBook account ID                    | Yes      |
-| `DB_REGULAR`        | DuelingBook account type                  | No       |
-| `SYNC_CONCURRENCY`  | Max concurrent scrape tasks (default: 20) | No       |
+| Variable             | Description                               | Required |
+| -------------------- | ----------------------------------------- | -------- |
+| `DATABASE_URL`       | PostgreSQL connection string              | Yes      |
+| `FL_TOKEN`           | FormLibrary API bearer token              | Yes      |
+| `CAPSOLVER_API_KEY`  | CapSolver API key                         | Yes      |
+| `TURNSTILE_SITE_KEY` | DuelingBook Turnstile site key            | Yes      |
+| `DB_USERNAME`        | DuelingBook account username              | Yes      |
+| `DB_PASSWORD`        | DuelingBook account password              | Yes      |
+| `DB_ID`              | DuelingBook account ID                    | Yes      |
+| `DB_REGULAR`         | DuelingBook account type                  | No       |
+| `SYNC_CONCURRENCY`   | Max concurrent scrape tasks (default: 20) | No       |
 
 ### Running
 

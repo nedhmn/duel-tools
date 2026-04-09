@@ -4,7 +4,9 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from logger import get_logger
-from scraper import extract_replay_id, scrape_replay, settings as scraper_settings
+from scraper import extract_replay_id, scrape_replay
+
+from cron.config import settings
 
 from cron.db import seed_replay
 
@@ -25,10 +27,10 @@ async def process_replay(
             scrape_replay,
             url,
             replay_id,
-            scraper_settings.CAPSOLVER_API_KEY,
-            scraper_settings.SITE_KEY,
-            30.0,
-            scraper_settings.auth_cookies,
+            api_key=settings.CAPSOLVER_API_KEY,
+            site_key=settings.TURNSTILE_SITE_KEY,
+            timeout=30.0,
+            auth_cookies=settings.auth_cookies,
         )
 
         await seed_replay(session_factory, duelingbook_id, raw_json)

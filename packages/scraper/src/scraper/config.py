@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -10,8 +12,12 @@ class ScraperSettings(BaseSettings):
         extra="ignore",
     )
 
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
+        default="INFO"
+    )
+
     CAPSOLVER_API_KEY: str = Field(...)
-    SITE_KEY: str = Field(...)
+    TURNSTILE_SITE_KEY: str = Field(...)
 
     DB_USERNAME: str | None = Field(default=None)
     DB_PASSWORD: str | None = Field(default=None)

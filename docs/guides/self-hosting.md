@@ -24,24 +24,23 @@ Run duel-tools on your own server with Docker Compose.
 | Tool      | Purpose           | Sign Up                                    |
 | --------- | ----------------- | ------------------------------------------ |
 | Docker    | Container runtime | [docker.com](https://www.docker.com)       |
-| CapSolver | reCAPTCHA solving | [capsolver.com](https://www.capsolver.com) |
+| CapSolver | Captcha solving   | [capsolver.com](https://www.capsolver.com) |
 
 > **Note:** CapSolver costs roughly **~$1 per 1,000 replays** scraped. Start with a small top-up (e.g. $2–5) to test, and keep that rate in mind when adding funds.
 
 ## Environment Variables
 
-| Variable            | Description                    | Required | Source                                                                                                            |
-| ------------------- | ------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
-| `POSTGRES_PASSWORD` | PostgreSQL password            | Yes      | Choose a secure password                                                                                          |
-| `CAPSOLVER_API_KEY` | CapSolver API key              | Yes      | [CapSolver dashboard](https://dashboard.capsolver.com)                                                            |
-| `SITE_KEY`          | DuelingBook reCAPTCHA site key | Yes      | Default in `.env.example` as of Mar 2026; may change — see [DuelingBook service docs](../services/duelingbook.md) |
-| `DB_USERNAME`       | DuelingBook `username` cookie  | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
-| `DB_PASSWORD`       | DuelingBook `password` cookie  | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
-| `DB_ID`             | DuelingBook `db_id` cookie     | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
-| `DB_REGULAR`        | DuelingBook `regular` cookie   | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
-| `PORT`              | API port (default: 8000)       | No       | —                                                                                                                 |
-| `DOZZLE_PORT`       | Dozzle port (default: 9999)    | No       | —                                                                                                                 |
-| `LOG_LEVEL`         | Log level (default: INFO)      | No       | —                                                                                                                 |
+| Variable             | Description                    | Required | Source                                                                                                            |
+| -------------------- | ------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `POSTGRES_PASSWORD`  | PostgreSQL password            | Yes      | Choose a secure password                                                                                          |
+| `CAPSOLVER_API_KEY`  | CapSolver API key              | Yes      | [CapSolver dashboard](https://dashboard.capsolver.com)                                                            |
+| `TURNSTILE_SITE_KEY` | DuelingBook Turnstile site key | Yes      | Default in `.env.example` as of Apr 2026; may change — see [DuelingBook service docs](../services/duelingbook.md) |
+| `DB_USERNAME`        | DuelingBook `username` cookie  | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
+| `DB_PASSWORD`        | DuelingBook `password` cookie  | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
+| `DB_ID`              | DuelingBook `db_id` cookie     | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
+| `DB_REGULAR`         | DuelingBook `regular` cookie   | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
+| `PORT`               | API port (default: 8000)       | No       | —                                                                                                                 |
+| `LOG_LEVEL`          | Log level (default: INFO)      | No       | —                                                                                                                 |
 
 ## Quick Start
 
@@ -67,9 +66,7 @@ The API runs on `http://localhost:8000` (or your configured `PORT`). Database mi
 
 ## Logs
 
-Dozzle provides a web UI for viewing container logs at `http://localhost:9999` (or your configured `DOZZLE_PORT`).
-
-You can also query the database directly using the SQL query feature in the app.
+View container logs with `docker compose -f docker-compose.prod.yml logs -f`.
 
 ## Updating
 

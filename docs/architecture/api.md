@@ -114,7 +114,7 @@ The `scrape_replay_task` Celery task processes one replay URL per job with autom
 | ---- | -------------------------------------------------------------------------- |
 | 1    | Mark job as PROCESSING                                                     |
 | 2    | Check if replay exists in DB (cache hit) — if so, reuse and mark COMPLETED |
-| 3    | Scrape from DuelingBook (solve captcha via CapSolver)                      |
+| 3    | Scrape from DuelingBook (solve Turnstile via CapSolver)                    |
 | 4    | Parse raw JSON for `match_result`, `played_at`, `format`                   |
 | 5    | Create Replay, Player, ReplayPlayer records                                |
 | 6    | Mark job COMPLETED (or FAILED on final failure)                            |

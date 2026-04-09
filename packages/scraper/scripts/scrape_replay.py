@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import json
-import os
 import sys
 
 from logger import setup_logging
@@ -23,16 +22,15 @@ def main() -> None:
 
     url = sys.argv[1]
 
-    log_level = os.environ.get("LOG_LEVEL", "INFO")
-    setup_logging(log_level)  # type: ignore
+    setup_logging(settings.LOG_LEVEL)
 
     try:
         replay_id = extract_replay_id(url)
         result = scrape_replay(
             url,
             replay_id,
-            settings.CAPSOLVER_API_KEY,
-            settings.SITE_KEY,
+            api_key=settings.CAPSOLVER_API_KEY,
+            site_key=settings.TURNSTILE_SITE_KEY,
             auth_cookies=settings.auth_cookies,
         )
         print(json.dumps(result, indent=2))
