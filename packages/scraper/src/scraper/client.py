@@ -1,54 +1,13 @@
 from typing import Any
-from urllib.parse import parse_qs, urlparse
 
 import httpx
 
 from dt_capsolver import CaptchaError as CapsolverError, solve_turnstile
 from logger import get_logger
 from scraper.exceptions import CaptchaError, ScraperError
+from scraper.models import ViewReplayFormData
 
 logger = get_logger(__name__)
-
-
-def extract_replay_id(url: str) -> int:
-    logger.debug("extracting_replay_id", url=url)
-
-    # Normalize URL: ensure https:// scheme
-    if not url.startswith(("http://", "https://")):
-        url = f"https://{url}"
-
-    try:
-        parsed = urlparse(url)
-    except Exception as exc:
-        logger.error("url_parse_failed", url=url, error=str(exc))
-        raise ScraperError(f"Invalid URL format: {url}") from exc
-
-    if "duelingbook.com" not in parsed.netloc:
-        logger.error("invalid_domain", url=url, netloc=parsed.netloc)
-        raise ScraperError(f"URL must be from duelingbook.com: {url}")
-
-    if parsed.path != "/replay":
-        logger.error("invalid_path", url=url, path=parsed.path)
-        raise ScraperError(f"URL path must be /replay: {url}")
-
-    query_params = parse_qs(parsed.query)
-    if "id" not in query_params:
-        logger.error("missing_id_param", url=url)
-        raise ScraperError(f"URL must contain 'id' query parameter: {url}")
-
-    id_value = query_params["id"][0]
-
-    if "-" in id_value:
-        id_value = id_value.split("-")[-1]
-
-    try:
-        replay_id = int(id_value)
-    except ValueError as exc:
-        logger.error("invalid_replay_id", url=url, id_value=id_value)
-        raise ScraperError(f"Invalid replay ID format: {id_value}") from exc
-
-    logger.info("replay_id_extracted", url=url, replay_id=replay_id)
-    return replay_id
 
 
 def scrape_replay(
@@ -67,11 +26,7 @@ def scrape_replay(
         raise CaptchaError(str(exc)) from exc
 
     data_url = f"https://www.duelingbook.com/view-replay?id={replay_id}"
-    form_data: dict[str, Any] = {
-        "token": result.token,
-        "turnstile": True,
-        "master": False,
-    }
+    form_data = ViewReplayFormData(token=result.token)
 
     headers = {}
     if result.user_agent:
@@ -88,7 +43,7 @@ def scrape_replay(
         with httpx.Client(
             timeout=timeout, headers=headers, cookies=auth_cookies or None
         ) as client:
-            response = client.post(url=data_url, data=form_data)
+            response = client.post(url=data_url, data=form_data.model_dump())
             response.raise_for_status()
             data = response.json()
     except httpx.HTTPStatusError as exc:

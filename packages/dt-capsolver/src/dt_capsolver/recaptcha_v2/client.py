@@ -1,22 +1,21 @@
 import json
 from pathlib import Path
-from typing import Any
 
 import capsolver  # type: ignore
 
 from logger import get_logger
 
 from dt_capsolver.exceptions import CaptchaError
-from dt_capsolver.models import CaptchaSolution
+from dt_capsolver.models import CaptchaSolution, RecaptchaV2Task
 
 logger = get_logger(__name__)
 
 _TASK_CONFIG_PATH = Path(__file__).parent / "task.json"
 
 
-def _load_task_config() -> dict[str, Any]:
+def _load_task_config() -> RecaptchaV2Task:
     with open(_TASK_CONFIG_PATH) as f:
-        return json.load(f)
+        return RecaptchaV2Task.model_validate(json.load(f))
 
 
 def solve_recaptcha_v2(api_key: str, url: str, site_key: str) -> CaptchaSolution:
@@ -25,11 +24,11 @@ def solve_recaptcha_v2(api_key: str, url: str, site_key: str) -> CaptchaSolution
     capsolver.api_key = api_key
 
     task = _load_task_config()
-    task["websiteURL"] = url
-    task["websiteKey"] = site_key
+    task.websiteURL = url
+    task.websiteKey = site_key
 
     try:
-        solution = capsolver.solve(task)
+        solution = capsolver.solve(task.model_dump())
     except Exception as exc:
         logger.error("recaptcha_v2_failed", url=url, error=str(exc))
         raise CaptchaError(f"Capsolver failed: {exc}") from exc

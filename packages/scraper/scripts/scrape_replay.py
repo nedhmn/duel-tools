@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import json
-import os
 import sys
 
 from logger import setup_logging
@@ -23,8 +22,7 @@ def main() -> None:
 
     url = sys.argv[1]
 
-    log_level = os.environ.get("LOG_LEVEL", "INFO")
-    setup_logging(log_level)  # type: ignore
+    setup_logging(settings.LOG_LEVEL)
 
     try:
         replay_id = extract_replay_id(url)
