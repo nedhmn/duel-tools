@@ -1,4 +1,4 @@
-import capsolver  # type: ignore
+import capsolver
 
 from dt_capsolver.exceptions import CaptchaError
 from dt_capsolver.models import CaptchaSolution, TurnstileTask
