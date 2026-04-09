@@ -11,7 +11,7 @@ cp .env.example .env   # fill in required values
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-App runs at `http://localhost:8000`. Logs at `http://localhost:9999` (Dozzle).
+App runs at `http://localhost:8000`.
 
 See the [Self-Hosting guide](./docs/guides/self-hosting.md) for environment variable details.
 

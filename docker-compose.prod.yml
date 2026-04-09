@@ -68,15 +68,6 @@ services:
       redis:
         condition: service_healthy
 
-  dozzle:
-    image: amir20/dozzle:latest
-    ports:
-      - "${DOZZLE_PORT:-9999}:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      DOZZLE_FILTER: "label=com.docker.compose.project=${COMPOSE_PROJECT_NAME}"
-    restart: unless-stopped
 
 volumes:
   postgres_data:

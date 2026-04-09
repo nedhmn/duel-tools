@@ -40,7 +40,6 @@ Run duel-tools on your own server with Docker Compose.
 | `DB_ID`              | DuelingBook `db_id` cookie     | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
 | `DB_REGULAR`         | DuelingBook `regular` cookie   | No       | [How to find](../services/duelingbook.md#finding-your-cookie-values)                                              |
 | `PORT`               | API port (default: 8000)       | No       | —                                                                                                                 |
-| `DOZZLE_PORT`        | Dozzle port (default: 9999)    | No       | —                                                                                                                 |
 | `LOG_LEVEL`          | Log level (default: INFO)      | No       | —                                                                                                                 |
 
 ## Quick Start
@@ -67,9 +66,7 @@ The API runs on `http://localhost:8000` (or your configured `PORT`). Database mi
 
 ## Logs
 
-Dozzle provides a web UI for viewing container logs at `http://localhost:9999` (or your configured `DOZZLE_PORT`).
-
-You can also query the database directly using the SQL query feature in the app.
+View container logs with `docker compose -f docker-compose.prod.yml logs -f`.
 
 ## Updating
 
