@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = Field(
         default="postgresql://duel_tools:duel_tools@localhost:5437/duel_tools"
     )
+    
 
     @cached_property
     def ASYNC_DATABASE_URL(self) -> str:
